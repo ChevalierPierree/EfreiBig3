@@ -1,1011 +1,332 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPI Transfert - KiVendTout</title>
-    <link rel="stylesheet" href="dashboard_theme.css">
-    <style>
-        .readable-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .readable-card {
-            padding: 18px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .readable-card h3 {
-            margin-bottom: 8px;
-            font-size: 0.76rem;
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--ink-640);
-        }
-
-        .readable-card strong {
-            display: block;
-            margin-bottom: 8px;
-            font-family: var(--font-display);
-            font-size: 1.36rem;
-            line-height: 1.02;
-            color: var(--ink-950);
-        }
-
-        .readable-card p {
-            color: var(--ink-760);
-            line-height: 1.5;
-        }
-
-        .insight-panel {
-            display: grid;
-            grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-            gap: 18px;
-            margin-bottom: 20px;
-        }
-
-        .command-box {
-            padding: 24px;
-            border-radius: 24px;
-            background: linear-gradient(160deg, rgba(22, 48, 71, 0.98), rgba(15, 92, 97, 0.94));
-            box-shadow: var(--shadow-lg);
-            color: #fff;
-        }
-
-        .command-box h3 {
-            margin-bottom: 10px;
-            font-size: 1.15rem;
-        }
-
-        .command-box p {
-            line-height: 1.55;
-            margin-bottom: 12px;
-        }
-
-        .command-box code {
-            display: inline-block;
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.14);
-            font-family: var(--font-mono);
-        }
-
-        .run-toolbar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 16px 0 14px;
-        }
-
-        .run-grid {
-            display: grid;
-            gap: 10px;
-        }
-
-        .run-card {
-            padding: 12px 14px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-        }
-
-        .run-card strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            letter-spacing: 0.02em;
-        }
-
-        .run-card p {
-            margin: 0;
-            font-size: 0.92rem;
-        }
-
-        .run-log {
-            display: grid;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .run-log-line {
-            padding: 10px 12px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            font-family: var(--font-mono);
-            font-size: 0.82rem;
-            line-height: 1.45;
-        }
-
-        .breakdown-list {
-            display: grid;
-            gap: 10px;
-            margin-top: 14px;
-        }
-
-        .breakdown-row {
-            display: grid;
-            grid-template-columns: minmax(120px, 1fr) minmax(120px, 1.5fr) auto;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .breakdown-label {
-            color: var(--ink-900);
-            font-weight: 800;
-            font-size: 0.9rem;
-        }
-
-        .breakdown-value {
-            color: var(--ink-900);
-            font-size: 0.9rem;
-            font-weight: 900;
-            justify-self: end;
-        }
-
-        .index-note {
-            padding: 14px 16px;
-            border-radius: 18px;
-            background: rgba(31, 79, 130, 0.05);
-            border: 1px solid rgba(31, 79, 130, 0.08);
-            color: var(--ink-900);
-            line-height: 1.55;
-            margin-bottom: 16px;
-        }
-
-        @media (max-width: 980px) {
-            .readable-grid,
-            .insight-panel {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KiVendTout — Transferts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme_v2.css">
 </head>
 <body>
+<!-- Top app bar : marque + barre de commande (voix + texte) + actions -->
+<header class="appbar">
+  <div class="appbar__brand"><span class="logo">K</span> KiVendTout</div>
+  <div class="appbar__spacer"></div>
+  <div class="cmdbar">
+    <span class="ic">🔎</span>
+    <input id="cmd" type="text" placeholder="Rechercher ou demander… ex : « filtre sévérité haute »"
+           aria-label="Commande" autocomplete="off">
+    <button class="mic-btn" data-voice-trigger title="Parler (ou maintenir P)" aria-label="Commande vocale">🎙️</button>
+  </div>
+  <button class="btn--icon" id="refresh" title="Actualiser" aria-label="Actualiser">↻</button>
+</header>
+
 <div class="layout">
-    <nav class="top-nav">
-        <a href="index.html">Overview</a>
-        <a href="fraud_dashboard.html">Fraude</a>
-        <a href="fraud_types_dashboard.html">Typologies</a>
-        <a href="id_cards_dashboard.html">Identite</a>
-        <a class="active" href="transfer_kpi_dashboard.html">Transferts</a>
-    </nav>
+  <nav id="nav"></nav>
 
-    <section class="masthead">
-        <div>
-            <div class="eyebrow">Data transfer</div>
-            <h1>Vue transfert lisible et orientee exploitation.</h1>
-            <p>Les KPI sont classes par ordre de lecture: sante, fraicheur, debit, volume. Le micro-batch remonte des fenetres traitees avec des volumes reels.</p>
-        </div>
-        <aside class="hero-note">
-            <h2>Etat pipeline</h2>
-            <strong id="readable-transfer-headline">Chargement...</strong>
-            <div class="pill-row">
-                <span class="status-pill" id="readable-transfer-level">-</span>
-                <span class="status-pill" id="readable-fraud-level">-</span>
-            </div>
-            <p id="readable-fraud-headline">Impact fraude en attente.</p>
-            <ul id="readable-insights" class="info-list"></ul>
-        </aside>
-    </section>
-
-    <div class="command-strip">
-        <div>
-            <strong>Scope</strong>
-            <div class="command-row">
-                <span class="command-chip">Index 1 Sante</span>
-                <span class="command-chip">Index 2 Fraicheur</span>
-                <span class="command-chip">Index 3 Debit</span>
-                <span class="command-chip">Index 4 Volume</span>
-            </div>
-        </div>
-        <div class="runtime-line">
-            <label class="control" for="kpi-limit" style="min-width:150px;">
-                Historique KPI
-                <select id="kpi-limit">
-                    <option value="100">100 points</option>
-                    <option value="300" selected>300 points</option>
-                    <option value="1000">1000 points</option>
-                </select>
-            </label>
-            <label class="control" for="window-hours" style="min-width:150px;">
-                Fenetre micro-batch
-                <select id="window-hours">
-                    <option value="1">1h</option>
-                    <option value="6">6h</option>
-                    <option value="24" selected>24h</option>
-                    <option value="72">72h</option>
-                </select>
-            </label>
-            <button class="btn-secondary" id="micro-run-button" onclick="runMicroBatchOnce()">Lancer un micro-batch</button>
-            <button class="btn-primary" onclick="refreshAll()">Actualiser</button>
-            <span id="status">Status: idle</span>
-        </div>
+  <div class="page-head">
+    <div>
+      <div class="overline">Transferts</div>
+      <h1>Le pipeline de données, lisible d'un coup d'œil.</h1>
+      <p class="sub">Santé du pipeline, fraîcheur des données, débit de traitement et volume transféré.
+        Chaque chiffre est daté et rattaché à son périmètre (historique ou fenêtre 24 h).</p>
     </div>
+    <div class="head-actions">
+      <span class="badge" id="freshness"><span class="badge__dot"></span>—</span>
+    </div>
+  </div>
 
-    <section class="metric-grid">
-        <article class="metric-card accent">
-            <div class="label"><span id="index-1-rank">Index 1</span><span id="index-1-title">Sante</span></div>
-            <div class="value" id="index-1-value">-</div>
-            <p class="support" id="index-1-support">-</p>
-        </article>
-        <article class="metric-card">
-            <div class="label"><span id="index-2-rank">Index 2</span><span id="index-2-title">Fraicheur</span></div>
-            <div class="value" id="index-2-value">-</div>
-            <p class="support" id="index-2-support">-</p>
-        </article>
-        <article class="metric-card cool">
-            <div class="label"><span id="index-3-rank">Index 3</span><span id="index-3-title">Debit</span></div>
-            <div class="value" id="index-3-value">-</div>
-            <p class="support" id="index-3-support">-</p>
-        </article>
-        <article class="metric-card gold">
-            <div class="label"><span id="index-4-rank">Index 4</span><span id="index-4-title">Volume</span></div>
-            <div class="value" id="index-4-value">-</div>
-            <p class="support" id="index-4-support">-</p>
-        </article>
+  <!-- Suggestions : cliquables (souris) = équivalent des commandes vocales -->
+  <div class="chip-row" aria-label="Suggestions de commandes">
+    <button class="chip chip--suggest" data-cmd="reviens à l'accueil">Reviens à l'accueil</button>
+    <button class="chip chip--suggest" data-cmd="ouvre la fraude">Ouvre la fraude</button>
+  </div>
+
+  <div class="error-banner" id="err">Impossible de charger les indicateurs du pipeline. API injoignable.</div>
+
+  <!-- UNE seule rangée de KPIs : santé, fraîcheur/latence, débit, volume -->
+  <section class="kpi-grid">
+    <article class="kpi kpi--hero">
+      <span class="kpi__label">Santé du pipeline</span>
+      <span class="kpi__value skeleton" id="k-health">—</span>
+      <span class="kpi__support skeleton" id="k-health-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Fraîcheur · latence</span>
+      <span class="kpi__value skeleton" id="k-fresh">—</span>
+      <span class="kpi__support skeleton" id="k-fresh-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Débit de transfert</span>
+      <span class="kpi__value skeleton" id="k-speed">—</span>
+      <span class="kpi__support skeleton" id="k-speed-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Volume transféré</span>
+      <span class="kpi__value skeleton" id="k-volume">—</span>
+      <span class="kpi__support skeleton" id="k-volume-sub">contexte</span>
+    </article>
+  </section>
+
+  <div class="split">
+    <!-- Fenêtres micro-batch (fenêtre 24 h, daté) -->
+    <section class="card">
+      <div class="card__head">
+        <div>
+          <h2>Fenêtres micro-batch</h2>
+          <p>Exécutions traitées sur la <strong>fenêtre des 24 dernières heures</strong>. Chaque ligne est une fenêtre datée.</p>
+        </div>
+        <span class="badge" id="mb-pill">—</span>
+      </div>
+      <div class="rows" id="mb-list">
+        <div class="empty-state">Chargement des fenêtres…</div>
+      </div>
     </section>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Tendances pipeline</h2>
-                <p>Les graphiques se concentrent sur ce qui est comparable: debit snapshot, debit micro-batch, temps de traitement micro-batch et mix des sources.</p>
-            </div>
-            <div class="section-meta" id="trend-meta">-</div>
+    <!-- Pilotage du micro-batch (sans commande shell) -->
+    <aside class="card">
+      <div class="card__head">
+        <div>
+          <h2>Pilotage du micro-batch</h2>
+          <p>Rejoue la dernière fenêtre de données disponible et produit des indicateurs de traitement.</p>
         </div>
-        <div class="visual-grid">
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Snapshot debit</h3>
-                        <p>Vitesse de transfert du snapshot bronze.</p>
-                    </div>
-                    <span class="status-pill warning">Snapshot</span>
-                </div>
-                <strong class="chart-value" id="snapshot-speed-current">-</strong>
-                <p class="chart-meta" id="snapshot-speed-meta">-</p>
-                <div class="sparkline-frame" id="snapshot-speed-chart"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Micro-batch debit</h3>
-                        <p>Events transferes par seconde de traitement.</p>
-                    </div>
-                    <span class="status-pill cool">Micro-batch</span>
-                </div>
-                <strong class="chart-value" id="micro-speed-current">-</strong>
-                <p class="chart-meta" id="micro-speed-meta">-</p>
-                <div class="sparkline-frame" id="micro-speed-chart"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Temps de traitement</h3>
-                        <p>Latence reelle d'execution du micro-batch.</p>
-                    </div>
-                    <span class="status-pill danger">Processing</span>
-                </div>
-                <strong class="chart-value" id="micro-latency-current">-</strong>
-                <p class="chart-meta" id="micro-latency-meta">-</p>
-                <div class="sparkline-frame" id="micro-latency-chart"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Mix des sources</h3>
-                        <p>Repartition des points entre snapshot et micro-batch.</p>
-                    </div>
-                    <span class="status-pill">Sources</span>
-                </div>
-                <strong class="chart-value" id="source-mix-current">-</strong>
-                <p class="chart-meta" id="source-mix-meta">-</p>
-                <div class="bar-list" id="metric-counters"></div>
-            </article>
+        <span class="badge" id="run-pill">—</span>
+      </div>
+      <div class="stack">
+        <button class="btn btn--tonal" id="run-btn" style="align-self:flex-start">Lancer un micro-batch</button>
+        <div class="rows">
+          <div class="row">
+            <div><div class="row__title">État</div>
+              <div class="row__meta" id="run-copy">Aucun déclenchement récent.</div></div>
+          </div>
+          <div class="row">
+            <div><div class="row__title">Dernière exécution</div>
+              <div class="row__meta" id="run-meta">—</div></div>
+          </div>
         </div>
-    </section>
+      </div>
+    </aside>
+  </div>
 
-    <section class="insight-panel">
-        <article class="panel">
-            <div class="section-head">
-                <div>
-                    <h2>Sources suivies</h2>
-                    <p>Chaque carte expose une mesure directement actionnable sans melanger les unites.</p>
-                </div>
-            </div>
-            <div class="index-note">Ordre de lecture retenu: <strong>1. Sante</strong>, <strong>2. Fraicheur</strong>, <strong>3. Debit</strong>, <strong>4. Volume</strong>. On lit d'abord la disponibilite du pipeline, puis sa qualite d'execution, puis seulement la performance et le volume.</div>
-            <div class="readable-grid">
-                <article class="readable-card">
-                    <h3>Snapshot volume</h3>
-                    <strong id="snapshot-volume-card">-</strong>
-                    <p id="snapshot-volume-meta">-</p>
-                </article>
-                <article class="readable-card">
-                    <h3>Snapshot latence</h3>
-                    <strong id="snapshot-latency-card">-</strong>
-                    <p id="snapshot-latency-meta">-</p>
-                </article>
-                <article class="readable-card">
-                    <h3>Micro-batch volume</h3>
-                    <strong id="micro-volume-card">-</strong>
-                    <p id="micro-volume-meta">-</p>
-                </article>
-                <article class="readable-card">
-                    <h3>Micro-batch traitement</h3>
-                    <strong id="micro-processing-card">-</strong>
-                    <p id="micro-processing-meta">-</p>
-                </article>
-            </div>
-        </article>
-        <aside class="command-box">
-            <h3>Pilotage du micro-batch</h3>
-            <p>Le mode `once` rejoue automatiquement la derniere fenetre de donnees disponible et produit des KPI de traitement exploitables.</p>
-            <code>bash scripts/run_micro_batch.sh once</code>
-            <div class="run-toolbar">
-                <span class="status-pill" id="micro-run-status">idle</span>
-            </div>
-            <div class="run-grid">
-                <div class="run-card">
-                    <strong>Etat</strong>
-                    <p id="micro-run-copy">Aucun declenchement recent.</p>
-                </div>
-                <div class="run-card">
-                    <strong>Derniere execution</strong>
-                    <p id="micro-run-meta">-</p>
-                </div>
-            </div>
-            <div class="run-log" id="micro-run-log"></div>
-        </aside>
-    </section>
-
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Fenetres micro-batch</h2>
-                <p>Chaque ligne represente une execution de fenetre complete, agregee par volume total et breakdown evenementiel.</p>
-            </div>
-            <div class="section-meta" id="micro-batch-meta">-</div>
+  <!-- Sources suivies : snapshot vs micro-batch, unités formatées -->
+  <section class="card">
+    <div class="card__head">
+      <div>
+        <h2>Sources suivies</h2>
+        <p>Chaque source garde ses propres unités : on ne mélange ni les octets, ni les évènements, ni les fichiers.</p>
+      </div>
+      <span class="badge" id="src-meta">—</span>
+    </div>
+    <div class="grid-2">
+      <div class="rows">
+        <div class="row">
+          <div><div class="row__title">Snapshot · volume</div>
+            <div class="row__meta" id="snap-vol-meta">—</div></div>
+          <span class="row__title" id="snap-vol">—</span>
         </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Runs recents</h3>
-                        <p id="micro-batch-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="micro-batch-pill">-</span>
-                </div>
-                <div class="list-summary" id="micro-batch-summary"></div>
-                <div class="list-items" id="micro-batch-list"></div>
-            </article>
-            <article class="detail-panel" id="micro-batch-detail"></article>
+        <div class="row">
+          <div><div class="row__title">Snapshot · latence</div>
+            <div class="row__meta" id="snap-lat-meta">—</div></div>
+          <span class="row__title" id="snap-lat">—</span>
         </div>
-    </section>
-
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Journal KPI</h2>
-                <p>Points recents des deux sources, selectionnables pour verification fine.</p>
-            </div>
-            <div class="section-meta" id="kpi-meta">-</div>
+      </div>
+      <div class="rows">
+        <div class="row">
+          <div><div class="row__title">Micro-batch · volume</div>
+            <div class="row__meta" id="micro-vol-meta">—</div></div>
+          <span class="row__title" id="micro-vol">—</span>
         </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Points recents</h3>
-                        <p id="kpi-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="kpi-pill">-</span>
-                </div>
-                <div class="list-summary" id="kpi-summary"></div>
-                <div class="list-items" id="kpi-list"></div>
-            </article>
-            <article class="detail-panel" id="kpi-detail"></article>
+        <div class="row">
+          <div><div class="row__title">Micro-batch · traitement</div>
+            <div class="row__meta" id="micro-proc-meta">—</div></div>
+          <span class="row__title" id="micro-proc">—</span>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 </div>
 
-<script src="dashboard_ops.js"></script>
-<script src="live_sync.js"></script>
+<script src="dashboard_common.js"></script>
 <script>
-    const DASHBOARD_HOST = window.location.hostname || 'localhost';
-    const API_HOST = ['127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(DASHBOARD_HOST) ? 'localhost' : DASHBOARD_HOST;
-    const API_URL = `${window.location.protocol}//${API_HOST}:8000`;
+  KV.renderNav("nav");
+  const $ = (id) => document.getElementById(id);
 
-    let transferRows = [];
-    let transferSummaryByMetric = {};
-    let transferIndexRows = [];
-    let microBatchWindows = [];
-    let microBatchSummary = {};
-    let microBatchByType = [];
-    let selectedKpiKey = null;
-    let selectedWindowKey = null;
-    let opsController = null;
+  function setKpi(id, v) { const e = $(id); if (e) { e.textContent = v; e.classList.remove("skeleton"); } }
+  function setBadge(id, label, variant) {
+    const e = $(id); if (!e) return;
+    e.className = "badge" + (variant ? " badge--" + variant : "");
+    e.innerHTML = (variant === "success" ? '<span class="badge__dot"></span>' : "") + KV.escapeHtml(label);
+  }
 
-    function escapeHtml(value) {
-        return String(value ?? '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+  // Octets lisibles via KV.fmtNumber + unité explicite (plus de bytes bruts)
+  function fmtBytes(n) {
+    const v = Number(n);
+    if (!Number.isFinite(v) || v <= 0) return "—";
+    const units = ["o", "Ko", "Mo", "Go", "To"];
+    let i = 0, val = v;
+    while (val >= 1024 && i < units.length - 1) { val /= 1024; i++; }
+    return `${KV.fmtNumber(Math.round(val * 10) / 10)} ${units[i]}`;
+  }
+  function fmtMs(ms) {
+    const v = Number(ms);
+    if (!Number.isFinite(v)) return "—";
+    return v >= 1000 ? `${KV.fmtNumber(Math.round(v / 100) / 10)} s` : `${KV.fmtNumber(Math.round(v))} ms`;
+  }
+
+  // — Pilotage du micro-batch : POST après confirmation modale —
+  let running = false;
+  async function runMicroBatch() {
+    if (running) return;
+    const ok = await KV.confirmModal(
+      "Lancer un micro-batch",
+      "Rejouer la dernière fenêtre de données disponible et recalculer les indicateurs de traitement ?",
+      false
+    );
+    if (!ok) return;
+    running = true;
+    const btn = $("run-btn");
+    btn.disabled = true; btn.textContent = "Exécution en cours…";
+    setBadge("run-pill", "En cours", "warning");
+    $("run-copy").textContent = "Exécution du micro-batch en cours…";
+    try {
+      const r = await fetch(`${KV.API_URL}/api/micro-batch/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "once", window_seconds: 300 }),
+      });
+      if (!r.ok) {
+        const payload = await r.json().catch(() => ({}));
+        throw new Error(payload?.detail?.message || payload?.detail || `HTTP ${r.status}`);
+      }
+      await load();
+      await KV.modal({ title: "Micro-batch lancé", message: "L'exécution est terminée. Les indicateurs sont à jour." });
+    } catch (e) {
+      setBadge("run-pill", "Échec", "danger");
+      $("run-copy").textContent = String(e.message || e);
+      await KV.modal({ title: "Échec du micro-batch", message: String(e.message || e) });
+    } finally {
+      running = false;
+      btn.disabled = false; btn.textContent = "Lancer un micro-batch";
     }
+  }
 
-    function fmt(value, digits = 2) {
-        if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
-        return Number(value).toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  function renderRuntime(rt) {
+    if (running) return; // ne pas écraser l'état pendant une exécution déclenchée ici
+    const btn = $("run-btn");
+    $("run-copy").textContent = rt.message || "Aucun déclenchement récent.";
+    $("run-meta").textContent = rt.finished_at
+      ? `${rt.mode || "once"} · ${rt.duration_seconds != null ? KV.fmtNumber(rt.duration_seconds) + " s" : "—"} · ${KV.fmtDate(rt.finished_at)}`
+      : (rt.started_at ? `${rt.mode || "once"} · démarré à ${KV.fmtDate(rt.started_at)}` : "—");
+    if (rt.running) {
+      setBadge("run-pill", "En cours", "warning"); btn.disabled = true; btn.textContent = "Exécution en cours…";
+    } else if (rt.returncode === 0) {
+      setBadge("run-pill", "Succès", "success"); btn.disabled = false; btn.textContent = "Lancer un micro-batch";
+    } else if (rt.returncode != null) {
+      setBadge("run-pill", "Échec", "danger"); btn.disabled = false; btn.textContent = "Relancer le micro-batch";
+    } else {
+      setBadge("run-pill", "Prêt", "info"); btn.disabled = false; btn.textContent = "Lancer un micro-batch";
     }
+  }
 
-    function toShortDate(value) {
-        if (!value) return '-';
-        return new Date(value).toLocaleString('fr-FR');
+  function renderKpis(readable, summaryByMetric, mbSummary) {
+    const transfer = readable?.transfer || {};
+    const snap = summaryByMetric?.data_lake_snapshot || {};
+    const micro = summaryByMetric?.micro_batch_events || {};
+
+    // 1. Santé : statut micro-batch (historique) — daté/libellé pour lever la contradiction
+    const status = transfer.micro_batch_status || "n/a";
+    const present = status === "present";
+    setKpi("k-health", present ? "Présent" : (status === "actif" ? "Actif" : "À vérifier"));
+    const windows = mbSummary?.windows ?? 0;
+    setKpi("k-health-sub", `${KV.fmtNumber(windows)} fenêtre(s) traitée(s) au total (historique)`);
+
+    // 2. Fraîcheur · latence : latence micro-batch + dernier point daté
+    const lat = micro.latest_latency_ms;
+    setKpi("k-fresh", lat != null ? fmtMs(lat) : "—");
+    const lastTs = micro.latest_active_timestamp_utc || snap.latest_timestamp_utc;
+    setKpi("k-fresh-sub", lastTs ? `Dernier point le ${KV.fmtDate(lastTs)}` : "Aucun point récent");
+
+    // 3. Débit de transfert : débit micro-batch lisible
+    setKpi("k-speed", micro.latest_active_speed_human || micro.latest_speed_human || snap.latest_speed_human || "—");
+    setKpi("k-speed-sub", "Débit de traitement de la dernière fenêtre utile");
+
+    // 4. Volume : volume snapshot formaté (octets → unités) + fenêtre 24 h
+    const active24h = mbSummary?.active_windows ?? 0;
+    const snapBytes = snap.latest_capacity_bytes;
+    setKpi("k-volume", snap.latest_capacity_human || (snapBytes != null ? fmtBytes(snapBytes) : "—"));
+    setKpi("k-volume-sub", `${KV.fmtNumber(active24h)} fenêtre(s) active(s) sur la fenêtre 24 h`);
+
+    // Sources suivies
+    $("snap-vol").textContent = snap.latest_capacity_human || (snapBytes != null ? fmtBytes(snapBytes) : "—");
+    $("snap-vol-meta").textContent = snap.latest_timestamp_utc ? `Dernier point le ${KV.fmtDate(snap.latest_timestamp_utc)}` : "Aucun snapshot";
+    $("snap-lat").textContent = snap.latest_latency_ms != null ? fmtMs(snap.latest_latency_ms) : "—";
+    $("snap-lat-meta").textContent = snap.latest_speed_human || "Débit indisponible";
+
+    $("micro-vol").textContent = micro.latest_active_capacity_human || micro.latest_capacity_human || "—";
+    $("micro-vol-meta").textContent = micro.latest_active_timestamp_utc ? `Dernière fenêtre utile le ${KV.fmtDate(micro.latest_active_timestamp_utc)}` : "Aucune fenêtre active";
+    $("micro-proc").textContent = micro.latest_latency_ms != null ? fmtMs(micro.latest_latency_ms) : "—";
+    $("micro-proc-meta").textContent = micro.latest_active_speed_human || micro.latest_speed_human || "Débit indisponible";
+  }
+
+  function renderMicroBatch(mb) {
+    const summary = mb?.summary || {};
+    const windows = mb?.recent_windows || [];
+    const active = summary.active_windows ?? 0;
+    setBadge("mb-pill", active > 0 ? "Actif · 24 h" : "Aucune sur 24 h", active > 0 ? "success" : "warning");
+
+    const list = $("mb-list");
+    if (!windows.length) {
+      list.innerHTML = '<div class="empty-state">Aucune fenêtre micro-batch sur la fenêtre 24 h.</div>';
+      return;
     }
+    list.innerHTML = windows.slice(0, 8).map((w) => {
+      const evt = Number(w.total_events || 0);
+      const tag = evt > 0
+        ? `<span class="badge badge--success"><span class="badge__dot"></span>${KV.fmtNumber(evt)} évt</span>`
+        : `<span class="badge badge--warning">${KV.fmtNumber(evt)} évt</span>`;
+      return `<div class="row">
+        <div>
+          <div class="row__title">Run du ${KV.escapeHtml(KV.fmtDate(w.processed_at))}</div>
+          <div class="row__meta">Fenêtre source ${KV.escapeHtml(KV.fmtDate(w.batch_started_at))} → ${KV.escapeHtml(KV.fmtDate(w.batch_ended_at))} · ${fmtMs(w.latency_ms || 0)} · ${KV.fmtNumber(Math.round((w.speed_events_per_sec || 0) * 100) / 100)} évt/s</div>
+        </div>${tag}
+      </div>`;
+    }).join("");
+  }
 
-    function formatPill(el, label) {
-        el.textContent = label || '-';
-        el.className = 'status-pill';
-        if (['modere', 'moyenne', 'inactif'].includes(label)) {
-            el.classList.add('warning');
-        } else if (['eleve', 'aucune_donnee'].includes(label)) {
-            el.classList.add('danger');
-        } else if (['faible', 'ok', 'actif', 'large', 'present'].includes(label)) {
-            el.classList.add('success');
-        } else {
-            el.classList.add('cool');
-        }
+  async function load() {
+    $("err").classList.remove("show");
+    const [kpis, micro, readable, runtime] = await Promise.allSettled([
+      KV.getJSON("/api/transfer/kpis?limit=300"),
+      KV.getJSON("/api/micro-batch/stats?window_hours=24&limit=200"),
+      KV.getJSON("/api/kpis/readable?limit=300&micro_batch_window_hours=24"),
+      KV.getJSON("/api/micro-batch/runtime"),
+    ]).then((r) => r.map((x) => (x.status === "fulfilled" ? x.value : null)));
+
+    if (!kpis && !readable && !micro) { $("err").classList.add("show"); }
+
+    renderKpis(readable || {}, (kpis || {}).summary_by_metric || {}, (micro || {}).summary || {});
+    renderMicroBatch(micro || {});
+    if (runtime) renderRuntime(runtime);
+
+    const total = (kpis?.kpis || []).length;
+    const srcCount = Object.keys(kpis?.metrics_count || {}).length;
+    $("src-meta").textContent = `${KV.fmtNumber(srcCount)} source(s) · ${KV.fmtNumber(total)} point(s) tracés`;
+    $("freshness").innerHTML = '<span class="badge__dot"></span>MAJ ' + new Date().toLocaleTimeString("fr-FR");
+  }
+
+  $("run-btn").addEventListener("click", runMicroBatch);
+
+  // Barre de commande : taper Entrée = exécuter (équivalent texte de la voix)
+  $("cmd").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.value.trim() && window.KVVoice) {
+      window.KVVoice.runText(e.target.value.trim()); e.target.value = "";
     }
-
-    function setStatus(message, isError = false) {
-        const el = document.getElementById('status');
-        el.textContent = `Status: ${message}`;
-        el.style.color = isError ? 'var(--danger)' : 'var(--ink-700)';
-    }
-
-    function setRunStatus(label, tone = 'cool') {
-        const el = document.getElementById('micro-run-status');
-        el.textContent = label;
-        el.className = 'status-pill';
-        el.classList.add(tone);
-    }
-
-    function toneFromStatus(status) {
-        if (status === 'success' || status === 'ok' || status === 'actif') return 'success';
-        if (status === 'warning' || status === 'modere' || status === 'moyenne' || status === 'present') return 'warning';
-        if (status === 'danger' || status === 'eleve' || status === 'aucune_donnee') return 'danger';
-        return 'cool';
-    }
-
-    function metricLabel(metric) {
-        return ({ data_lake_snapshot: 'Snapshot bronze', micro_batch_events: 'Micro-batch' }[metric]) || metric || '-';
-    }
-
-    function buildSparklineSvg(points, tone = 'accent') {
-        if (!points.length) {
-            return '<div class="empty-state">Aucune serie disponible.</div>';
-        }
-        const width = 320;
-        const height = 90;
-        const paddingX = 10;
-        const paddingY = 8;
-        const max = Math.max(...points.map(point => Number(point.value) || 0), 1);
-        const min = Math.min(...points.map(point => Number(point.value) || 0), 0);
-        const range = Math.max(max - min, 1);
-        const step = points.length === 1 ? 0 : (width - paddingX * 2) / (points.length - 1);
-        const coords = points.map((point, index) => {
-            const x = paddingX + step * index;
-            const y = height - paddingY - (((Number(point.value) || 0) - min) / range) * (height - paddingY * 2);
-            return { x, y };
-        });
-        const path = coords.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-        const area = `M ${coords[0].x} ${height - paddingY} ${coords.map(point => `L ${point.x} ${point.y}`).join(' ')} L ${coords[coords.length - 1].x} ${height - paddingY} Z`;
-        const last = coords[coords.length - 1];
-        return `
-            <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-                <line class="sparkline-grid" x1="0" y1="${height - paddingY}" x2="${width}" y2="${height - paddingY}"></line>
-                <line class="sparkline-grid" x1="0" y1="${(height - paddingY) / 2}" x2="${width}" y2="${(height - paddingY) / 2}"></line>
-                <path class="sparkline-area ${tone}" d="${area}"></path>
-                <path class="sparkline-line ${tone}" d="${path}"></path>
-                ${coords.map(point => `<circle class="sparkline-point ${tone}" cx="${point.x}" cy="${point.y}" r="3.5"></circle>`).join('')}
-                <text x="0" y="${height - 2}">${escapeHtml(points[0].label || 'debut')}</text>
-                <text x="${width}" y="${height - 2}" text-anchor="end">${escapeHtml(points[points.length - 1].label || 'fin')}</text>
-                <text x="${Math.max(0, last.x - 6)}" y="${Math.max(12, last.y - 10)}" text-anchor="end">${fmt(points[points.length - 1].value, 0)}</text>
-            </svg>
-        `;
-    }
-
-    function renderSparkline(containerId, points, tone) {
-        document.getElementById(containerId).innerHTML = buildSparklineSvg(points, tone);
-    }
-
-    function renderBarList(containerId, rows, labelFn = row => row.label || row.metric || '-') {
-        const container = document.getElementById(containerId);
-        if (!rows.length) {
-            container.innerHTML = '<div class="empty-state">Aucune valeur disponible.</div>';
-            return;
-        }
-        const max = Math.max(...rows.map(row => row.count || row.events_count || 0), 1);
-        container.innerHTML = rows.map(row => {
-            const value = row.count ?? row.events_count ?? 0;
-            return `
-                <div class="bar-row">
-                    <div class="bar-label">${escapeHtml(labelFn(row))}</div>
-                    <div class="bar-track"><div class="bar-fill" style="width:${(value / max) * 100}%;"></div></div>
-                    <div class="bar-value">${fmt(value, 0)}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function renderBreakdownList(containerId, rows) {
-        const container = document.getElementById(containerId);
-        if (!rows.length) {
-            container.innerHTML = '<div class="empty-state">Aucun breakdown disponible.</div>';
-            return;
-        }
-        const max = Math.max(...rows.map(row => row.events_count || 0), 1);
-        container.innerHTML = rows.map(row => `
-            <div class="breakdown-row">
-                <div class="breakdown-label">${escapeHtml(row.event_type || '-')}</div>
-                <div class="bar-track"><div class="bar-fill" style="width:${((row.events_count || 0) / max) * 100}%;"></div></div>
-                <div class="breakdown-value">${fmt(row.events_count || 0, 0)}</div>
-            </div>
-        `).join('');
-    }
-
-    function deriveSeries(rows, valueKey, maxPoints = 24) {
-        return rows
-            .filter(row => row[valueKey] !== null && row[valueKey] !== undefined)
-            .slice(-maxPoints)
-            .map(row => ({
-                label: new Date(row.timestamp_utc).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-                value: Number(row[valueKey]) || 0
-            }));
-    }
-
-    function applyIndexCards() {
-        const defaults = [
-            { index: 1, label: 'Sante pipeline', headline: '-', support: '-', status: 'cool' },
-            { index: 2, label: 'Fraicheur de traitement', headline: '-', support: '-', status: 'cool' },
-            { index: 3, label: 'Debit de transfert', headline: '-', support: '-', status: 'cool' },
-            { index: 4, label: 'Volume traite', headline: '-', support: '-', status: 'cool' }
-        ];
-        defaults.forEach((fallback, idx) => {
-            const item = transferIndexRows.find(row => row.index === fallback.index) || fallback;
-            const slot = idx + 1;
-            document.getElementById(`index-${slot}-rank`).textContent = `Index ${item.index}`;
-            document.getElementById(`index-${slot}-title`).textContent = item.label || '-';
-            document.getElementById(`index-${slot}-value`).textContent = item.headline || '-';
-            document.getElementById(`index-${slot}-support`).textContent = item.support || '-';
-        });
-    }
-
-    function renderSourceCards() {
-        const snapshot = transferSummaryByMetric.data_lake_snapshot || {};
-        const micro = transferSummaryByMetric.micro_batch_events || {};
-
-        document.getElementById('snapshot-volume-card').textContent = snapshot.latest_capacity_human || '-';
-        document.getElementById('snapshot-volume-meta').textContent = snapshot.latest_timestamp_utc
-            ? `Dernier point ${toShortDate(snapshot.latest_timestamp_utc)}`
-            : 'Aucun snapshot';
-
-        document.getElementById('snapshot-latency-card').textContent = snapshot.latest_latency_ms !== undefined && snapshot.latest_latency_ms !== null
-            ? `${fmt(snapshot.latest_latency_ms / 1000, 2)} s`
-            : '-';
-        document.getElementById('snapshot-latency-meta').textContent = snapshot.latest_speed_human || 'Debit indisponible';
-
-        document.getElementById('micro-volume-card').textContent = micro.latest_active_capacity_human || micro.latest_capacity_human || '-';
-        document.getElementById('micro-volume-meta').textContent = micro.latest_active_timestamp_utc
-            ? `Derniere fenetre utile ${toShortDate(micro.latest_active_timestamp_utc)}`
-            : 'Aucune fenetre active';
-
-        document.getElementById('micro-processing-card').textContent = micro.latest_latency_ms !== undefined && micro.latest_latency_ms !== null
-            ? `${fmt(micro.latest_latency_ms, 0)} ms`
-            : '-';
-        document.getElementById('micro-processing-meta').textContent = micro.latest_active_speed_human || micro.latest_speed_human || 'Debit indisponible';
-    }
-
-    function renderTransferTrends(metricsCount) {
-        const sorted = transferRows.slice().sort((a, b) => new Date(a.timestamp_utc) - new Date(b.timestamp_utc));
-        const snapshotRows = sorted.filter(row => row.metric === 'data_lake_snapshot');
-        const microRows = sorted.filter(row => row.metric === 'micro_batch_events');
-        const microActiveRows = microRows.filter(row => (row.raw?.capacity_events || 0) > 0);
-        const snapshotSummary = transferSummaryByMetric.data_lake_snapshot || {};
-        const microSummary = transferSummaryByMetric.micro_batch_events || {};
-        const latestTimestamp = sorted[sorted.length - 1]?.timestamp_utc;
-
-        document.getElementById('trend-meta').textContent = latestTimestamp ? `Dernier point ${toShortDate(latestTimestamp)}` : 'Aucun point';
-
-        document.getElementById('snapshot-speed-current').textContent = snapshotSummary.latest_speed_human || '-';
-        document.getElementById('snapshot-speed-meta').textContent = snapshotSummary.latest_capacity_human || 'Aucun snapshot recent';
-        renderSparkline('snapshot-speed-chart', deriveSeries(snapshotRows, 'speed_value'), 'gold');
-
-        document.getElementById('micro-speed-current').textContent = microSummary.latest_active_speed_human || microSummary.latest_speed_human || '-';
-        document.getElementById('micro-speed-meta').textContent = microSummary.latest_active_capacity_human || microSummary.latest_capacity_human || 'Aucune fenetre utile';
-        renderSparkline('micro-speed-chart', deriveSeries(microActiveRows.length ? microActiveRows : microRows, 'speed_value'), 'cool');
-
-        document.getElementById('micro-latency-current').textContent = microSummary.latest_latency_ms !== undefined && microSummary.latest_latency_ms !== null
-            ? `${fmt(microSummary.latest_latency_ms, 0)} ms`
-            : '-';
-        document.getElementById('micro-latency-meta').textContent = microSummary.latest_active_timestamp_utc
-            ? `Derniere fenetre utile ${toShortDate(microSummary.latest_active_timestamp_utc)}`
-            : 'Aucune fenetre utile';
-        renderSparkline('micro-latency-chart', deriveSeries(microRows, 'latency_value'), 'accent');
-
-        const counterRows = Object.entries(metricsCount || {}).map(([metric, count]) => ({ metric, count }));
-        document.getElementById('source-mix-current').textContent = `${fmt(counterRows.length, 0)} source(s)`;
-        document.getElementById('source-mix-meta').textContent = `${fmt(sorted.length, 0)} point(s) KPI traces`;
-        renderBarList('metric-counters', counterRows, row => metricLabel(row.metric));
-    }
-
-    function renderKpiList() {
-        const container = document.getElementById('kpi-list');
-        if (!transferRows.length) {
-            container.innerHTML = '<div class="empty-state">Aucun point KPI.</div>';
-            document.getElementById('kpi-summary').innerHTML = '';
-            document.getElementById('kpi-copy').textContent = 'Aucune ligne disponible.';
-            document.getElementById('kpi-pill').textContent = 'vide';
-            document.getElementById('kpi-pill').className = 'status-pill';
-            document.getElementById('kpi-pill').classList.add('cool');
-            document.getElementById('kpi-detail').innerHTML = '<div class="empty-state">Aucun detail disponible.</div>';
-            return;
-        }
-        const visible = transferRows.slice(-18).reverse();
-        document.getElementById('kpi-copy').textContent = `${visible.length}/${transferRows.length} points visibles`;
-        document.getElementById('kpi-pill').textContent = 'journal';
-        document.getElementById('kpi-pill').className = 'status-pill';
-        document.getElementById('kpi-pill').classList.add('success');
-        document.getElementById('kpi-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">Dernier ${toShortDate(visible[0]?.timestamp_utc)}</span>
-                <span class="key-stat">Snapshot ${fmt(visible.filter(row => row.metric === 'data_lake_snapshot').length, 0)}</span>
-                <span class="key-stat">Micro-batch ${fmt(visible.filter(row => row.metric === 'micro_batch_events').length, 0)}</span>
-            </div>
-        `;
-        container.innerHTML = visible.map(row => {
-            const key = `${row.timestamp_utc}|${row.metric}`;
-            const capacityText = row.raw?.capacity_files
-                ? `${fmt(row.raw.capacity_files, 0)} fichiers`
-                : row.capacity_value !== null && row.capacity_value !== undefined
-                    ? `${fmt(row.capacity_value, 0)} ${row.capacity_unit || ''}`
-                    : '-';
-            return `
-                <article class="list-item ${key === selectedKpiKey ? 'active' : ''}" data-kpi-key="${escapeHtml(key)}">
-                    <div class="list-item-head">
-                        <div>
-                            <div class="list-item-title">${escapeHtml(row.metric_label || metricLabel(row.metric))}</div>
-                            <div class="list-item-meta">${toShortDate(row.timestamp_utc)}</div>
-                        </div>
-                        <span class="chip ${row.metric === 'micro_batch_events' ? 'cool' : 'warning'}">${escapeHtml(row.metric_family || row.metric)}</span>
-                    </div>
-                    <div class="list-item-copy">Latence ${row.latency_unit === 's' ? fmt(row.latency_value, 2) : fmt(row.latency_value, 0)} ${escapeHtml(row.latency_unit || '')}</div>
-                    <div class="tag-row">
-                        <span class="soft-tag">Capacite ${escapeHtml(capacityText)}</span>
-                        <span class="soft-tag">Debit ${escapeHtml(row.speed_value !== null && row.speed_value !== undefined ? `${fmt(row.speed_value, 2)} ${row.speed_unit || ''}` : '-')}</span>
-                    </div>
-                </article>
-            `;
-        }).join('');
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedKpiKey = node.dataset.kpiKey;
-                renderKpiList();
-                renderKpiDetail();
-            });
-        });
-    }
-
-    function renderKpiDetail() {
-        const container = document.getElementById('kpi-detail');
-        const selected = transferRows.find(row => `${row.timestamp_utc}|${row.metric}` === selectedKpiKey) || transferRows[transferRows.length - 1];
-        if (!selected) {
-            container.innerHTML = '<div class="empty-state">Aucun detail KPI disponible.</div>';
-            return;
-        }
-        selectedKpiKey = `${selected.timestamp_utc}|${selected.metric}`;
-        const raw = selected.raw || {};
-        document.getElementById('kpi-meta').textContent = `${metricLabel(selected.metric)} | ${toShortDate(selected.timestamp_utc)}`;
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>${escapeHtml(selected.metric_label || metricLabel(selected.metric))}</h3>
-                    <p>Point KPI selectionne dans le journal de transfert.</p>
-                </div>
-                <span class="chip ${selected.metric === 'micro_batch_events' ? 'cool' : 'warning'}">${escapeHtml(selected.metric_family || selected.metric)}</span>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Timestamp</span><strong>${toShortDate(selected.timestamp_utc)}</strong></div>
-                <div class="detail-card"><span>Latence</span><strong>${selected.latency_unit === 's' ? fmt(selected.latency_value, 2) : fmt(selected.latency_value, 0)} ${escapeHtml(selected.latency_unit || '')}</strong></div>
-                <div class="detail-card"><span>Capacite</span><strong>${selected.capacity_value !== null && selected.capacity_value !== undefined ? `${fmt(selected.capacity_value, 0)} ${selected.capacity_unit || ''}` : '-'}</strong></div>
-                <div class="detail-card"><span>Debit</span><strong>${selected.speed_value !== null && selected.speed_value !== undefined ? `${fmt(selected.speed_value, 2)} ${selected.speed_unit || ''}` : '-'}</strong></div>
-            </div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Lecture</h3>
-                        <p>Le point reste interprete dans l'unite de sa propre source.</p>
-                    </div>
-                </div>
-                <div class="split-grid">
-                    <div class="split-metric">Source<strong>${escapeHtml(metricLabel(selected.metric))}</strong></div>
-                    <div class="split-metric">Famille<strong>${escapeHtml(selected.metric_family || '-')}</strong></div>
-                    <div class="split-metric">Volume brut<strong>${raw.capacity_bytes ? escapeHtml(raw.capacity_bytes) : raw.capacity_events ?? raw.capacity_files ?? '-'}</strong></div>
-                </div>
-                <div class="divider"></div>
-                <p class="detail-copy">Ce point ne melange pas ses unites avec d'autres flux. La lecture se fait au niveau de la source ${escapeHtml(metricLabel(selected.metric))}, ce qui evite les moyennes incoherentes entre bytes, events et fichiers.</p>
-            </div>
-        `;
-    }
-
-    function renderMicroBatchList() {
-        const container = document.getElementById('micro-batch-list');
-        if (!microBatchWindows.length) {
-            container.innerHTML = '<div class="empty-state">Aucune fenetre micro-batch sur la periode.</div>';
-            document.getElementById('micro-batch-copy').textContent = 'Aucune execution sur la fenetre.';
-            document.getElementById('micro-batch-summary').innerHTML = '';
-            document.getElementById('micro-batch-pill').textContent = 'vide';
-            document.getElementById('micro-batch-pill').className = 'status-pill';
-            document.getElementById('micro-batch-pill').classList.add('cool');
-            document.getElementById('micro-batch-detail').innerHTML = '<div class="empty-state">Aucun detail micro-batch disponible.</div>';
-            return;
-        }
-        if (!microBatchWindows.some(row => `${row.processed_at}|${row.batch_ended_at}` === selectedWindowKey)) {
-            const latest = microBatchWindows[0];
-            selectedWindowKey = latest ? `${latest.processed_at}|${latest.batch_ended_at}` : null;
-        }
-        const visible = microBatchWindows.slice(0, 12);
-        document.getElementById('micro-batch-copy').textContent = `${visible.length}/${microBatchWindows.length} run(s) visibles`;
-        document.getElementById('micro-batch-pill').textContent = (microBatchSummary.active_windows || 0) > 0 ? 'actif' : 'a verifier';
-        document.getElementById('micro-batch-pill').className = 'status-pill';
-        document.getElementById('micro-batch-pill').classList.add((microBatchSummary.active_windows || 0) > 0 ? 'success' : 'warning');
-        document.getElementById('micro-batch-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">Fenetres ${fmt(microBatchSummary.windows || 0, 0)}</span>
-                <span class="key-stat">Actives ${fmt(microBatchSummary.active_windows || 0, 0)}</span>
-                <span class="key-stat">Dernier run ${toShortDate(microBatchSummary.latest_processed_at)}</span>
-            </div>
-        `;
-        container.innerHTML = visible.map(row => {
-            const key = `${row.processed_at}|${row.batch_ended_at}`;
-            const topTypes = (row.event_breakdown || []).slice(0, 2).map(item => `${item.event_type} ${item.events_count}`).join(' | ');
-            return `
-                <article class="list-item ${key === selectedWindowKey ? 'active' : ''}" data-window-key="${escapeHtml(key)}">
-                    <div class="list-item-head">
-                        <div>
-                            <div class="list-item-title">Run ${toShortDate(row.processed_at)}</div>
-                            <div class="list-item-meta">Fenetre source ${toShortDate(row.batch_started_at)} -> ${toShortDate(row.batch_ended_at)}</div>
-                        </div>
-                        <span class="chip ${(row.total_events || 0) > 0 ? 'success' : 'warning'}">${fmt(row.total_events || 0, 0)} evt</span>
-                    </div>
-                    <div class="list-item-copy">Traitement ${fmt(row.latency_ms || 0, 0)} ms | ${fmt(row.speed_events_per_sec || 0, 2)} evt/s</div>
-                    <div class="tag-row">
-                        <span class="soft-tag">Types ${fmt(row.event_types_count || 0, 0)}</span>
-                        <span class="soft-tag">${escapeHtml(topTypes || 'No breakdown')}</span>
-                    </div>
-                </article>
-            `;
-        }).join('');
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedWindowKey = node.dataset.windowKey;
-                renderMicroBatchList();
-                renderMicroBatchDetail();
-            });
-        });
-    }
-
-    function renderMicroBatchDetail() {
-        const container = document.getElementById('micro-batch-detail');
-        const selected = microBatchWindows.find(row => `${row.processed_at}|${row.batch_ended_at}` === selectedWindowKey) || microBatchWindows[0];
-        if (!selected) {
-            container.innerHTML = '<div class="empty-state">Aucun detail micro-batch disponible.</div>';
-            return;
-        }
-        selectedWindowKey = `${selected.processed_at}|${selected.batch_ended_at}`;
-        document.getElementById('micro-batch-meta').textContent = `Run ${toShortDate(selected.processed_at)} | ${fmt(selected.total_events || 0, 0)} evt`;
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>Fenetre micro-batch</h3>
-                    <p>Execution selectionnee avec son breakdown evenementiel.</p>
-                </div>
-                <span class="chip ${(selected.total_events || 0) > 0 ? 'success' : 'warning'}">${fmt(selected.total_events || 0, 0)} evt</span>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Processed at</span><strong>${toShortDate(selected.processed_at)}</strong></div>
-                <div class="detail-card"><span>Source start</span><strong>${toShortDate(selected.batch_started_at)}</strong></div>
-                <div class="detail-card"><span>Source end</span><strong>${toShortDate(selected.batch_ended_at)}</strong></div>
-                <div class="detail-card"><span>Temps de traitement</span><strong>${fmt(selected.latency_ms || 0, 0)} ms</strong></div>
-                <div class="detail-card"><span>Debit reel</span><strong>${fmt(selected.speed_events_per_sec || 0, 2)} evt/s</strong></div>
-                <div class="detail-card"><span>Types actifs</span><strong>${fmt(selected.event_types_count || 0, 0)}</strong></div>
-            </div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Breakdown evenementiel</h3>
-                        <p>Evenements effectivement transferes dans cette fenetre.</p>
-                    </div>
-                </div>
-                <div id="micro-breakdown-list"></div>
-                <div class="divider"></div>
-                <p class="detail-copy">La mesure de latence ici correspond au temps de traitement du batch, pas a l'anciennete des donnees source. Cela rend la KPI micro-batch exploitable meme sur un jeu historique.</p>
-            </div>
-        `;
-        renderBreakdownList('micro-breakdown-list', selected.event_breakdown || []);
-    }
-
-    async function loadTransferKpis() {
-        const limit = document.getElementById('kpi-limit').value;
-        const resp = await fetch(`${API_URL}/api/transfer/kpis?limit=${limit}`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status} on transfer kpis`);
-        const data = await resp.json();
-        transferRows = data.kpis || [];
-        transferSummaryByMetric = data.summary_by_metric || {};
-        transferIndexRows = data.kpi_index || [];
-        if (!transferRows.some(row => `${row.timestamp_utc}|${row.metric}` === selectedKpiKey)) {
-            const latest = transferRows[transferRows.length - 1];
-            selectedKpiKey = latest ? `${latest.timestamp_utc}|${latest.metric}` : null;
-        }
-        applyIndexCards();
-        renderSourceCards();
-        renderTransferTrends(data.metrics_count || {});
-        renderKpiList();
-        renderKpiDetail();
-    }
-
-    async function loadMicroBatch() {
-        const windowHours = document.getElementById('window-hours').value;
-        const resp = await fetch(`${API_URL}/api/micro-batch/stats?window_hours=${windowHours}&limit=200`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status} on micro batch`);
-        const data = await resp.json();
-        microBatchSummary = data.summary || {};
-        microBatchWindows = data.recent_windows || [];
-        microBatchByType = data.by_event_type || [];
-        if (!microBatchWindows.some(row => `${row.processed_at}|${row.batch_ended_at}` === selectedWindowKey)) {
-            const latest = microBatchWindows[0];
-            selectedWindowKey = latest ? `${latest.processed_at}|${latest.batch_ended_at}` : null;
-        }
-        renderMicroBatchList();
-        renderMicroBatchDetail();
-    }
-
-    async function loadReadableKpis() {
-        const limit = document.getElementById('kpi-limit').value;
-        const windowHours = document.getElementById('window-hours').value;
-        const resp = await fetch(`${API_URL}/api/kpis/readable?limit=${limit}&micro_batch_window_hours=${windowHours}`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status} on readable kpis`);
-        const data = await resp.json();
-        const fraud = data.fraud || {};
-        const transfer = data.transfer || {};
-
-        document.getElementById('readable-transfer-headline').textContent = transfer.headline || '-';
-        document.getElementById('readable-fraud-headline').textContent = fraud.headline || '-';
-        formatPill(document.getElementById('readable-fraud-level'), fraud.risk_level || '-');
-        formatPill(document.getElementById('readable-transfer-level'), transfer.micro_batch_status || '-');
-
-        const insights = []
-            .concat(Array.isArray(fraud.interpretation) ? fraud.interpretation : [])
-            .concat(Array.isArray(transfer.interpretation) ? transfer.interpretation : []);
-        document.getElementById('readable-insights').innerHTML = insights.length
-            ? insights.slice(0, 5).map(item => `<li>${escapeHtml(item)}</li>`).join('')
-            : '<li>Aucune interpretation disponible.</li>';
-    }
-
-    async function loadMicroBatchRuntime() {
-        const resp = await fetch(`${API_URL}/api/micro-batch/runtime`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status} on micro batch runtime`);
-        const data = await resp.json();
-        const button = document.getElementById('micro-run-button');
-        document.getElementById('micro-run-copy').textContent = data.message || 'Aucune execution recente.';
-        document.getElementById('micro-run-meta').textContent = data.finished_at
-            ? `${data.mode} | ${data.duration_seconds ?? '-'} s | ${toShortDate(data.finished_at)}`
-            : (data.started_at ? `${data.mode} | demarre a ${toShortDate(data.started_at)}` : '-');
-
-        if (data.running) {
-            setRunStatus('running', 'warning');
-            button.disabled = true;
-            button.textContent = 'Execution en cours';
-        } else if (data.returncode === 0) {
-            setRunStatus('success', 'success');
-            button.disabled = false;
-            button.textContent = 'Lancer un micro-batch';
-        } else if (data.returncode !== null && data.returncode !== undefined) {
-            setRunStatus('error', 'danger');
-            button.disabled = false;
-            button.textContent = 'Relancer';
-        } else {
-            setRunStatus('idle', 'cool');
-            button.disabled = false;
-            button.textContent = 'Lancer un micro-batch';
-        }
-
-        const lines = Array.isArray(data.output_lines) ? data.output_lines : [];
-        document.getElementById('micro-run-log').innerHTML = lines.length
-            ? lines.map(line => `<div class="run-log-line">${escapeHtml(line)}</div>`).join('')
-            : '<div class="run-log-line">Aucune sortie disponible.</div>';
-    }
-
-    async function runMicroBatchOnce() {
-        const button = document.getElementById('micro-run-button');
-        button.disabled = true;
-        button.textContent = 'Execution en cours';
-        setRunStatus('running', 'warning');
-        document.getElementById('micro-run-copy').textContent = 'Execution du micro-batch en cours...';
-        try {
-            const resp = await fetch(`${API_URL}/api/micro-batch/run`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mode: 'once', window_seconds: 300 })
-            });
-            if (!resp.ok) {
-                const payload = await resp.json().catch(() => ({}));
-                const message = payload?.detail?.message || payload?.detail || `HTTP ${resp.status}`;
-                throw new Error(message);
-            }
-            await loadMicroBatchRuntime();
-            await refreshAll();
-        } catch (error) {
-            console.error(error);
-            setRunStatus('error', 'danger');
-            document.getElementById('micro-run-copy').textContent = String(error.message || error);
-            button.disabled = false;
-            button.textContent = 'Relancer';
-        }
-    }
-
-    async function refreshAll() {
-        try {
-            setStatus('refresh...');
-            await Promise.all([loadTransferKpis(), loadMicroBatch(), loadReadableKpis(), loadMicroBatchRuntime()]);
-            if (opsController) {
-                opsController.markRefresh('transferts');
-            }
-            setStatus('ok');
-        } catch (error) {
-            console.error(error);
-            setStatus('erreur API', true);
-        }
-    }
-
-    document.getElementById('kpi-limit').addEventListener('change', refreshAll);
-    document.getElementById('window-hours').addEventListener('change', refreshAll);
-
-    window.addEventListener('DOMContentLoaded', () => {
-        if (window.KiDashboardOps) {
-            opsController = window.KiDashboardOps.attach({
-                apiUrl: API_URL,
-                onAfterReset: () => refreshAll()
-            });
-        }
-        refreshAll();
-        if (window.KiLiveSync) {
-            window.KiLiveSync.attach({
-                apiUrl: API_URL,
-                onTick: refreshAll,
-                onState: state => {
-                    if (opsController) {
-                        opsController.updateLiveState(state);
-                    }
-                },
-                setStatus,
-                refreshOnIdleEveryMs: 1000,
-                activeRefreshEveryMs: 1000,
-                minRefreshIntervalMs: 1000,
-                reconnectDelayMs: 1000,
-                fallbackEveryMs: 1000
-            });
-        }
-    });
+  });
+  $("refresh").addEventListener("click", load);
+  KV.createPoller(load, 15000).start();
 </script>
-<!-- Couche IA generative vocale -->
 <script src="voice_control.js"></script>
 </body>
 </html>

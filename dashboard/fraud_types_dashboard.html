@@ -1,751 +1,455 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Types de Fraude - KiVendTout</title>
-    <link rel="stylesheet" href="dashboard_theme.css">
-    <style>
-        .focus-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-            gap: 18px;
-        }
-
-        .focus-stack {
-            display: grid;
-            gap: 14px;
-        }
-
-        .action-note {
-            padding: 14px 16px;
-            border-radius: 16px;
-            background: rgba(31, 79, 130, 0.06);
-            border: 1px solid rgba(31, 79, 130, 0.1);
-            color: var(--ink-900);
-            line-height: 1.55;
-        }
-
-        .action-note strong {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.95rem;
-            color: var(--ink-950);
-        }
-
-        .detail-actions {
-            margin-top: 18px;
-        }
-
-        .detail-actions .action-row {
-            margin-top: 12px;
-        }
-
-        @media (max-width: 980px) {
-            .focus-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KiVendTout — Typologies de fraude</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme_v2.css">
+  <style>
+    /* Répartition de sévérité par motif : responsive, empile en cartes sur mobile.
+       Couleurs via les tokens de sévérité (--red/--yellow/--green container). */
+    .sev-grid { display: grid; gap: var(--space-3); }
+    .sev-card { border: 1px solid var(--outline-variant); border-radius: var(--radius-sm);
+      padding: var(--space-3) var(--space-4); cursor: pointer; background: var(--surface);
+      transition: box-shadow .15s, border-color .15s; }
+    .sev-card:hover { box-shadow: var(--elev-1); border-color: var(--outline); }
+    .sev-card.selected { border-color: var(--blue); box-shadow: var(--focus-ring); }
+    .sev-card__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+    .sev-card__name { font-weight: var(--fw-medium); color: var(--on-surface); }
+    .sev-card__total { font-size: var(--t-body-sm); color: var(--muted); }
+    .sev-bar { display: flex; height: 12px; border-radius: var(--radius-pill); overflow: hidden;
+      margin-top: var(--space-2); background: var(--surface-2); }
+    .sev-seg--high { background: var(--red); }
+    .sev-seg--medium { background: var(--yellow); }
+    .sev-seg--low { background: var(--green); }
+    .sev-legend { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-2);
+      font-size: var(--t-label); color: var(--muted); }
+    .sev-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .sev-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .sev-dot--high { background: var(--red); }
+    .sev-dot--medium { background: var(--yellow); }
+    .sev-dot--low { background: var(--green); }
+    .alert-item { padding: var(--space-3) var(--space-1); border-bottom: 1px solid var(--outline-variant);
+      cursor: pointer; }
+    .alert-item:last-child { border-bottom: none; }
+    .alert-item.selected { background: var(--surface-1); }
+    .alert-item__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+    .detail-grid { display: grid; gap: var(--space-2);
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); margin-top: var(--space-3); }
+    .detail-cell { background: var(--surface-1); border-radius: var(--radius-xs); padding: var(--space-2) var(--space-3); }
+    .detail-cell span { display: block; font-size: var(--t-label); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .detail-cell strong { font-weight: var(--fw-medium); color: var(--on-surface); }
+  </style>
 </head>
 <body>
+<!-- Top app bar : marque + barre de commande (voix + texte) + actions -->
+<header class="appbar">
+  <div class="appbar__brand"><span class="logo">K</span> KiVendTout</div>
+  <div class="appbar__spacer"></div>
+  <div class="cmdbar">
+    <span class="ic">🔎</span>
+    <input id="cmd" type="text" placeholder="Rechercher ou demander… ex : « filtre sévérité haute »"
+           aria-label="Commande" autocomplete="off">
+    <button class="mic-btn" data-voice-trigger title="Parler (ou maintenir P)" aria-label="Commande vocale">🎙️</button>
+  </div>
+  <button class="btn--icon" id="refresh" title="Actualiser" aria-label="Actualiser">↻</button>
+</header>
+
 <div class="layout">
-    <nav class="top-nav">
-        <a href="index.html">Overview</a>
-        <a href="fraud_dashboard.html">Fraude</a>
-        <a class="active" href="fraud_types_dashboard.html">Typologies</a>
-        <a href="id_cards_dashboard.html">Identite</a>
-        <a href="transfer_kpi_dashboard.html">Transferts</a>
-    </nav>
+  <nav id="nav"></nav>
 
-    <section class="masthead">
-        <div>
-            <div class="eyebrow">Signal breakdown</div>
-            <h1>Comprendre les typologies et leur impact.</h1>
-            <p>On lit ici pourquoi les alertes remontent, quelle pression elles creent et quoi faire en priorite.</p>
-        </div>
-        <aside class="hero-note">
-            <h2>Focus</h2>
-            <strong id="selected-reason-title">Chargement...</strong>
-            <div class="pill-row">
-                <span class="status-pill" id="selected-reason-severity">-</span>
-                <span class="status-pill cool" id="runtime-status">Runtime: idle</span>
-            </div>
-            <p id="selected-reason-copy">Analyse en cours.</p>
-            <ul class="info-list" id="selected-reason-insights"></ul>
-        </aside>
-    </section>
-
-    <div class="command-strip">
-        <div>
-            <strong>Scope</strong>
-            <div class="command-row">
-                <span class="command-chip">Heatmap severite</span>
-                <span class="command-chip">Drilldown par motif</span>
-                <span class="command-chip">Action recommandee</span>
-            </div>
-        </div>
-        <div class="runtime-line">
-            <label class="control" for="window-hours" style="min-width:140px;">
-                Fenetre
-                <select id="window-hours">
-                    <option value="1">1 heure</option>
-                    <option value="6">6 heures</option>
-                    <option value="24" selected>24 heures</option>
-                    <option value="72">72 heures</option>
-                </select>
-            </label>
-            <label class="control" for="reason-select" style="min-width:220px;">
-                Typologie
-                <select id="reason-select"></select>
-            </label>
-            <button class="btn-primary" onclick="refreshAll()">Actualiser</button>
-        </div>
+  <div class="page-head">
+    <div>
+      <div class="overline">Typologies</div>
+      <h1>Pourquoi les alertes remontent.</h1>
+      <p class="sub">Les motifs de fraude, leur poids par sévérité et le détail des alertes
+        concernées. Un paiement peut porter plusieurs motifs à la fois.</p>
     </div>
+    <div class="head-actions">
+      <span class="badge" id="freshness"><span class="badge__dot"></span>—</span>
+    </div>
+  </div>
 
-    <section class="metric-grid">
-        <article class="metric-card accent">
-            <div class="label"><span>Motifs</span><span>actifs</span></div>
-            <div class="value" id="summary-types-count">-</div>
-            <p class="support">Nombre de typologies visibles sur la fenetre courante.</p>
-        </article>
-        <article class="metric-card">
-            <div class="label"><span>Motif</span><span>dominant</span></div>
-            <div class="value" id="summary-top-reason">-</div>
-            <p class="support" id="summary-top-reason-copy">-</p>
-        </article>
-        <article class="metric-card cool">
-            <div class="label"><span>Severite</span><span>dominante</span></div>
-            <div class="value" id="summary-top-severity">-</div>
-            <p class="support" id="summary-top-severity-copy">-</p>
-        </article>
-        <article class="metric-card gold">
-            <div class="label"><span>Alertes</span><span>selectionnees</span></div>
-            <div class="value" id="summary-selected-total">-</div>
-            <p class="support" id="summary-selected-copy">-</p>
-        </article>
+  <!-- Suggestions : cliquables (souris) = équivalent des commandes vocales -->
+  <div class="chip-row" aria-label="Suggestions de commandes">
+    <button class="chip chip--suggest" data-cmd="ouvre la vue fraude">Ouvre la fraude</button>
+    <button class="chip chip--suggest" data-cmd="explique-moi le taux de fraude">Explique le taux de fraude</button>
+  </div>
+
+  <div class="error-banner" id="err">Impossible de charger les typologies. API injoignable.</div>
+
+  <section class="kpi-grid">
+    <article class="kpi kpi--hero">
+      <span class="kpi__label">Motif dominant</span>
+      <span class="kpi__value skeleton" id="k-top">—</span>
+      <span class="kpi__support skeleton" id="k-top-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Motifs actifs</span>
+      <span class="kpi__value skeleton" id="k-count">0</span>
+      <span class="kpi__support skeleton" id="k-count-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Sévérité dominante</span>
+      <span class="kpi__value skeleton" id="k-sev">—</span>
+      <span class="kpi__support skeleton" id="k-sev-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Alertes du motif</span>
+      <span class="kpi__value skeleton" id="k-sel">0</span>
+      <span class="kpi__support skeleton" id="k-sel-sub">contexte</span>
+    </article>
+  </section>
+
+  <div class="split">
+    <section class="card">
+      <div class="card__head">
+        <div>
+          <h2>Répartition par sévérité</h2>
+          <p>Choisissez un motif pour voir ses alertes. Empilement haute / moyenne / basse.</p>
+        </div>
+      </div>
+      <div class="sev-legend" aria-hidden="true">
+        <span><span class="sev-dot sev-dot--high"></span>Haute</span>
+        <span><span class="sev-dot sev-dot--medium"></span>Moyenne</span>
+        <span><span class="sev-dot sev-dot--low"></span>Basse</span>
+      </div>
+      <div class="sev-grid" id="sev-grid" style="margin-top:var(--space-3)">
+        <div class="sev-card skeleton" style="height:64px"></div>
+        <div class="sev-card skeleton" style="height:64px"></div>
+        <div class="sev-card skeleton" style="height:64px"></div>
+      </div>
     </section>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Cartographie des typologies</h2>
-                <p>La heatmap permet de comparer instantanement le poids des niveaux HIGH, MEDIUM et LOW par motif.</p>
-            </div>
+    <aside class="card">
+      <div class="card__head">
+        <div>
+          <h2 id="focus-title">Focus motif</h2>
+          <p id="focus-meta">Lecture synthétique du motif sélectionné.</p>
         </div>
-        <div class="focus-grid">
-            <article class="subpanel">
-                <div class="list-head">
-                    <div>
-                        <h3>Heatmap severite</h3>
-                        <p>Cliquer sur une ligne pour basculer le drilldown.</p>
-                    </div>
-                    <span class="status-pill warning">Heatmap</span>
-                </div>
-                <div class="heatmap" id="severity-heatmap"></div>
-            </article>
-            <article class="subpanel">
-                <div class="focus-stack">
-                    <div>
-                        <div class="chart-head">
-                            <div>
-                                <h3>Focus motif</h3>
-                                <p>Lecture synthetique du motif selectionne.</p>
-                            </div>
-                            <span class="status-pill" id="focus-share-pill">-</span>
-                        </div>
-                        <strong class="chart-value" id="focus-reason-total">-</strong>
-                        <p class="chart-meta" id="focus-reason-meta">-</p>
-                        <div id="focus-severity-bar"></div>
-                        <div class="legend-row" id="focus-severity-legend" style="margin-top:12px;"></div>
-                    </div>
-                    <div class="split-grid" id="focus-operational-grid"></div>
-                    <div class="action-note" id="focus-interpretation-note">Aucune interpretation disponible.</div>
-                    <div>
-                        <div class="divider"></div>
-                        <div class="chart-head">
-                            <div>
-                                <h3>Classement volume</h3>
-                                <p>Les motifs les plus presents sur la fenetre.</p>
-                            </div>
-                        </div>
-                        <div class="bar-list" id="reason-bars"></div>
-                    </div>
-                </div>
-            </article>
-        </div>
-    </section>
+      </div>
+      <p class="muted" id="focus-desc" style="font-size:var(--t-body-sm)">—</p>
+      <div class="rows" style="margin-top:var(--space-3)">
+        <div class="row"><div class="row__title">Haute sévérité</div><span class="badge badge--danger" id="f-high">—</span></div>
+        <div class="row"><div class="row__title">Moyenne sévérité</div><span class="badge badge--warning" id="f-medium">—</span></div>
+        <div class="row"><div class="row__title">Basse sévérité</div><span class="badge badge--success" id="f-low">—</span></div>
+        <div class="row"><div class="row__title">Part (motifs non exclusifs)</div><span class="badge" id="f-share">—</span></div>
+      </div>
+    </aside>
+  </div>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Cas du motif selectionne</h2>
-                <p>Resume a gauche, detail operable a droite.</p>
-            </div>
-            <div class="section-meta" id="selected-reason-meta">-</div>
-        </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Alertes recentes</h3>
-                        <p id="selected-alerts-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="selected-alerts-pill">-</span>
-                </div>
-                <div class="list-summary" id="selected-alerts-summary"></div>
-                <div class="list-items" id="alerts-list"></div>
-            </article>
-            <article class="detail-panel" id="alert-detail"></article>
-        </div>
-    </section>
+  <section class="card">
+    <div class="card__head">
+      <div>
+        <h2>Alertes du motif sélectionné</h2>
+        <p id="alerts-copy">—</p>
+      </div>
+      <span class="badge" id="alerts-pill">—</span>
+    </div>
+    <div class="split">
+      <div class="rows" id="alerts-list">
+        <div class="empty-state">Sélectionnez un motif pour afficher ses alertes.</div>
+      </div>
+      <div id="alert-detail">
+        <div class="empty-state">Sélectionnez une alerte pour voir le détail.</div>
+      </div>
+    </div>
+  </section>
 </div>
 
-<script src="dashboard_ops.js"></script>
-<script src="live_sync.js"></script>
+<script src="dashboard_common.js"></script>
 <script>
-    const DASHBOARD_HOST = window.location.hostname || 'localhost';
-    const API_HOST = ['127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(DASHBOARD_HOST) ? 'localhost' : DASHBOARD_HOST;
-    const API_URL = `${window.location.protocol}//${API_HOST}:8000`;
-    let currentReasonRows = [];
-    let currentReasonAlerts = [];
-    let selectedReason = null;
-    let selectedAlertId = null;
-    let opsController = null;
+  KV.renderNav("nav");
+  const $ = (id) => document.getElementById(id);
 
-    function escapeHtml(value) {
-        return String(value ?? '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+  let reasonRows = [];
+  let reasonAlerts = [];
+  let selectedReason = null;
+  let selectedAlertId = null;
+  let operatorName = "";   // demandé une seule fois, réutilisé ensuite
+
+  const REASON_LABELS = {
+    FIRST_PAYMENT: "Premier paiement", NEW_CUSTOMER: "Nouveau client",
+    UNUSUAL_HOUR: "Horaire suspect", MOBILE_DEVICE: "Appareil mobile",
+    DIRECT_TRAFFIC: "Trafic direct", PAYMENT_FAILED: "Paiement échoué",
+    VELOCITY_HIGH: "Vélocité élevée", NEW_DEVICE: "Nouvel appareil",
+    UNUSUAL_AMOUNT: "Montant inhabituel", FAST_CHECKOUT: "Checkout rapide",
+    GEO_MISMATCH: "Incohérence géographique",
+    AGE_RESTRICTED_ATTEMPT: "Tentative produit 18+ mineur",
+    IDENTITY_CHECK_REQUIRED: "Contrôle identité requis",
+    ADULT_CATALOG: "Produit sensible", YOUNG_ADULT: "Jeune adulte",
+    ALT_PAYMENT_METHOD: "Moyen de paiement alternatif",
+    MANUAL_SETTLEMENT: "Règlement manuel", PAYMENT_RISK_REVIEW: "Revue risque paiement",
+  };
+  const REASON_MEANINGS = {
+    FIRST_PAYMENT: "Premier achat sans historique, donc plus difficile à qualifier.",
+    NEW_CUSTOMER: "Compte récent, peu de recul sur le comportement client.",
+    UNUSUAL_HOUR: "Horaire atypique par rapport à un comportement normal.",
+    MOBILE_DEVICE: "Contexte mobile à surveiller s'il se combine à d'autres signaux.",
+    DIRECT_TRAFFIC: "Arrivée directe sans source de confiance ni parcours marketing.",
+    PAYMENT_FAILED: "Tentatives de paiement en échec pouvant traduire du test de carte.",
+    VELOCITY_HIGH: "Trop d'actions ou de tentatives sur une courte période.",
+    NEW_DEVICE: "Nouvel appareil non observé auparavant pour ce client.",
+    UNUSUAL_AMOUNT: "Montant qui sort de la distribution habituelle.",
+    FAST_CHECKOUT: "Parcours trop rapide pour un comportement d'achat classique.",
+    GEO_MISMATCH: "Incohérence géographique entre client, session ou moyen de paiement.",
+    AGE_RESTRICTED_ATTEMPT: "Un profil mineur a tenté un achat 18+, le checkout a été stoppé et journalisé.",
+    IDENTITY_CHECK_REQUIRED: "Le flux impose une vérification d'identité rattachée à la commande.",
+    ADULT_CATALOG: "La commande porte sur une catégorie sensible qui mérite un contrôle plus fin.",
+    YOUNG_ADULT: "Profil majeur mais proche du seuil 18+, ce qui justifie une vigilance accrue.",
+    ALT_PAYMENT_METHOD: "Le paiement ne passe pas par la carte standard et demande un examen du contexte.",
+    MANUAL_SETTLEMENT: "Le règlement nécessite une validation plus manuelle qu'un paiement carte classique.",
+    PAYMENT_RISK_REVIEW: "Le paiement a été accepté mais doit être revu a posteriori.",
+  };
+  const STATUS_LABELS = {
+    PENDING_REVIEW: "En attente", INVESTIGATING: "En investigation",
+    APPROVED: "Approuvé", BLOCKED: "Bloqué",
+  };
+  const SEV_LABELS = { HIGH: "Haute", MEDIUM: "Moyenne", LOW: "Basse" };
+  const reason = (r) => REASON_LABELS[r] || r || "—";
+  const meaning = (r) => REASON_MEANINGS[r] || "Signal à analyser avec le reste du contexte client.";
+  const statusLabel = (s) => STATUS_LABELS[s] || s || "—";
+  const sevLabel = (s) => SEV_LABELS[s] || s || "—";
+  function sevVariant(s) { return s === "HIGH" ? "danger" : s === "MEDIUM" ? "warning" : "success"; }
+  function dominantSeverity(row) {
+    const e = [["HIGH", row?.high || 0], ["MEDIUM", row?.medium || 0], ["LOW", row?.low || 0]]
+      .sort((a, b) => b[1] - a[1]);
+    return e[0][1] > 0 ? e[0][0] : null;
+  }
+  function recommendation(a) {
+    const s = a?.status || "";
+    if (s === "APPROVED") return { decision: "Aucune action", note: "Alerte déjà approuvée. Garder en trace seulement." };
+    if (s === "BLOCKED") return { decision: "Blocage confirmé", note: "Le cas est déjà traité comme bloquant." };
+    if (s === "INVESTIGATING") return { decision: "Investigation", note: "Le cas est déjà en cours d'analyse." };
+    const score = a?.risk_score || 0, sev = a?.severity || "";
+    if (sev === "HIGH" && score >= 80) return { decision: "Bloquer", note: "Accumulation de signaux forts. Priorité haute." };
+    if (sev === "HIGH" || score >= 65) return { decision: "Investiguer", note: "Le dossier mérite une revue humaine avant validation." };
+    return { decision: "Surveiller", note: "Signal faible à modéré. Surveillance et validation contextuelle." };
+  }
+
+  function setKpi(id, v) { const e = $(id); if (e) { e.textContent = v; e.classList.remove("skeleton"); } }
+
+  // — Répartition par sévérité (responsive, cartes empilables) —
+  function renderSevGrid() {
+    const grid = $("sev-grid");
+    if (!reasonRows.length) {
+      grid.innerHTML = '<div class="empty-state">Aucune typologie active.</div>';
+      return;
     }
-
-    function setRuntimeStatus(message, isError = false) {
-        const el = document.getElementById('runtime-status');
-        if (!el) return;
-        el.textContent = `Runtime: ${message}`;
-        el.className = 'status-pill';
-        el.classList.add(isError ? 'danger' : 'cool');
-    }
-
-    function translateReason(reason) {
-        const translations = {
-            FIRST_PAYMENT: 'Premier paiement',
-            NEW_CUSTOMER: 'Nouveau client',
-            UNUSUAL_HOUR: 'Horaire suspect',
-            MOBILE_DEVICE: 'Appareil mobile',
-            DIRECT_TRAFFIC: 'Trafic direct',
-            PAYMENT_FAILED: 'Paiement echoue',
-            VELOCITY_HIGH: 'Velocite elevee',
-            NEW_DEVICE: 'Nouvel appareil',
-            UNUSUAL_AMOUNT: 'Montant inhabituel',
-            FAST_CHECKOUT: 'Checkout rapide',
-            GEO_MISMATCH: 'Geo mismatch',
-            AGE_RESTRICTED_ATTEMPT: 'Tentative produit 18+ mineur',
-            IDENTITY_CHECK_REQUIRED: 'Controle identite requis',
-            ADULT_CATALOG: 'Produit sensible',
-            YOUNG_ADULT: 'Jeune adulte',
-            ALT_PAYMENT_METHOD: 'Moyen de paiement alternatif',
-            MANUAL_SETTLEMENT: 'Reglement manuel',
-            PAYMENT_RISK_REVIEW: 'Revue risque paiement'
-        };
-        return translations[reason] || reason || '-';
-    }
-
-    function reasonMeaning(reason) {
-        const meanings = {
-            FIRST_PAYMENT: 'Premier achat sans historique, donc plus difficile a qualifier.',
-            NEW_CUSTOMER: 'Compte recent, peu de recul sur le comportement client.',
-            UNUSUAL_HOUR: 'Horaire atypique par rapport a un comportement normal.',
-            MOBILE_DEVICE: 'Contexte mobile a surveiller si combine a d autres signaux.',
-            DIRECT_TRAFFIC: 'Arrivee directe sans source de confiance ni parcours marketing.',
-            PAYMENT_FAILED: 'Tentatives de paiement en echec pouvant traduire du test de carte.',
-            VELOCITY_HIGH: 'Trop d actions ou de tentatives sur une courte periode.',
-            NEW_DEVICE: 'Nouveau device non observe auparavant pour ce client.',
-            UNUSUAL_AMOUNT: 'Montant qui sort de la distribution habituelle.',
-            FAST_CHECKOUT: 'Parcours trop rapide pour un comportement d achat classique.',
-            GEO_MISMATCH: 'Incoherence geographique entre client, session ou moyen de paiement.',
-            AGE_RESTRICTED_ATTEMPT: 'Un profil mineur a tente un achat 18+, le checkout a ete stoppe et journalise.',
-            IDENTITY_CHECK_REQUIRED: 'Le flux impose une verification d identite rattachee a la commande.',
-            ADULT_CATALOG: 'La commande porte sur une categorie sensible qui merite un controle plus fin.',
-            YOUNG_ADULT: 'Le profil est majeur mais proche du seuil 18+, ce qui justifie une vigilance accrue.',
-            ALT_PAYMENT_METHOD: 'Le paiement ne passe pas par la carte standard et demande un examen du contexte.',
-            MANUAL_SETTLEMENT: 'Le reglement necessite une validation plus manuelle qu un paiement carte classique.',
-            PAYMENT_RISK_REVIEW: 'Le paiement a ete accepte mais doit etre revu a posteriori.'
-        };
-        return meanings[reason] || 'Signal a analyser avec le reste du contexte client.';
-    }
-
-    function translateStatus(status) {
-        const translations = {
-            PENDING_REVIEW: 'En attente',
-            INVESTIGATING: 'En investigation',
-            APPROVED: 'Approuve',
-            BLOCKED: 'Bloque'
-        };
-        return translations[status] || status || '-';
-    }
-
-    function riskBand(score) {
-        if ((score || 0) >= 85) return 'critique';
-        if ((score || 0) >= 70) return 'eleve';
-        if ((score || 0) >= 50) return 'modere';
-        return 'contenu';
-    }
-
-    function recommendationForAlert(alert) {
-        const status = alert?.status || '';
-        if (status === 'APPROVED') {
-            return { decision: 'Aucune action', note: 'Alerte deja approuvee. Garder en trace seulement.' };
-        }
-        if (status === 'BLOCKED') {
-            return { decision: 'Blocage confirme', note: 'Le cas est deja traite comme bloquant.' };
-        }
-        if (status === 'INVESTIGATING') {
-            return { decision: 'Investigation', note: 'Le cas est deja en cours d analyse analyste.' };
-        }
-        const score = alert?.risk_score || 0;
-        const severity = alert?.severity || '';
-        if (severity === 'HIGH' && score >= 80) {
-            return { decision: 'Bloquer', note: 'Accumulation de signaux forts. Priorite haute.' };
-        }
-        if (severity === 'HIGH' || score >= 65) {
-            return { decision: 'Investiguer', note: 'Le dossier merite une revue humaine avant validation.' };
-        }
-        return { decision: 'Surveiller', note: 'Signal faible a modere. Surveillance et validation contextuelle.' };
-    }
-
-    function buildReasonInterpretation(row) {
-        const totalAlerts = currentReasonAlerts.length;
-        const pendingCount = currentReasonAlerts.filter(alert => alert.status === 'PENDING_REVIEW').length;
-        const avgScore = totalAlerts
-            ? currentReasonAlerts.reduce((sum, alert) => sum + (alert.risk_score || 0), 0) / totalAlerts
-            : 0;
-        const dominant = dominantSeverity(row);
-        const recommendation = totalAlerts
-            ? recommendationForAlert(currentReasonAlerts[0] || {})
-            : { decision: 'Surveiller', note: 'Aucune alerte recente chargee sur ce motif.' };
-        return {
-            avgScore,
-            pendingCount,
-            dominant,
-            recommendation,
-            note: `${reasonMeaning(row.reason)} ${pendingCount > 0 ? `${pendingCount} alerte(s) restent en attente.` : 'Aucune alerte en attente sur la fenetre visible.'}`
-        };
-    }
-
-    function severityLabel(severity) {
-        return ({ HIGH: 'Haute', MEDIUM: 'Moyenne', LOW: 'Basse' }[severity]) || severity || '-';
-    }
-
-    function severityTone(severity) {
-        if (severity === 'HIGH') return 'danger';
-        if (severity === 'MEDIUM') return 'warning';
-        if (severity === 'LOW') return 'cool';
-        return 'cool';
-    }
-
-    function fmtNumber(value, digits = 0) {
-        if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
-        return Number(value).toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-    }
-
-    function toShortDate(value) {
-        if (!value) return '-';
-        return new Date(value).toLocaleString('fr-FR');
-    }
-
-    function dominantSeverity(row) {
-        const entries = [
-            ['HIGH', row?.high || 0],
-            ['MEDIUM', row?.medium || 0],
-            ['LOW', row?.low || 0]
-        ].sort((a, b) => b[1] - a[1]);
-        return entries[0][1] > 0 ? entries[0][0] : null;
-    }
-
-    function heatColor(value, max, tone) {
-        const ratio = max > 0 ? value / max : 0;
-        if (!value) return 'rgba(223, 232, 240, 0.55)';
-        if (tone === 'HIGH') return `rgba(203, 90, 97, ${0.16 + ratio * 0.68})`;
-        if (tone === 'MEDIUM') return `rgba(208, 148, 46, ${0.16 + ratio * 0.65})`;
-        return `rgba(47, 125, 97, ${0.16 + ratio * 0.68})`;
-    }
-
-    function renderSplitBar(targetId, counts, total) {
-        const el = document.getElementById(targetId);
-        if (!total) {
-            el.innerHTML = '<div class="empty-state">Aucune repartition disponible.</div>';
-            return;
-        }
-        el.innerHTML = `
-            <div class="stacked-bar">
-                ${counts.map(item => `<div class="stacked-segment ${item.tone}" style="width:${Math.max((item.value / total) * 100, item.value > 0 ? 6 : 0)}%;"></div>`).join('')}
-            </div>
-        `;
-    }
-
-    function renderBarList(containerId, rows) {
-        const container = document.getElementById(containerId);
-        if (!rows.length) {
-            container.innerHTML = '<div class="empty-state">Aucune valeur disponible.</div>';
-            return;
-        }
-        const max = Math.max(...rows.map(row => row.total || 0), 1);
-        container.innerHTML = rows.map(row => `
-            <div class="bar-row">
-                <div class="bar-label">${escapeHtml(translateReason(row.reason))}</div>
-                <div class="bar-track"><div class="bar-fill gold" style="width:${((row.total || 0) / max) * 100}%;"></div></div>
-                <div class="bar-value">${fmtNumber(row.total || 0)}</div>
-            </div>
-        `).join('');
-    }
-
-    function renderHeatmap(rows) {
-        const container = document.getElementById('severity-heatmap');
-        if (!rows.length) {
-            container.innerHTML = '<div class="empty-state">Aucune typologie active.</div>';
-            return;
-        }
-        const max = Math.max(...rows.flatMap(row => [row.high || 0, row.medium || 0, row.low || 0]), 1);
-        container.innerHTML = `
-            <div class="heatmap-header">
-                <div>Typologie</div>
-                <div>High</div>
-                <div>Medium</div>
-                <div>Low</div>
-            </div>
-            ${rows.map(row => `
-                <div class="heatmap-row" data-reason="${escapeHtml(row.reason)}">
-                    <button type="button" class="heatmap-label ${row.reason === selectedReason ? 'active' : ''}" data-reason="${escapeHtml(row.reason)}">${escapeHtml(translateReason(row.reason))}</button>
-                    <button type="button" class="heatmap-cell ${row.reason === selectedReason ? 'active' : ''}" data-reason="${escapeHtml(row.reason)}" style="background:${heatColor(row.high || 0, max, 'HIGH')};">${fmtNumber(row.high || 0)}</button>
-                    <button type="button" class="heatmap-cell ${row.reason === selectedReason ? 'active' : ''}" data-reason="${escapeHtml(row.reason)}" style="background:${heatColor(row.medium || 0, max, 'MEDIUM')};">${fmtNumber(row.medium || 0)}</button>
-                    <button type="button" class="heatmap-cell ${row.reason === selectedReason ? 'active' : ''}" data-reason="${escapeHtml(row.reason)}" style="background:${heatColor(row.low || 0, max, 'LOW')};">${fmtNumber(row.low || 0)}</button>
-                </div>
-            `).join('')}
-        `;
-        container.querySelectorAll('[data-reason]').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedReason = node.dataset.reason;
-                document.getElementById('reason-select').value = selectedReason;
-                renderHeatmap(currentReasonRows);
-                renderReasonFocus();
-                loadReasonAlerts();
-            });
-        });
-    }
-
-    function renderReasonFocus() {
-        const row = currentReasonRows.find(item => item.reason === selectedReason) || currentReasonRows[0] || null;
-        const totalAll = currentReasonRows.reduce((sum, item) => sum + (item.total || 0), 0);
-        if (!row) {
-            document.getElementById('selected-reason-title').textContent = 'Aucun motif';
-            document.getElementById('selected-reason-copy').textContent = 'Aucune donnee sur la fenetre.';
-            document.getElementById('selected-reason-insights').innerHTML = '<li>Aucune alerte disponible.</li>';
-            document.getElementById('focus-reason-total').textContent = '-';
-            document.getElementById('focus-reason-meta').textContent = '-';
-            document.getElementById('selected-reason-meta').textContent = '-';
-            document.getElementById('focus-operational-grid').innerHTML = '';
-            document.getElementById('focus-interpretation-note').textContent = 'Aucune interpretation disponible.';
-            return;
-        }
-
-        selectedReason = row.reason;
-        const dominant = dominantSeverity(row);
-        const share = totalAll ? ((row.total || 0) / totalAll) * 100 : 0;
-        const reasonInterpretation = buildReasonInterpretation(row);
-        document.getElementById('selected-reason-title').textContent = translateReason(row.reason);
-        document.getElementById('selected-reason-copy').textContent = `${fmtNumber(row.total || 0)} alerte(s) | ${fmtNumber(share, 1)}% du volume observe.`;
-        document.getElementById('selected-reason-meta').textContent = `${translateReason(row.reason)} | dominante ${severityLabel(dominant)}`;
-        document.getElementById('selected-reason-severity').textContent = severityLabel(dominant);
-        document.getElementById('selected-reason-severity').className = 'status-pill';
-        document.getElementById('selected-reason-severity').classList.add(severityTone(dominant));
-        document.getElementById('selected-reason-insights').innerHTML = [
-            reasonMeaning(row.reason),
-            `${fmtNumber(row.high || 0)} alertes haute severite`,
-            `${fmtNumber(row.medium || 0)} alertes moyenne severite`,
-            `${fmtNumber(row.low || 0)} alertes basse severite`,
-            `${reasonInterpretation.pendingCount} alerte(s) en attente`
-        ].map(item => `<li>${item}</li>`).join('');
-
-        document.getElementById('summary-types-count').textContent = fmtNumber(currentReasonRows.length);
-        document.getElementById('summary-top-reason').textContent = translateReason(currentReasonRows[0]?.reason || '-');
-        document.getElementById('summary-top-reason-copy').textContent = currentReasonRows.length ? `${fmtNumber(currentReasonRows[0].total || 0)} alertes sur le motif leader.` : '-';
-        document.getElementById('summary-top-severity').textContent = severityLabel(dominantSeverity(currentReasonRows[0] || row));
-        document.getElementById('summary-top-severity-copy').textContent = currentReasonRows.length ? `${fmtNumber(((currentReasonRows[0]?.high || 0) / Math.max(currentReasonRows[0]?.total || 1, 1)) * 100, 1)}% high sur le motif leader.` : '-';
-        document.getElementById('summary-selected-total').textContent = fmtNumber(row.total || 0);
-        document.getElementById('summary-selected-copy').textContent = `${reasonInterpretation.pendingCount} en attente | score moyen ${fmtNumber(reasonInterpretation.avgScore, 1)}`;
-        document.getElementById('focus-share-pill').textContent = `${fmtNumber(share, 1)}% du total`;
-        document.getElementById('focus-share-pill').className = 'status-pill';
-        document.getElementById('focus-share-pill').classList.add(share >= 20 ? 'warning' : 'cool');
-        document.getElementById('focus-reason-total').textContent = `${fmtNumber(row.total || 0)} alertes`;
-        document.getElementById('focus-reason-meta').textContent = `Dominante ${severityLabel(dominant)} | rang #${Math.max(currentReasonRows.findIndex(item => item.reason === row.reason), 0) + 1} | score moyen ${fmtNumber(reasonInterpretation.avgScore, 1)}`;
-
-        const counts = [
-            { label: 'High', value: row.high || 0, tone: 'high' },
-            { label: 'Medium', value: row.medium || 0, tone: 'medium' },
-            { label: 'Low', value: row.low || 0, tone: 'low' }
-        ];
-        renderSplitBar('focus-severity-bar', counts, row.total || 0);
-        document.getElementById('focus-severity-legend').innerHTML = counts.map(item => `
-            <span class="legend-chip"><span class="legend-dot ${item.tone}"></span>${item.label} ${fmtNumber(item.value)}</span>
-        `).join('');
-        document.getElementById('focus-operational-grid').innerHTML = `
-            <div class="split-metric">En attente<strong>${fmtNumber(reasonInterpretation.pendingCount)}</strong></div>
-            <div class="split-metric">Score moyen<strong>${fmtNumber(reasonInterpretation.avgScore, 1)}</strong></div>
-            <div class="split-metric">Priorite<strong>${severityLabel(dominant)}</strong></div>
-            <div class="split-metric">Action cible<strong>${escapeHtml(reasonInterpretation.recommendation.decision)}</strong></div>
-        `;
-        document.getElementById('focus-interpretation-note').innerHTML = `
-            <strong>${escapeHtml(translateReason(row.reason))}</strong>
-            ${escapeHtml(reasonInterpretation.note)} Recommandation dominante: ${escapeHtml(reasonInterpretation.recommendation.note)}
-        `;
-        renderBarList('reason-bars', currentReasonRows.slice(0, 6));
-    }
-
-    function renderAlertList() {
-        const container = document.getElementById('alerts-list');
-        if (!currentReasonAlerts.length) {
-            container.innerHTML = '<div class="empty-state">Aucune alerte recente sur ce motif.</div>';
-            document.getElementById('selected-alerts-copy').textContent = 'Aucune ligne disponible.';
-            document.getElementById('selected-alerts-summary').innerHTML = '';
-            document.getElementById('selected-alerts-pill').textContent = 'vide';
-            document.getElementById('selected-alerts-pill').className = 'status-pill';
-            document.getElementById('selected-alerts-pill').classList.add('cool');
-            return;
-        }
-        const visibleAlerts = currentReasonAlerts.slice(0, 18);
-        const highCount = currentReasonAlerts.filter(alert => alert.severity === 'HIGH').length;
-        const pendingCount = currentReasonAlerts.filter(alert => alert.status === 'PENDING_REVIEW').length;
-        const avgScore = currentReasonAlerts.reduce((sum, alert) => sum + (alert.risk_score || 0), 0) / currentReasonAlerts.length;
-        document.getElementById('selected-alerts-copy').textContent = `${visibleAlerts.length}/${currentReasonAlerts.length} lignes affichees`;
-        document.getElementById('selected-alerts-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">High ${fmtNumber(highCount)}</span>
-                <span class="key-stat">En attente ${fmtNumber(pendingCount)}</span>
-                <span class="key-stat">Score moyen ${fmtNumber(avgScore, 1)}</span>
-                <span class="key-stat">Derniere ${toShortDate(currentReasonAlerts[0]?.alert_timestamp)}</span>
-            </div>
-        `;
-        document.getElementById('selected-alerts-pill').textContent = highCount > 0 ? 'priorite' : 'stable';
-        document.getElementById('selected-alerts-pill').className = 'status-pill';
-        document.getElementById('selected-alerts-pill').classList.add(highCount > 0 ? 'danger' : 'cool');
-        container.innerHTML = visibleAlerts.map(alert => `
-            <article class="list-item ${alert.alert_id === selectedAlertId ? 'active' : ''}" data-alert-id="${escapeHtml(alert.alert_id)}">
-                <div class="list-item-head">
-                    <div>
-                        <div class="list-item-title">${escapeHtml(alert.alert_id)}</div>
-                        <div class="list-item-meta">${toShortDate(alert.alert_timestamp)} | ${escapeHtml(alert.customer_id || '-')} | ${escapeHtml(translateStatus(alert.status))}</div>
-                    </div>
-                    <span class="chip ${severityTone(alert.severity)}">${severityLabel(alert.severity)}</span>
-                </div>
-                <div class="list-item-copy">Score ${fmtNumber(alert.risk_score)} | ${escapeHtml(alert.customer_country || '-')} | action ${escapeHtml(recommendationForAlert(alert).decision)}</div>
-                <div class="tag-row">
-                    <span class="soft-tag">${escapeHtml(riskBand(alert.risk_score))}</span>
-                    ${(alert.fraud_reasons || []).slice(0, 3).map(reason => `<span class="soft-tag">${escapeHtml(translateReason(reason))}</span>`).join('')}
-                </div>
-            </article>
-        `).join('');
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedAlertId = node.dataset.alertId;
-                renderAlertList();
-                renderAlertDetail();
-            });
-        });
-    }
-
-    function renderAlertDetail() {
-        const container = document.getElementById('alert-detail');
-        const row = currentReasonRows.find(item => item.reason === selectedReason) || null;
-        const alert = currentReasonAlerts.find(item => item.alert_id === selectedAlertId) || currentReasonAlerts[0] || null;
-        if (!alert) {
-            container.innerHTML = row
-                ? `
-                    <div class="detail-head">
-                        <div>
-                            <h3>${escapeHtml(translateReason(row.reason))}</h3>
-                            <p>Aucune alerte recente sur ce motif.</p>
-                        </div>
-                    </div>
-                    <div class="split-grid">
-                        <div class="split-metric">High<strong>${fmtNumber(row.high || 0)}</strong></div>
-                        <div class="split-metric">Medium<strong>${fmtNumber(row.medium || 0)}</strong></div>
-                        <div class="split-metric">Low<strong>${fmtNumber(row.low || 0)}</strong></div>
-                    </div>
-                `
-                : '<div class="empty-state">Aucun detail disponible.</div>';
-            return;
-        }
-        selectedAlertId = alert.alert_id;
-        const recommendation = recommendationForAlert(alert);
-        const additionalReasons = (alert.fraud_reasons || []).filter(reason => reason !== selectedReason);
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>${escapeHtml(alert.alert_id)}</h3>
-                    <p>${escapeHtml(translateReason(selectedReason))} | ${toShortDate(alert.alert_timestamp)}</p>
-                </div>
-                <span class="chip ${severityTone(alert.severity)}">${severityLabel(alert.severity)}</span>
-            </div>
-            <div class="detail-score">
-                <div class="list-item-head">
-                    <div>
-                        <div class="list-item-title">Score ${fmtNumber(alert.risk_score)}/100</div>
-                        <div class="list-item-meta">${escapeHtml(alert.event_type || '-')} | ${escapeHtml(translateStatus(alert.status))}</div>
-                    </div>
-                    <span class="status-pill ${severityTone(alert.severity)}">${escapeHtml(alert.customer_country || '-')}</span>
-                </div>
-                <div class="progress-track" style="margin-top:10px; height:12px;">
-                    <div class="progress-value" style="width:${Math.min(Math.max(alert.risk_score || 0, 0), 100)}%; background:${alert.severity === 'HIGH' ? 'var(--danger)' : alert.severity === 'MEDIUM' ? 'var(--warning)' : 'var(--accent-cool)'};"></div>
-                </div>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Priorite</span><strong>${escapeHtml(riskBand(alert.risk_score))}</strong></div>
-                <div class="detail-card"><span>Action cible</span><strong>${escapeHtml(recommendation.decision)}</strong></div>
-                <div class="detail-card"><span>Statut</span><strong>${escapeHtml(translateStatus(alert.status))}</strong></div>
-                <div class="detail-card"><span>Client</span><strong>${escapeHtml(alert.customer_id || '-')}</strong></div>
-                <div class="detail-card"><span>Session</span><strong>${escapeHtml(alert.session_id || '-')}</strong></div>
-                <div class="detail-card"><span>Pays</span><strong>${escapeHtml(alert.customer_country || '-')}</strong></div>
-                <div class="detail-card"><span>Appareil</span><strong>${escapeHtml(alert.device || '-')}</strong></div>
-                <div class="detail-card"><span>Paiements precedents</span><strong>${fmtNumber(alert.previous_payments || 0)}</strong></div>
-                <div class="detail-card"><span>Nouveau client</span><strong>${alert.is_new_customer ? 'Oui' : 'Non'}</strong></div>
-            </div>
-            <div class="emphasis-note">${escapeHtml(recommendation.note)}</div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Motifs presents</h3>
-                        <p>Cette alerte peut porter plusieurs signaux simultanement.</p>
-                    </div>
-                </div>
-                <div class="tag-row">
-                    ${(alert.fraud_reasons || []).map(reason => `<span class="soft-tag">${escapeHtml(translateReason(reason))}</span>`).join('')}
-                </div>
-                <div class="divider"></div>
-                <p class="detail-copy">Le motif principal ${escapeHtml(translateReason(selectedReason))} signifie: ${escapeHtml(reasonMeaning(selectedReason))}</p>
-                <p class="detail-copy">${additionalReasons.length ? `Autres signaux presents: ${additionalReasons.map(reason => translateReason(reason)).join(', ')}.` : 'Aucun signal secondaire sur cette alerte.'}</p>
-                <p class="detail-copy">Statut ${escapeHtml(translateStatus(alert.status))} | Evenement ${escapeHtml(alert.event_type || '-')} recu le ${toShortDate(alert.event_timestamp || alert.alert_timestamp)}.</p>
-            </div>
-            <div class="detail-actions">
-                ${alert.status === 'PENDING_REVIEW' ? `
-                    <div class="action-row">
-                        <button class="btn-success" onclick="decideAlert('${escapeHtml(alert.alert_id)}', 'APPROVE')">Approuver</button>
-                        <button class="btn-danger" onclick="decideAlert('${escapeHtml(alert.alert_id)}', 'BLOCK')">Bloquer</button>
-                        <button class="btn-warning" onclick="decideAlert('${escapeHtml(alert.alert_id)}', 'INVESTIGATE')">Investiguer</button>
-                    </div>
-                ` : ''}
-            </div>
-        `;
-    }
-
-    async function loadReasonStats() {
-        const windowHours = document.getElementById('window-hours').value;
-        const response = await fetch(`${API_URL}/api/fraud/reasons/stats?window_hours=${windowHours}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        currentReasonRows = await response.json();
-        const select = document.getElementById('reason-select');
-        const previousReason = selectedReason || select.value;
-        select.innerHTML = currentReasonRows.map(row => `<option value="${row.reason}">${translateReason(row.reason)} (${row.total})</option>`).join('');
-        if (currentReasonRows.some(row => row.reason === previousReason)) {
-            selectedReason = previousReason;
-        } else {
-            selectedReason = currentReasonRows[0]?.reason || null;
-        }
-        select.value = selectedReason || '';
-        renderHeatmap(currentReasonRows);
-        renderReasonFocus();
-    }
-
-    async function loadReasonAlerts() {
-        if (!selectedReason) {
-            currentReasonAlerts = [];
-            renderAlertList();
-            renderAlertDetail();
-            return;
-        }
-        const response = await fetch(`${API_URL}/api/fraud/reasons/${encodeURIComponent(selectedReason)}/alerts?limit=80`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        currentReasonAlerts = await response.json();
-        if (!currentReasonAlerts.some(alert => alert.alert_id === selectedAlertId)) {
-            selectedAlertId = currentReasonAlerts[0]?.alert_id || null;
-        }
-        renderReasonFocus();
-        renderAlertList();
-        renderAlertDetail();
-    }
-
-    async function decideAlert(alertId, decision) {
-        const decidedBy = prompt('Votre nom ou email:') || 'ops@kivendtout.fr';
-        const notes = prompt('Note optionnelle:') || '';
-        try {
-            const response = await fetch(`${API_URL}/api/alerts/${alertId}/decide`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ decision, decided_by: decidedBy, notes })
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            await loadReasonAlerts();
-        } catch (error) {
-            console.error('Erreur decision:', error);
-            setRuntimeStatus('decision impossible', true);
-        }
-    }
-
-    async function refreshAll() {
-        try {
-            await loadReasonStats();
-            await loadReasonAlerts();
-            if (opsController) {
-                opsController.markRefresh('typologies');
-            }
-        } catch (error) {
-            console.error(error);
-            document.getElementById('severity-heatmap').innerHTML = '<div class="empty-state">Erreur API. Verifiez le backend.</div>';
-            document.getElementById('alerts-list').innerHTML = '<div class="empty-state">Erreur de chargement.</div>';
-            document.getElementById('alert-detail').innerHTML = '<div class="empty-state">Erreur de chargement.</div>';
-        }
-    }
-
-    document.getElementById('reason-select').addEventListener('change', event => {
-        selectedReason = event.target.value;
-        renderHeatmap(currentReasonRows);
-        renderReasonFocus();
-        loadReasonAlerts();
+    grid.innerHTML = reasonRows.map((row) => {
+      const total = row.total || 0;
+      const w = (v) => total > 0 ? Math.max((v / total) * 100, v > 0 ? 4 : 0) : 0;
+      const sel = row.reason === selectedReason ? " selected" : "";
+      return `<button type="button" class="sev-card${sel}" data-reason="${KV.escapeHtml(row.reason)}">
+        <div class="sev-card__top">
+          <span class="sev-card__name">${KV.escapeHtml(reason(row.reason))}</span>
+          <span class="sev-card__total">${KV.fmtNumber(total)} alerte(s)</span>
+        </div>
+        <div class="sev-bar" role="img" aria-label="Haute ${row.high||0}, moyenne ${row.medium||0}, basse ${row.low||0}">
+          <span class="sev-seg--high" style="width:${w(row.high || 0)}%"></span>
+          <span class="sev-seg--medium" style="width:${w(row.medium || 0)}%"></span>
+          <span class="sev-seg--low" style="width:${w(row.low || 0)}%"></span>
+        </div>
+      </button>`;
+    }).join("");
+    grid.querySelectorAll("[data-reason]").forEach((node) => {
+      node.addEventListener("click", () => selectReason(node.dataset.reason));
     });
-    document.getElementById('window-hours').addEventListener('change', refreshAll);
+  }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        if (window.KiDashboardOps) {
-            opsController = window.KiDashboardOps.attach({
-                apiUrl: API_URL,
-                onAfterReset: () => refreshAll()
-            });
-        }
-        setRuntimeStatus('idle');
-        refreshAll();
-        if (window.KiLiveSync) {
-            window.KiLiveSync.attach({
-                apiUrl: API_URL,
-                onTick: refreshAll,
-                onState: state => {
-                    if (opsController) {
-                        opsController.updateLiveState(state);
-                    }
-                },
-                setStatus: setRuntimeStatus,
-                refreshOnIdleEveryMs: 1000,
-                activeRefreshEveryMs: 1000,
-                minRefreshIntervalMs: 1000,
-                reconnectDelayMs: 1000,
-                fallbackEveryMs: 1000
-            });
-        }
+  function renderFocus() {
+    const row = reasonRows.find((r) => r.reason === selectedReason) || reasonRows[0] || null;
+    if (!row) {
+      $("focus-title").textContent = "Aucun motif";
+      $("focus-meta").textContent = "Aucune donnée disponible.";
+      $("focus-desc").textContent = "—";
+      ["f-high", "f-medium", "f-low", "f-share"].forEach((id) => $(id).textContent = "—");
+      return;
+    }
+    const totalAll = reasonRows.reduce((s, r) => s + (r.total || 0), 0);
+    const share = totalAll ? ((row.total || 0) / totalAll) * 100 : 0;
+    const dom = dominantSeverity(row);
+    $("focus-title").textContent = reason(row.reason);
+    $("focus-meta").textContent = `${KV.fmtNumber(row.total || 0)} alerte(s) · dominante ${sevLabel(dom)}`;
+    $("focus-desc").textContent = meaning(row.reason);
+    $("f-high").textContent = KV.fmtNumber(row.high || 0);
+    $("f-medium").textContent = KV.fmtNumber(row.medium || 0);
+    $("f-low").textContent = KV.fmtNumber(row.low || 0);
+    $("f-share").textContent = KV.fmtPercent(share, 1);
+
+    // KPIs
+    setKpi("k-top", reason(reasonRows[0]?.reason || "—"));
+    setKpi("k-top-sub", reasonRows.length ? `${KV.fmtNumber(reasonRows[0].total || 0)} alerte(s) sur le motif leader` : "—");
+    setKpi("k-count", KV.fmtNumber(reasonRows.length));
+    setKpi("k-count-sub", "motifs présents sur les données courantes");
+    const dom0 = dominantSeverity(reasonRows[0] || row);
+    setKpi("k-sev", sevLabel(dom0));
+    setKpi("k-sev-sub", "sévérité majoritaire du motif leader");
+    setKpi("k-sel", KV.fmtNumber(row.total || 0));
+    setKpi("k-sel-sub", `${reason(row.reason)} · part ${KV.fmtPercent(share, 1)} (motifs non exclusifs)`);
+  }
+
+  function renderAlertList() {
+    const list = $("alerts-list");
+    if (!selectedReason) {
+      list.innerHTML = '<div class="empty-state">Sélectionnez un motif pour afficher ses alertes.</div>';
+      $("alerts-copy").textContent = "—";
+      $("alerts-pill").textContent = "—"; $("alerts-pill").className = "badge";
+      return;
+    }
+    if (!reasonAlerts.length) {
+      list.innerHTML = '<div class="empty-state">Aucune alerte récente sur ce motif.</div>';
+      $("alerts-copy").textContent = "Aucune ligne disponible.";
+      $("alerts-pill").textContent = "vide"; $("alerts-pill").className = "badge";
+      return;
+    }
+    const visible = reasonAlerts.slice(0, 18);
+    const high = reasonAlerts.filter((a) => a.severity === "HIGH").length;
+    const pending = reasonAlerts.filter((a) => a.status === "PENDING_REVIEW").length;
+    $("alerts-copy").textContent = `${visible.length}/${reasonAlerts.length} alerte(s) · ${pending} en attente`;
+    $("alerts-pill").textContent = high > 0 ? `${high} haute(s)` : "stable";
+    $("alerts-pill").className = "badge " + (high > 0 ? "badge--danger" : "badge--success");
+    list.innerHTML = visible.map((a) => `
+      <div class="alert-item${a.alert_id === selectedAlertId ? " selected" : ""}" data-alert-id="${KV.escapeHtml(a.alert_id)}">
+        <div class="alert-item__head">
+          <div class="row__title">${KV.escapeHtml(a.alert_id)}</div>
+          <span class="badge badge--${sevVariant(a.severity)}">${sevLabel(a.severity)}</span>
+        </div>
+        <div class="row__meta">${KV.fmtDate(a.alert_timestamp)} · ${KV.escapeHtml(a.customer_id || "—")} · ${statusLabel(a.status)} · score ${KV.fmtNumber(a.risk_score)}</div>
+      </div>`).join("");
+    list.querySelectorAll("[data-alert-id]").forEach((node) => {
+      node.addEventListener("click", () => { selectedAlertId = node.dataset.alertId; renderAlertList(); renderAlertDetail(); });
     });
+  }
+
+  function renderAlertDetail() {
+    const box = $("alert-detail");
+    const a = reasonAlerts.find((x) => x.alert_id === selectedAlertId) || reasonAlerts[0] || null;
+    if (!a) { box.innerHTML = '<div class="empty-state">Sélectionnez une alerte pour voir le détail.</div>'; return; }
+    selectedAlertId = a.alert_id;
+    const rec = recommendation(a);
+    const others = (a.fraud_reasons || []).filter((r) => r !== selectedReason).map(reason);
+    box.innerHTML = `
+      <div class="card__head">
+        <div><h2 style="font-size:var(--t-title-sm)">${KV.escapeHtml(a.alert_id)}</h2>
+          <p>${reason(selectedReason)} · ${KV.fmtDate(a.alert_timestamp)}</p></div>
+        <span class="badge badge--${sevVariant(a.severity)}">${sevLabel(a.severity)}</span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-cell"><span>Score</span><strong>${KV.fmtNumber(a.risk_score)}/100</strong></div>
+        <div class="detail-cell"><span>Statut</span><strong>${statusLabel(a.status)}</strong></div>
+        <div class="detail-cell"><span>Action cible</span><strong>${KV.escapeHtml(rec.decision)}</strong></div>
+        <div class="detail-cell"><span>Client</span><strong>${KV.escapeHtml(a.customer_id || "—")}</strong></div>
+        <div class="detail-cell"><span>Pays</span><strong>${KV.escapeHtml(a.customer_country || "—")}</strong></div>
+        <div class="detail-cell"><span>Appareil</span><strong>${KV.escapeHtml(a.device || "—")}</strong></div>
+      </div>
+      <p class="muted" style="font-size:var(--t-body-sm);margin-top:var(--space-3)">${KV.escapeHtml(rec.note)}</p>
+      <div class="chip-row" style="margin-top:var(--space-2)">
+        ${(a.fraud_reasons || []).map((r) => `<span class="badge">${KV.escapeHtml(reason(r))}</span>`).join("") || '<span class="muted">Aucun motif listé.</span>'}
+      </div>
+      ${others.length ? `<p class="muted" style="font-size:var(--t-body-sm);margin-top:var(--space-2)">Autres signaux : ${KV.escapeHtml(others.join(", "))}.</p>` : ""}
+      ${a.status === "PENDING_REVIEW" ? `
+        <div class="chip-row" style="margin-top:var(--space-4)">
+          <button class="btn btn--filled" data-decide="APPROVE">Approuver</button>
+          <button class="btn btn--danger" data-decide="BLOCK">Bloquer</button>
+          <button class="btn btn--outlined" data-decide="INVESTIGATE">Investiguer</button>
+        </div>` : ""}
+    `;
+    box.querySelectorAll("[data-decide]").forEach((b) => {
+      b.addEventListener("click", () => decideAlert(a.alert_id, b.dataset.decide));
+    });
+  }
+
+  function selectReason(r) {
+    if (selectedReason === r) return;
+    selectedReason = r;
+    selectedAlertId = null;
+    renderSevGrid();
+    renderFocus();
+    loadAlerts();
+  }
+
+  async function loadStats() {
+    const rows = await KV.getJSON("/api/fraud/reasons/stats");
+    reasonRows = Array.isArray(rows) ? rows : [];
+    if (reasonRows.length && !reasonRows.some((r) => r.reason === selectedReason)) {
+      selectedReason = reasonRows[0].reason;
+    }
+    renderSevGrid();
+    renderFocus();
+  }
+
+  async function loadAlerts() {
+    if (!selectedReason) { reasonAlerts = []; renderAlertList(); renderAlertDetail(); return; }
+    const rows = await KV.getJSON(`/api/fraud/reasons/${encodeURIComponent(selectedReason)}/alerts?limit=80`);
+    reasonAlerts = Array.isArray(rows) ? rows : [];
+    if (!reasonAlerts.some((a) => a.alert_id === selectedAlertId)) {
+      selectedAlertId = reasonAlerts[0]?.alert_id || null;
+    }
+    renderAlertList();
+    renderAlertDetail();
+  }
+
+  async function load() {
+    $("err").classList.remove("show");
+    const [stats, alerts] = await Promise.allSettled([loadStats(), loadAlerts()]);
+    if (stats.status === "rejected" && (alerts.status === "rejected" || !reasonRows.length)) {
+      $("err").classList.add("show");
+    }
+    $("freshness").innerHTML = '<span class="badge__dot"></span>MAJ ' + new Date().toLocaleTimeString("fr-FR");
+  }
+
+  // Décision : modale Material, opérateur demandé une seule fois puis réutilisé.
+  async function decideAlert(alertId, decision) {
+    const fields = [{ key: "notes", label: "Note (optionnelle)", type: "textarea", placeholder: "Contexte de la décision…" }];
+    if (!operatorName) {
+      fields.unshift({ key: "operator", label: "Opérateur", placeholder: "nom ou email", value: "" });
+    }
+    const out = await KV.modal({
+      title: "Confirmer la décision",
+      message: `${decision} sur l'alerte ${alertId}.`,
+      fields,
+      confirmLabel: "Confirmer",
+      danger: decision === "BLOCK",
+    });
+    if (!out) return;
+    if (out.operator) operatorName = out.operator;
+    const decidedBy = operatorName || "ops@kivendtout.fr";
+    try {
+      const r = await fetch(`${KV.API_URL}/api/alerts/${alertId}/decide`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision, decided_by: decidedBy, notes: out.notes || "" }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      await loadAlerts();
+    } catch (e) {
+      console.error(e);
+      await KV.modal({ title: "Décision impossible", message: "L'API n'a pas accepté la décision. Réessayez.", confirmLabel: "Fermer" });
+    }
+  }
+
+  // Contrat V2 vocal : filtrer un motif via la voix.
+  window.applyVoiceFilter = function (field, code) {
+    if (field !== "reason") return false;
+    const match = reasonRows.find((r) => r.reason === code);
+    if (!match) return false;
+    selectReason(code);
+    return true;
+  };
+
+  // Barre de commande : Entrée = exécuter (équivalent texte de la voix)
+  $("cmd").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.value.trim() && window.KVVoice) {
+      window.KVVoice.runText(e.target.value.trim()); e.target.value = "";
+    }
+  });
+  $("refresh").addEventListener("click", load);
+  KV.createPoller(load, 15000).start();
 </script>
-<!-- Couche IA generative vocale -->
 <script src="voice_control.js"></script>
 </body>
 </html>

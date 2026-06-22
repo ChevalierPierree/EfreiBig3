@@ -189,6 +189,9 @@
   }
 
   function applyOnPage(field, code) {
+    // Contrat V2 : la page expose applyVoiceFilter(field, code) (chips Material).
+    if (typeof window.applyVoiceFilter === "function") return !!window.applyVoiceFilter(field, code);
+    // Repli V1 : <select id="filter-...">.
     const sel = document.getElementById("filter-" + field);
     if (!sel) return false;
     sel.value = code;

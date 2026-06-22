@@ -1,1073 +1,539 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mineurs et ID Cards - KiVendTout</title>
-    <link rel="stylesheet" href="dashboard_theme.css">
-    <style>
-        .identity-thumb {
-            width: 64px;
-            height: 46px;
-            object-fit: cover;
-            border-radius: 12px;
-            background: rgba(31, 79, 130, 0.08);
-            border: 1px solid rgba(31, 79, 130, 0.08);
-            flex: 0 0 auto;
-        }
-
-        .identity-media {
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 20px;
-            background: linear-gradient(180deg, rgba(31, 79, 130, 0.05) 0%, rgba(91, 127, 155, 0.05) 100%);
-            border: 1px solid rgba(31, 79, 130, 0.08);
-        }
-
-        .identity-media img {
-            width: 100%;
-            max-height: 320px;
-            object-fit: cover;
-            display: block;
-            border-radius: 16px;
-            background: rgba(31, 79, 130, 0.08);
-        }
-
-        .identity-caption {
-            margin-top: 10px;
-            color: var(--ink-760);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
-            margin-top: 14px;
-        }
-
-        @media (max-width: 720px) {
-            .identity-thumb {
-                width: 56px;
-                height: 42px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KiVendTout — Identité</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme_v2.css">
+  <style>
+    /* Vignette + média CNI, alignés sur le design system V2 */
+    .id-thumb { width: 56px; height: 40px; object-fit: cover; border-radius: var(--radius-xs);
+      background: var(--surface-2); border: 1px solid var(--outline-variant); flex: none; }
+    .id-media { margin: var(--space-3) 0; padding: var(--space-3); border-radius: var(--radius-sm);
+      background: var(--surface-1); border: 1px solid var(--outline-variant); }
+    .id-media img { width: 100%; max-height: 300px; object-fit: cover; display: block;
+      border-radius: var(--radius-xs); background: var(--surface-2); }
+    .detail-grid { display: grid; gap: var(--space-3);
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: var(--space-4); }
+    .detail-card { background: var(--surface-1); border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xs); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); }
+    .detail-card span { font-size: var(--t-label); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    .detail-card strong { font-weight: var(--fw-medium); font-size: var(--t-body); word-break: break-word; }
+    .list-row { display: block; width: 100%; text-align: left; background: var(--surface);
+      border: 1px solid var(--outline-variant); border-radius: var(--radius-xs); padding: var(--space-3);
+      margin-bottom: var(--space-2); cursor: pointer; transition: box-shadow .15s, border-color .15s; }
+    .list-row:hover { box-shadow: var(--elev-1); }
+    .list-row.active { border-color: var(--blue); background: var(--surface-1); }
+    .list-row__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+    .list-row__title { font-weight: var(--fw-medium); color: var(--on-surface); }
+    .list-row__meta { font-size: var(--t-body-sm); color: var(--muted); margin-top: 2px; }
+    .scroll-list { max-height: 520px; overflow-y: auto; padding-right: var(--space-1); }
+    details.demo { background: var(--surface); border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-sm); padding: var(--space-4) var(--space-5); }
+    details.demo > summary { cursor: pointer; font-weight: var(--fw-medium); font-size: var(--t-title-sm);
+      color: var(--on-surface); list-style: none; }
+    details.demo > summary::-webkit-details-marker { display: none; }
+    details.demo > summary::before { content: "▸ "; color: var(--muted); }
+    details.demo[open] > summary::before { content: "▾ "; }
+    .checks { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
+  </style>
 </head>
 <body>
+<!-- Top app bar : marque + barre de commande (voix + texte) + actions -->
+<header class="appbar">
+  <div class="appbar__brand"><span class="logo">K</span> KiVendTout</div>
+  <div class="appbar__spacer"></div>
+  <div class="cmdbar">
+    <span class="ic">🔎</span>
+    <input id="cmd" type="text" placeholder="Rechercher ou demander… ex : « filtre sévérité haute »"
+           aria-label="Commande" autocomplete="off">
+    <button class="mic-btn" data-voice-trigger title="Parler (ou maintenir P)" aria-label="Commande vocale">🎙️</button>
+  </div>
+  <button class="btn--icon" id="refresh" title="Actualiser" aria-label="Actualiser">↻</button>
+</header>
+
 <div class="layout">
-    <nav class="top-nav">
-        <a href="index.html">Overview</a>
-        <a href="fraud_dashboard.html">Fraude</a>
-        <a href="fraud_types_dashboard.html">Typologies</a>
-        <a class="active" href="id_cards_dashboard.html">Identite</a>
-        <a href="transfer_kpi_dashboard.html">Transferts</a>
-    </nav>
+  <nav id="nav"></nav>
 
-    <section class="masthead">
-        <div>
-            <div class="eyebrow">Identity controls</div>
-            <h1>Vue identite et controle majorite.</h1>
-            <p>Les cartes sensibles, les verifications d'identite et les blocages checkout sont presentes sur une meme grille operationnelle.</p>
-        </div>
-        <aside class="hero-note">
-            <h2>Situation</h2>
-            <strong id="hero-summary">Chargement...</strong>
-            <div class="pill-row">
-                <span class="status-pill" id="policy-level">-</span>
-                <span class="status-pill cool" id="runtime-status">Runtime: idle</span>
-            </div>
-            <p id="hero-copy">Verification des cartes et des tentatives en cours.</p>
-            <ul id="hero-insights" class="info-list"></ul>
-        </aside>
-    </section>
-
-    <div class="command-strip">
-        <div>
-            <strong>Scope</strong>
-            <div class="command-row">
-                <span class="command-chip">ID dataset</span>
-                <span class="command-chip">Checkout guardrail</span>
-                <span class="command-chip">Refresh 1s</span>
-            </div>
-        </div>
-        <div class="runtime-line">
-            <label class="control" for="card-limit" style="min-width:160px;">
-                Cartes chargees
-                <select id="card-limit">
-                    <option value="30">30 cartes</option>
-                    <option value="60" selected>60 cartes</option>
-                    <option value="120">120 cartes</option>
-                </select>
-            </label>
-            <label class="control" for="attempt-limit" style="min-width:180px;">
-                Tentatives bloquees
-                <select id="attempt-limit">
-                    <option value="20">20 lignes</option>
-                    <option value="50" selected>50 lignes</option>
-                    <option value="100">100 lignes</option>
-                </select>
-            </label>
-            <button class="btn-primary" onclick="refreshAll()">Actualiser</button>
-        </div>
+  <div class="page-head">
+    <div>
+      <div class="overline">Identité</div>
+      <h1>Contrôle d'identité et majorité.</h1>
+      <p class="sub">Vérifications d'identité, blocages checkout 18+ et cartes sensibles, sur une
+        seule vue opérationnelle. Pilotable à la souris comme à la voix.</p>
     </div>
+    <div class="head-actions">
+      <span class="badge" id="freshness"><span class="badge__dot"></span>—</span>
+    </div>
+  </div>
 
-    <section class="metric-grid">
-        <article class="metric-card">
-            <div class="label"><span>Cartes</span><span>chargees</span></div>
-            <div class="value" id="cards-total">-</div>
-            <p class="support" id="cards-total-copy">Cartes synthetiques chargees.</p>
-        </article>
-        <article class="metric-card accent">
-            <div class="label"><span>Mineurs</span><span>detectes</span></div>
-            <div class="value" id="cards-minors">-</div>
-            <p class="support" id="cards-minors-copy">-</p>
-        </article>
-        <article class="metric-card cool">
-            <div class="label"><span>Tentatives</span><span>24h</span></div>
-            <div class="value" id="attempts-total">-</div>
-            <p class="support" id="attempts-total-copy">-</p>
-        </article>
-        <article class="metric-card gold">
-            <div class="label"><span>Blocages</span><span>mineurs</span></div>
-            <div class="value" id="attempts-blocked">-</div>
-            <p class="support" id="attempts-blocked-copy">-</p>
-        </article>
-    </section>
+  <!-- Suggestions : cliquables (souris) = équivalent des commandes vocales -->
+  <div class="chip-row" aria-label="Suggestions de commandes">
+    <button class="chip chip--suggest" data-cmd="ouvre la vue fraude">Ouvre la vue fraude</button>
+    <button class="chip chip--suggest" data-cmd="reviens à l'accueil">Reviens à l'accueil</button>
+  </div>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Signaux identite</h2>
-                <p>Repartition des cartes, pression du garde-fou et statut des verifications.</p>
-            </div>
-            <div class="section-meta" id="identity-meta">-</div>
-        </div>
-        <div class="visual-grid">
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Population cartes</h3>
-                        <p>Part mineurs vs majeurs sur le lot charge.</p>
-                    </div>
-                    <span class="status-pill warning">Split</span>
-                </div>
-                <strong class="chart-value" id="cards-population-value">-</strong>
-                <p class="chart-meta" id="cards-population-meta">-</p>
-                <div id="cards-population-bar"></div>
-                <div class="legend-row" id="cards-population-legend" style="margin-top:12px;"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Controle checkout</h3>
-                        <p>Acceptations vs refus sur les 24h.</p>
-                    </div>
-                    <span class="status-pill danger">Split</span>
-                </div>
-                <strong class="chart-value" id="checkout-guardrail-value">-</strong>
-                <p class="chart-meta" id="checkout-guardrail-meta">-</p>
-                <div id="checkout-guardrail-bar"></div>
-                <div class="legend-row" id="checkout-guardrail-legend" style="margin-top:12px;"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Statut verifications</h3>
-                        <p>Volume par etat de verification d'identite.</p>
-                    </div>
-                    <span class="status-pill">Trend bars</span>
-                </div>
-                <strong class="chart-value" id="identity-status-value">-</strong>
-                <p class="chart-meta" id="identity-status-meta">-</p>
-                <div class="bar-list" id="identity-status-bars"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Methodes utilisees</h3>
-                        <p>Repartition des canaux de verification.</p>
-                    </div>
-                    <span class="status-pill cool">Trend bars</span>
-                </div>
-                <strong class="chart-value" id="identity-method-value">-</strong>
-                <p class="chart-meta" id="identity-method-meta">-</p>
-                <div class="bar-list" id="identity-method-bars"></div>
-            </article>
-        </div>
-    </section>
+  <div class="error-banner" id="err">Impossible de charger les indicateurs identité. API injoignable.</div>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Verifications checkout</h2>
-                <p>Chaque commande cree une verification d'identite hashée, visible en temps reel.</p>
-            </div>
-            <div class="section-meta" id="verification-detail-meta">-</div>
-        </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Verifications recentes</h3>
-                        <p id="verification-list-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="verification-list-pill">-</span>
-                </div>
-                <div class="list-summary" id="verification-list-summary"></div>
-                <div class="list-items" id="verification-list"></div>
-            </article>
-            <article class="detail-panel" id="verification-detail"></article>
-        </div>
-    </section>
+  <!-- ===================== KPIs (1 héros + 3) ===================== -->
+  <section class="kpi-grid">
+    <article class="kpi kpi--hero">
+      <span class="kpi__label">Taux de rejet · 24 h</span>
+      <span class="kpi__value skeleton" id="k-reject">00,0 %</span>
+      <span class="kpi__support skeleton" id="k-reject-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Vérifications totales</span>
+      <span class="kpi__value skeleton" id="k-verifs">0000</span>
+      <span class="kpi__support skeleton" id="k-verifs-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Mineurs détectés</span>
+      <span class="kpi__value skeleton" id="k-minors">000</span>
+      <span class="kpi__support skeleton" id="k-minors-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Blocages 18+ · 24 h</span>
+      <span class="kpi__value skeleton" id="k-blocked">000</span>
+      <span class="kpi__support skeleton" id="k-blocked-sub">contexte</span>
+    </article>
+  </section>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Cartes sensibles</h2>
-                <p>Cartes mineures a gauche, detail complet de la carte selectionnee a droite.</p>
-            </div>
-            <div class="section-meta" id="cards-detail-meta">-</div>
-        </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Cartes mineures</h3>
-                        <p id="cards-list-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="cards-list-pill">-</span>
-                </div>
-                <div class="list-summary" id="cards-list-summary"></div>
-                <div class="list-items" id="minor-cards-list"></div>
-            </article>
-            <article class="detail-panel" id="card-detail"></article>
-        </div>
-    </section>
+  <!-- ===================== Liste unique fusionnée : alertes identité ===================== -->
+  <section class="card">
+    <div class="card__head">
+      <div>
+        <h2>Alertes identité</h2>
+        <p>Vérifications récentes et blocages checkout 18+, fusionnés et triés par date.</p>
+      </div>
+      <span class="badge" id="alerts-pill"><span class="badge__dot"></span>—</span>
+    </div>
+    <div class="split">
+      <div class="scroll-list" id="alerts-list">
+        <div class="empty-state skeleton">Chargement des alertes…</div>
+      </div>
+      <aside id="alert-detail">
+        <div class="empty-state">Sélectionnez une alerte pour voir le détail.</div>
+      </aside>
+    </div>
+  </section>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Analyse CNI cote navigateur</h2>
-                <p>Lecture locale de la carte selectionnee: metadonnees document, empreinte image et decision checkout.</p>
-            </div>
-            <div class="section-meta" id="client-analysis-meta">-</div>
-        </div>
-        <div class="two-col">
-            <article class="detail-panel" id="client-analysis-view"></article>
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Controles de coherence</h3>
-                        <p id="client-analysis-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="client-analysis-pill">-</span>
-                </div>
-                <div class="list-summary" id="client-analysis-summary"></div>
-                <div class="list-items" id="client-analysis-checks"></div>
-            </article>
-        </div>
-    </section>
+  <!-- ===================== Cartes sensibles (mineures) + détail image ===================== -->
+  <section class="card">
+    <div class="card__head">
+      <div>
+        <h2>Cartes sensibles</h2>
+        <p>Cartes mineures du lot chargé. Sélectionnez une carte pour afficher la CNI.</p>
+      </div>
+      <span class="badge" id="cards-pill"><span class="badge__dot"></span>—</span>
+    </div>
+    <div class="split">
+      <div class="scroll-list" id="cards-list">
+        <div class="empty-state skeleton">Chargement des cartes…</div>
+      </div>
+      <aside id="card-detail">
+        <div class="empty-state">Sélectionnez une carte mineure pour la consulter.</div>
+      </aside>
+    </div>
+  </section>
 
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Blocages checkout</h2>
-                <p>Dernieres tentatives refusees avec detail des produits bloques.</p>
-            </div>
-            <div class="section-meta" id="attempt-detail-meta">-</div>
-        </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Tentatives bloquees</h3>
-                        <p id="attempt-list-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="attempt-list-pill">-</span>
-                </div>
-                <div class="list-summary" id="attempt-list-summary"></div>
-                <div class="list-items" id="blocked-attempts-list"></div>
-            </article>
-            <article class="detail-panel" id="attempt-detail"></article>
-        </div>
-    </section>
+  <!-- ===================== Démo technique repliable (analyse CNI navigateur) ===================== -->
+  <details class="demo">
+    <summary>Démo technique (avancé)</summary>
+    <p class="muted" style="margin-top:var(--space-3)">
+      Lecture locale de la carte sélectionnée ci-dessus : recalcul de l'âge, empreinte SHA-256
+      de l'image et contrôles de cohérence avec l'analyse backend.</p>
+    <div id="demo-view"><div class="empty-state">Sélectionnez d'abord une carte mineure.</div></div>
+    <div class="checks" id="demo-checks"></div>
+  </details>
 </div>
 
-<script src="dashboard_ops.js"></script>
-<script src="live_sync.js"></script>
+<script src="dashboard_common.js"></script>
 <script>
-    const DASHBOARD_HOST = window.location.hostname || 'localhost';
-    const API_HOST = ['127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(DASHBOARD_HOST) ? 'localhost' : DASHBOARD_HOST;
-    const API_URL = `${window.location.protocol}//${API_HOST}:8000`;
+  KV.renderNav("nav");
+  const $ = (id) => document.getElementById(id);
 
-    let allCards = [];
-    let minorCards = [];
-    let checkoutStats = null;
-    let identityStats = null;
-    let identityVerifications = [];
-    let blockedAttempts = [];
-    let selectedCardFile = null;
-    let selectedVerificationId = null;
-    let selectedAttemptId = null;
-    const cardAnalysisCache = new Map();
-    let opsController = null;
+  // — Limites raisonnables (plus de selects de scope superflus) —
+  const CARD_LIMIT = 60, VERIF_LIMIT = 40, ATTEMPT_LIMIT = 50;
 
-    function escapeHtml(value) {
-        return String(value ?? '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+  // — État de page —
+  let allCards = [], minorCards = [], checkoutStats = {}, identityStats = {};
+  let verifications = [], blocked = [], alerts = [];
+  let selectedAlertKey = null, selectedCardFile = null;
+  const analysisCache = new Map();
+
+  function setKpi(id, v) { const e = $(id); if (e) { e.textContent = v; e.classList.remove("skeleton"); } }
+  function setBadge(id, label, variant) {
+    const e = $(id); if (!e) return;
+    e.className = "badge" + (variant ? " badge--" + variant : "");
+    e.innerHTML = '<span class="badge__dot"></span>' + KV.escapeHtml(label);
+  }
+
+  // — Libellés métier FR (fini les noms de classe CSS affichés) —
+  const STATUS_FR = {
+    verified: "Vérifié", rejected: "Rejeté", rejected_underage: "Rejeté (mineur)",
+    pending: "En attente", pending_review: "À examiner", unknown: "Inconnu",
+  };
+  const METHOD_FR = {
+    manual: "Manuel", api: "API", ai: "Modèle IA", use_case: "Cas d'usage",
+    checkout_guardrail: "Garde-fou checkout", unknown: "Inconnu",
+  };
+  const statusFr = (v) => STATUS_FR[v] || v || "—";
+  const methodFr = (v) => METHOD_FR[v] || v || "—";
+
+  // Mappe une « tonalité » technique vers un libellé métier FR + variante de badge.
+  function toneToBusiness(tone) {
+    switch (tone) {
+      case "danger": return { label: "Anomalie", variant: "danger" };
+      case "warning": return { label: "À vérifier", variant: "warning" };
+      default: return { label: "OK", variant: "success" };
     }
+  }
+  function verifTone(status) {
+    if (["rejected", "rejected_underage"].includes(status)) return "danger";
+    if (["pending", "pending_review"].includes(status)) return "warning";
+    return "success";
+  }
 
-    function fmtNumber(value, digits = 0) {
-        if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
-        return Number(value).toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  function clientAge(birthdate) {
+    if (!birthdate) return null;
+    const b = new Date(`${birthdate}T00:00:00`);
+    if (Number.isNaN(b.getTime())) return null;
+    const t = new Date();
+    let age = t.getFullYear() - b.getFullYear();
+    const md = t.getMonth() - b.getMonth();
+    if (md < 0 || (md === 0 && t.getDate() < b.getDate())) age -= 1;
+    return age;
+  }
+  const yesNo = (v) => (v ? "Oui" : "Non");
+  const cardImg = (file) => `${KV.API_URL}/api/id-cards/image/${encodeURIComponent(file)}`;
+  // Masque l'image cassée sans casser la mise en page.
+  const HIDE_BROKEN = "this.style.display='none'";
+
+  // ======================= KPIs =======================
+  function renderKpis() {
+    const totalCards = allCards.length, minors = minorCards.length;
+    const totalVerifs = identityStats.total_verifications ?? verifications.length;
+    const blockedCount = checkoutStats.blocked_underage_orders ?? 0;
+    const rejectRate = checkoutStats.adult_rejection_rate;
+
+    setKpi("k-reject", rejectRate != null ? KV.fmtPercent(rejectRate) : "—");
+    setKpi("k-reject-sub", `${KV.fmtNumber(checkoutStats.adult_product_attempts ?? 0)} tentative(s) 18+ · fenêtre 24 h`);
+
+    setKpi("k-verifs", KV.fmtNumber(totalVerifs));
+    const rejected = verifications.filter((v) => ["rejected", "rejected_underage"].includes(v.verification_status)).length;
+    setKpi("k-verifs-sub", `${KV.fmtNumber(rejected)} rejet(s) sur les ${KV.fmtNumber(verifications.length)} récentes`);
+
+    setKpi("k-minors", KV.fmtNumber(minors));
+    const ratio = totalCards ? (minors / totalCards) * 100 : 0;
+    setKpi("k-minors-sub", `${KV.fmtPercent(ratio, 1)} du lot de ${KV.fmtNumber(totalCards)} cartes`);
+
+    setKpi("k-blocked", KV.fmtNumber(blockedCount));
+    setKpi("k-blocked-sub", `${KV.fmtNumber(checkoutStats.accepted_orders ?? 0)} acceptée(s) · fenêtre 24 h`);
+  }
+
+  // ======================= Liste fusionnée : alertes identité =======================
+  function buildAlerts() {
+    const fromVerifs = verifications.map((v) => ({
+      key: "v:" + v.verification_id,
+      kind: "verif",
+      title: `Vérification #${v.verification_id}`,
+      date: v.verification_date,
+      meta: `${methodFr(v.verification_method)} · client ${v.customer_id || "—"}`,
+      tone: verifTone(v.verification_status),
+      raw: v,
+    }));
+    const fromBlocked = blocked.map((b) => ({
+      key: "b:" + b.attempt_id,
+      kind: "block",
+      title: `Blocage 18+ #${b.attempt_id}`,
+      date: b.attempted_at,
+      meta: `Carte ${b.id_card_file || "—"} · client ${b.customer_id || "—"}`,
+      tone: "danger",
+      raw: b,
+    }));
+    alerts = [...fromVerifs, ...fromBlocked].sort((a, b) => {
+      const da = new Date(a.date).getTime() || 0, db = new Date(b.date).getTime() || 0;
+      return db - da;
+    });
+    if (!alerts.some((a) => a.key === selectedAlertKey)) {
+      selectedAlertKey = alerts.length ? alerts[0].key : null;
     }
+  }
 
-    function toShortDate(value) {
-        if (!value) return '-';
-        return new Date(value).toLocaleString('fr-FR');
+  function renderAlertsList() {
+    const el = $("alerts-list");
+    if (!alerts.length) {
+      el.innerHTML = '<div class="empty-state">Aucune alerte identité sur la période.</div>';
+      $("alert-detail").innerHTML = '<div class="empty-state">Aucune alerte à afficher.</div>';
+      setBadge("alerts-pill", "0 alerte", "success");
+      return;
     }
+    const anomalies = alerts.filter((a) => a.tone === "danger").length;
+    setBadge("alerts-pill", `${KV.fmtNumber(alerts.length)} alerte(s) · ${KV.fmtNumber(anomalies)} anomalie(s)`,
+      anomalies > 0 ? "warning" : "info");
 
-    function computeClientAgeFromBirthdate(value) {
-        if (!value) return null;
-        const birth = new Date(`${value}T00:00:00`);
-        if (Number.isNaN(birth.getTime())) return null;
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const monthDelta = today.getMonth() - birth.getMonth();
-        if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birth.getDate())) {
-            age -= 1;
-        }
-        return age;
+    el.innerHTML = alerts.map((a) => {
+      const biz = toneToBusiness(a.tone);
+      return `<button class="list-row ${a.key === selectedAlertKey ? "active" : ""}" data-key="${KV.escapeHtml(a.key)}">
+        <div class="list-row__head">
+          <div>
+            <div class="list-row__title">${KV.escapeHtml(a.title)}</div>
+            <div class="list-row__meta">${KV.fmtDate(a.date)} · ${KV.escapeHtml(a.meta)}</div>
+          </div>
+          <span class="badge badge--${biz.variant}">${biz.label}</span>
+        </div>
+      </button>`;
+    }).join("");
+    el.querySelectorAll(".list-row").forEach((node) => {
+      node.addEventListener("click", () => {
+        selectedAlertKey = node.dataset.key;
+        renderAlertsList();
+        renderAlertDetail();
+      });
+    });
+  }
+
+  function renderAlertDetail() {
+    const el = $("alert-detail");
+    const a = alerts.find((x) => x.key === selectedAlertKey) || alerts[0] || null;
+    if (!a) { el.innerHTML = '<div class="empty-state">Aucune alerte sélectionnée.</div>'; return; }
+    el.innerHTML = a.kind === "verif" ? verifDetailHtml(a.raw) : blockDetailHtml(a.raw);
+  }
+
+  function verifDetailHtml(v) {
+    const biz = toneToBusiness(verifTone(v.verification_status));
+    // « Hash stored » dérivé de la présence d'un numéro de document (plus de « Oui » codé en dur).
+    const hashStored = yesNo(!!v.document_number);
+    return `
+      <div class="card__head">
+        <div><h2>Vérification #${KV.escapeHtml(v.verification_id)}</h2>
+          <p>Trace d'identité rattachée à un checkout ou à un contrôle manuel.</p></div>
+        <span class="badge badge--${biz.variant}">${biz.label}</span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card"><span>Client</span><strong>${KV.escapeHtml(v.customer_id || "—")}</strong></div>
+        <div class="detail-card"><span>Statut</span><strong>${KV.escapeHtml(statusFr(v.verification_status))}</strong></div>
+        <div class="detail-card"><span>Méthode</span><strong>${KV.escapeHtml(methodFr(v.verification_method))}</strong></div>
+        <div class="detail-card"><span>Document</span><strong>${KV.escapeHtml(v.document_type || "—")}</strong></div>
+        <div class="detail-card"><span>Carte</span><strong>${KV.escapeHtml(v.id_card_image_path || "—")}</strong></div>
+        <div class="detail-card"><span>Date</span><strong>${KV.fmtDate(v.verification_date)}</strong></div>
+        <div class="detail-card"><span>Hash document</span><strong>${hashStored}</strong></div>
+      </div>`;
+  }
+
+  function blockDetailHtml(b) {
+    const amount = (b.total_amount != null) ? `${KV.fmtNumber(b.total_amount)} €` : "—";
+    return `
+      <div class="card__head">
+        <div><h2>Blocage 18+ #${KV.escapeHtml(b.attempt_id)}</h2>
+          <p>Refus checkout lié à un profil mineur.</p></div>
+        <span class="badge badge--danger">Anomalie</span>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card"><span>Date</span><strong>${KV.fmtDate(b.attempted_at)}</strong></div>
+        <div class="detail-card"><span>Client</span><strong>${KV.escapeHtml(b.customer_id || "—")}</strong></div>
+        <div class="detail-card"><span>Carte</span><strong>${KV.escapeHtml(b.id_card_file || "—")}</strong></div>
+        <div class="detail-card"><span>Âge</span><strong>${KV.fmtNumber(b.customer_age)} ans</strong></div>
+        <div class="detail-card"><span>Produits bloqués</span><strong>${KV.escapeHtml(b.blocked_products || "—")}</strong></div>
+        <div class="detail-card"><span>Montant</span><strong>${amount}</strong></div>
+        <div class="detail-card"><span>Commande</span><strong>${KV.escapeHtml(b.order_id || "—")}</strong></div>
+        <div class="detail-card"><span>Contient 18+</span><strong>${yesNo(b.contains_adult_product)}</strong></div>
+      </div>`;
+  }
+
+  // ======================= Cartes sensibles (mineures) =======================
+  function renderCardsList() {
+    const el = $("cards-list");
+    if (!minorCards.length) {
+      el.innerHTML = '<div class="empty-state">Aucune carte mineure détectée.</div>';
+      $("card-detail").innerHTML = '<div class="empty-state">Aucune carte à afficher.</div>';
+      setBadge("cards-pill", "0 carte sensible", "success");
+      renderDemoEmpty();
+      return;
     }
+    if (!minorCards.some((c) => c.file === selectedCardFile)) selectedCardFile = minorCards[0].file;
+    setBadge("cards-pill", `${KV.fmtNumber(minorCards.length)} carte(s) sensible(s)`, "warning");
 
-    function bufferToHex(buffer) {
-        return Array.from(new Uint8Array(buffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-
-    function yesNo(value) {
-        return value ? 'Oui' : 'Non';
-    }
-
-    function readImageMetricsFromBlob(blob) {
-        return new Promise((resolve, reject) => {
-            const url = URL.createObjectURL(blob);
-            const image = new Image();
-            image.onload = () => {
-                resolve({
-                    width: image.naturalWidth || image.width || 0,
-                    height: image.naturalHeight || image.height || 0
-                });
-                URL.revokeObjectURL(url);
-            };
-            image.onerror = () => {
-                URL.revokeObjectURL(url);
-                reject(new Error('Lecture image impossible'));
-            };
-            image.src = url;
-        });
-    }
-
-    function setRuntimeStatus(message, isError = false) {
-        const el = document.getElementById('runtime-status');
-        if (!el) return;
-        el.textContent = `Runtime: ${message}`;
-        el.className = 'status-pill';
-        el.classList.add(isError ? 'danger' : 'cool');
-    }
-
-    function setPolicyLevel(label, tone = 'cool') {
-        const el = document.getElementById('policy-level');
-        el.textContent = label || '-';
-        el.className = 'status-pill';
-        el.classList.add(tone);
-    }
-
-    function renderSplitBar(targetId, counts, total) {
-        const el = document.getElementById(targetId);
-        if (!total) {
-            el.innerHTML = '<div class="empty-state">Aucune repartition disponible.</div>';
-            return;
-        }
-        el.innerHTML = `
-            <div class="stacked-bar">
-                ${counts.map(item => `<div class="stacked-segment ${item.tone}" style="width:${Math.max((item.value / total) * 100, item.value > 0 ? 6 : 0)}%;"></div>`).join('')}
+    el.innerHTML = minorCards.map((c) => `
+      <button class="list-row ${c.file === selectedCardFile ? "active" : ""}" data-file="${KV.escapeHtml(c.file)}">
+        <div class="list-row__head">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <img class="id-thumb" loading="lazy" src="${cardImg(c.file)}"
+                 alt="Aperçu de la carte d'identité ${KV.escapeHtml(c.file)}" onerror="${HIDE_BROKEN}">
+            <div>
+              <div class="list-row__title">${KV.escapeHtml(c.file)}</div>
+              <div class="list-row__meta">Naissance ${KV.escapeHtml(c.birthdate || "—")}</div>
             </div>
-        `;
-    }
-
-    function renderLegend(targetId, counts) {
-        document.getElementById(targetId).innerHTML = counts.map(item => `
-            <span class="legend-chip"><span class="legend-dot ${item.tone}"></span>${escapeHtml(item.label)} ${fmtNumber(item.value)}</span>
-        `).join('');
-    }
-
-    function renderBarList(targetId, rows, labelFn) {
-        const container = document.getElementById(targetId);
-        if (!rows.length) {
-            container.innerHTML = '<div class="empty-state">Aucune valeur disponible.</div>';
-            return;
-        }
-        const max = Math.max(...rows.map(row => row.count || 0), 1);
-        container.innerHTML = rows.map(row => `
-            <div class="bar-row">
-                <div class="bar-label">${escapeHtml(labelFn(row.label))}</div>
-                <div class="bar-track"><div class="bar-fill" style="width:${((row.count || 0) / max) * 100}%;"></div></div>
-                <div class="bar-value">${fmtNumber(row.count || 0)}</div>
-            </div>
-        `).join('');
-    }
-
-    function identityStatusLabel(value) {
-        return ({
-            verified: 'Verified',
-            rejected: 'Rejected',
-            rejected_underage: 'Rejected underage',
-            pending: 'Pending',
-            pending_review: 'Pending review',
-            unknown: 'Unknown'
-        }[value]) || value || '-';
-    }
-
-    function identityMethodLabel(value) {
-        return ({
-            manual: 'Manual',
-            api: 'API',
-            ai: 'AI model',
-            use_case: 'Use case',
-            checkout_guardrail: 'Checkout guardrail',
-            unknown: 'Unknown'
-        }[value]) || value || '-';
-    }
-
-    function verificationTone(status) {
-        if (['rejected', 'rejected_underage'].includes(status)) return 'danger';
-        if (['pending', 'pending_review'].includes(status)) return 'warning';
-        return 'success';
-    }
-
-    function renderCardsOverview() {
-        const adults = Math.max(allCards.length - minorCards.length, 0);
-        const ratio = allCards.length ? (minorCards.length / allCards.length) * 100 : 0;
-        document.getElementById('cards-total').textContent = fmtNumber(allCards.length);
-        document.getElementById('cards-minors').textContent = fmtNumber(minorCards.length);
-        document.getElementById('cards-total-copy').textContent = `${fmtNumber(adults)} cartes majeures chargees.`;
-        document.getElementById('cards-minors-copy').textContent = `${fmtNumber(ratio, 1)}% du lot est mineur.`;
-        document.getElementById('cards-population-value').textContent = `${fmtNumber(minorCards.length)} mineur(s)`;
-        document.getElementById('cards-population-meta').textContent = `${fmtNumber(adults)} majeur(s) | lot ${fmtNumber(allCards.length)} cartes`;
-        document.getElementById('identity-meta').textContent = `Lot charge ${fmtNumber(allCards.length)} cartes`;
-
-        const counts = [
-            { label: 'Mineurs', value: minorCards.length, tone: 'high' },
-            { label: 'Majeurs', value: adults, tone: 'low' }
-        ];
-        renderSplitBar('cards-population-bar', counts, allCards.length || 0);
-        renderLegend('cards-population-legend', counts);
-    }
-
-    function renderCheckoutOverview() {
-        if (!checkoutStats) return;
-        document.getElementById('attempts-total').textContent = fmtNumber(checkoutStats.total_attempts || 0);
-        document.getElementById('attempts-blocked').textContent = fmtNumber(checkoutStats.blocked_underage_orders || 0);
-        document.getElementById('attempts-total-copy').textContent = `${fmtNumber(checkoutStats.accepted_orders || 0)} acceptation(s) sur 24h.`;
-        document.getElementById('attempts-blocked-copy').textContent = `${fmtNumber(checkoutStats.adult_rejection_rate || 0, 2)}% des tentatives Adult refusees.`;
-        document.getElementById('checkout-guardrail-value').textContent = `${fmtNumber(checkoutStats.blocked_underage_orders || 0)} refus`;
-        document.getElementById('checkout-guardrail-meta').textContent = `Adult ${fmtNumber(checkoutStats.adult_product_attempts || 0)} tentatives | dernier flux ${toShortDate(checkoutStats.last_attempt_at)}`;
-
-        const counts = [
-            { label: 'Acceptes', value: checkoutStats.accepted_orders || 0, tone: 'low' },
-            { label: 'Bloques', value: checkoutStats.blocked_underage_orders || 0, tone: 'high' }
-        ];
-        renderSplitBar('checkout-guardrail-bar', counts, (checkoutStats.total_attempts || 0));
-        renderLegend('checkout-guardrail-legend', counts);
-    }
-
-    function renderIdentityStats() {
-        const statusRows = Object.entries(identityStats?.by_status || {}).map(([label, count]) => ({ label, count }));
-        const methodRows = Object.entries(identityStats?.by_method || {}).map(([label, count]) => ({ label, count }));
-        const topStatus = statusRows.sort((a, b) => b.count - a.count)[0] || null;
-        const topMethod = methodRows.sort((a, b) => b.count - a.count)[0] || null;
-
-        document.getElementById('identity-status-value').textContent = topStatus ? identityStatusLabel(topStatus.label) : 'Aucune';
-        document.getElementById('identity-status-meta').textContent = topStatus ? `${fmtNumber(topStatus.count)} verification(s)` : 'Aucune verification';
-        renderBarList('identity-status-bars', statusRows, identityStatusLabel);
-
-        document.getElementById('identity-method-value').textContent = topMethod ? identityMethodLabel(topMethod.label) : 'Aucune';
-        document.getElementById('identity-method-meta').textContent = topMethod ? `${fmtNumber(topMethod.count)} verification(s)` : 'Aucune verification';
-        renderBarList('identity-method-bars', methodRows, identityMethodLabel);
-    }
-
-    function renderIdentityVerificationsList() {
-        const container = document.getElementById('verification-list');
-        if (!identityVerifications.length) {
-            container.innerHTML = '<div class="empty-state">Aucune verification recente.</div>';
-            document.getElementById('verification-list-copy').textContent = 'Aucune verification chargee.';
-            document.getElementById('verification-list-summary').innerHTML = '';
-            document.getElementById('verification-list-pill').textContent = 'vide';
-            document.getElementById('verification-list-pill').className = 'status-pill';
-            document.getElementById('verification-list-pill').classList.add('cool');
-            document.getElementById('verification-detail').innerHTML = '<div class="empty-state">Aucune verification selectionnee.</div>';
-            document.getElementById('verification-detail-meta').textContent = '-';
-            return;
-        }
-
-        if (!identityVerifications.some(item => String(item.verification_id) === String(selectedVerificationId))) {
-            selectedVerificationId = identityVerifications[0].verification_id;
-        }
-
-        const rejectedCount = identityVerifications.filter(item => ['rejected', 'rejected_underage'].includes(item.verification_status)).length;
-        document.getElementById('verification-list-copy').textContent = `${fmtNumber(identityVerifications.length)} verification(s) recentes`;
-        document.getElementById('verification-list-pill').textContent = rejectedCount > 0 ? 'controle actif' : 'stable';
-        document.getElementById('verification-list-pill').className = 'status-pill';
-        document.getElementById('verification-list-pill').classList.add(rejectedCount > 0 ? 'warning' : 'cool');
-        document.getElementById('verification-list-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">Rejects ${fmtNumber(rejectedCount)}</span>
-                <span class="key-stat">Methods ${fmtNumber(new Set(identityVerifications.map(item => item.verification_method || 'unknown')).size)}</span>
-            </div>
-        `;
-        container.innerHTML = identityVerifications.map(row => `
-            <article class="list-item ${String(row.verification_id) === String(selectedVerificationId) ? 'active' : ''}" data-verification-id="${escapeHtml(row.verification_id)}">
-                <div class="list-item-head">
-                    <div>
-                        <div class="list-item-title">Verification #${escapeHtml(row.verification_id)}</div>
-                        <div class="list-item-meta">${toShortDate(row.verification_date)} | client ${escapeHtml(row.customer_id || '-')}</div>
-                    </div>
-                    <span class="chip ${verificationTone(row.verification_status)}">${escapeHtml(identityStatusLabel(row.verification_status))}</span>
-                </div>
-                <div class="list-item-copy">${escapeHtml(identityMethodLabel(row.verification_method))} | ${escapeHtml(row.id_card_image_path || '-')}</div>
-            </article>
-        `).join('');
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedVerificationId = node.dataset.verificationId;
-                renderIdentityVerificationsList();
-                renderVerificationDetail();
-            });
-        });
-    }
-
-    function renderVerificationDetail() {
-        const container = document.getElementById('verification-detail');
-        const row = identityVerifications.find(item => String(item.verification_id) === String(selectedVerificationId)) || identityVerifications[0] || null;
-        if (!row) {
-            container.innerHTML = '<div class="empty-state">Aucune verification selectionnee.</div>';
-            document.getElementById('verification-detail-meta').textContent = '-';
-            return;
-        }
-
-        selectedVerificationId = row.verification_id;
-        document.getElementById('verification-detail-meta').textContent = `Verification #${row.verification_id} | ${toShortDate(row.verification_date)}`;
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>Verification #${escapeHtml(row.verification_id)}</h3>
-                    <p>Trace identite associee a un checkout ou a un controle manuel.</p>
-                </div>
-                <span class="chip ${verificationTone(row.verification_status)}">${escapeHtml(identityStatusLabel(row.verification_status))}</span>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Client</span><strong>${escapeHtml(row.customer_id || '-')}</strong></div>
-                <div class="detail-card"><span>Statut</span><strong>${escapeHtml(identityStatusLabel(row.verification_status))}</strong></div>
-                <div class="detail-card"><span>Methode</span><strong>${escapeHtml(identityMethodLabel(row.verification_method))}</strong></div>
-                <div class="detail-card"><span>Document</span><strong>${escapeHtml(row.document_type || '-')}</strong></div>
-                <div class="detail-card"><span>ID card</span><strong>${escapeHtml(row.id_card_image_path || '-')}</strong></div>
-                <div class="detail-card"><span>Hash</span><strong>${escapeHtml(row.document_number ? `${row.document_number.slice(0, 18)}...` : '-')}</strong></div>
-            </div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Lecture operationnelle</h3>
-                        <p>Le document est historise en hash SHA-256 et rattache au checkout.</p>
-                    </div>
-                </div>
-                <div class="status-grid">
-                    <div class="split-metric">Hash stored<strong>Oui</strong></div>
-                    <div class="split-metric">Canal<strong>${escapeHtml(identityMethodLabel(row.verification_method))}</strong></div>
-                    <div class="split-metric">Date<strong>${escapeHtml(toShortDate(row.created_at || row.verification_date))}</strong></div>
-                </div>
-                <div class="divider"></div>
-                <p class="detail-copy">Le controle est exploitable en contexte reel: on retrouve le client, la carte d'identite associee, le statut de la verification et un hash de document non reversible pour audit et conformite.</p>
-            </div>
-        `;
-    }
-
-    function updateHero() {
-        const totalCards = allCards.length;
-        const minorCount = minorCards.length;
-        const blocked = checkoutStats?.blocked_underage_orders || 0;
-        const rejectionRate = checkoutStats?.adult_rejection_rate || 0;
-        document.getElementById('hero-summary').textContent = `${fmtNumber(minorCount)} mineur(s) | ${fmtNumber(blocked)} refus 24h`;
-        document.getElementById('hero-copy').textContent = `Le controle d'age reste actif sur ${fmtNumber(totalCards)} cartes chargees et ${fmtNumber(rejectionRate, 2)}% des tentatives Adult sont bloquees.`;
-        document.getElementById('hero-insights').innerHTML = [
-            `${fmtNumber(minorCount)} carte(s) mineures disponibles pour test et verification.`,
-            `${fmtNumber(checkoutStats?.adult_product_attempts || 0)} tentative(s) Adult observees sur 24h.`,
-            `${fmtNumber(identityStats?.total_verifications || 0)} verification(s) d'identite enregistrees.`
-        ].map(item => `<li>${escapeHtml(item)}</li>`).join('');
-        setPolicyLevel(blocked > 0 ? 'controle actif' : 'stable', blocked > 0 ? 'warning' : 'cool');
-    }
-
-    function renderMinorCardsList() {
-        const container = document.getElementById('minor-cards-list');
-        if (!minorCards.length) {
-            container.innerHTML = '<div class="empty-state">Aucune carte mineure detectee.</div>';
-            document.getElementById('cards-list-copy').textContent = 'Aucune carte sensible.';
-            document.getElementById('cards-list-summary').innerHTML = '';
-            document.getElementById('cards-list-pill').textContent = 'vide';
-            document.getElementById('cards-list-pill').className = 'status-pill';
-            document.getElementById('cards-list-pill').classList.add('cool');
-            document.getElementById('card-detail').innerHTML = '<div class="empty-state">Aucune carte disponible.</div>';
-            return;
-        }
-        if (!minorCards.some(card => card.file === selectedCardFile)) {
-            selectedCardFile = minorCards[0].file;
-        }
-        document.getElementById('cards-list-copy').textContent = `${fmtNumber(minorCards.length)} carte(s) mineures visibles`;
-        document.getElementById('cards-list-pill').textContent = 'sensibles';
-        document.getElementById('cards-list-pill').className = 'status-pill';
-        document.getElementById('cards-list-pill').classList.add('danger');
-        document.getElementById('cards-list-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">Mineurs ${fmtNumber(minorCards.length)}</span>
-                <span class="key-stat">Age min ${fmtNumber(Math.min(...minorCards.map(card => card.age || 0)), 0)} ans</span>
-            </div>
-        `;
-        container.innerHTML = minorCards.map(card => `
-            <article class="list-item ${card.file === selectedCardFile ? 'active' : ''}" data-card-file="${escapeHtml(card.file)}">
-                <div class="list-item-head">
-                    <div style="display:flex; gap:12px; align-items:flex-start;">
-                        <img class="identity-thumb" src="${API_URL}/api/id-cards/image/${encodeURIComponent(card.file)}" alt="${escapeHtml(card.file)}">
-                        <div>
-                            <div class="list-item-title">${escapeHtml(card.file)}</div>
-                            <div class="list-item-meta">Naissance ${escapeHtml(card.birthdate)}</div>
-                        </div>
-                    </div>
-                    <span class="chip danger">${fmtNumber(card.age)} ans</span>
-                </div>
-                <div class="list-item-copy">Carte mineure chargee pour controle checkout Adult.</div>
-            </article>
-        `).join('');
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedCardFile = node.dataset.cardFile;
-                renderMinorCardsList();
-                renderCardDetail();
-            });
-        });
-    }
-
-    function renderCardDetail() {
-        const container = document.getElementById('card-detail');
-        const card = minorCards.find(item => item.file === selectedCardFile) || minorCards[0] || null;
-        if (!card) {
-            container.innerHTML = '<div class="empty-state">Aucune carte selectionnee.</div>';
-            renderEmptyClientCardAnalysis();
-            return;
-        }
-        selectedCardFile = card.file;
-        document.getElementById('cards-detail-meta').textContent = `${escapeHtml(card.file)} | ${fmtNumber(card.age)} ans`;
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>${escapeHtml(card.file)}</h3>
-                    <p>Carte mineure selectionnee pour lecture detaillee.</p>
-                </div>
-                <span class="chip danger">Mineur</span>
-            </div>
-            <div class="identity-media">
-                <img src="${API_URL}/api/id-cards/image/${encodeURIComponent(card.file)}" alt="${escapeHtml(card.file)}">
-                <div class="identity-caption">Date de naissance ${escapeHtml(card.birthdate)} | age calcule ${fmtNumber(card.age)} ans.</div>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Fichier</span><strong>${escapeHtml(card.file)}</strong></div>
-                <div class="detail-card"><span>Naissance</span><strong>${escapeHtml(card.birthdate)}</strong></div>
-                <div class="detail-card"><span>Age</span><strong>${fmtNumber(card.age)} ans</strong></div>
-                <div class="detail-card"><span>Restriction</span><strong>Blocage Adult</strong></div>
-            </div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Lecture operationnelle</h3>
-                        <p>Ce profil doit etre refuse pour tout achat contenant un produit Adult.</p>
-                    </div>
-                </div>
-                <div class="status-grid">
-                    <div class="split-metric">Politique<strong>Reject if Adult</strong></div>
-                    <div class="split-metric">Source<strong>Dataset synthetic ID</strong></div>
-                    <div class="split-metric">Statut<strong>Minor detected</strong></div>
-                </div>
-                <div class="divider"></div>
-                <p class="detail-copy">La carte est presentee dans le lot sensible pour valider le garde-fou majorite. Toute tentative Adult issue de ce profil doit etre historisee comme refus, avec trace de la carte et des produits bloques.</p>
-            </div>
-        `;
-        renderClientCardAnalysis();
-    }
-
-    function renderEmptyClientCardAnalysis(message = 'Aucune analyse disponible.') {
-        document.getElementById('client-analysis-meta').textContent = '-';
-        document.getElementById('client-analysis-copy').textContent = message;
-        document.getElementById('client-analysis-pill').textContent = 'vide';
-        document.getElementById('client-analysis-pill').className = 'status-pill';
-        document.getElementById('client-analysis-pill').classList.add('cool');
-        document.getElementById('client-analysis-summary').innerHTML = '';
-        document.getElementById('client-analysis-view').innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
-        document.getElementById('client-analysis-checks').innerHTML = '<div class="empty-state">Aucun controle calcule.</div>';
-    }
-
-    async function getCardAnalysis(card) {
-        if (!card) return null;
-        if (cardAnalysisCache.has(card.file)) {
-            return cardAnalysisCache.get(card.file);
-        }
-
-        const analysisResponse = await fetch(`${API_URL}/api/id-cards/${encodeURIComponent(card.file)}/analysis`);
-        if (!analysisResponse.ok) {
-            throw new Error('API analyse CNI indisponible');
-        }
-        const analysis = await analysisResponse.json();
-
-        const clientData = {
-            client_age: computeClientAgeFromBirthdate(analysis.birthdate),
-            client_is_adult: computeClientAgeFromBirthdate(analysis.birthdate) >= 18,
-            client_sha256: null,
-            image_width: null,
-            image_height: null,
-            image_bytes: null
-        };
-
-        if (window.crypto?.subtle) {
-            const imageResponse = await fetch(`${API_URL}${analysis.image_url}`);
-            if (imageResponse.ok) {
-                const blob = await imageResponse.blob();
-                const buffer = await blob.arrayBuffer();
-                const digest = await window.crypto.subtle.digest('SHA-256', buffer);
-                const metrics = await readImageMetricsFromBlob(blob);
-                clientData.client_sha256 = bufferToHex(digest);
-                clientData.image_width = metrics.width;
-                clientData.image_height = metrics.height;
-                clientData.image_bytes = buffer.byteLength;
-            }
-        }
-
-        const merged = { ...analysis, ...clientData };
-        cardAnalysisCache.set(card.file, merged);
-        return merged;
-    }
-
-    async function renderClientCardAnalysis() {
-        const card = minorCards.find(item => item.file === selectedCardFile) || minorCards[0] || null;
-        if (!card) {
-            renderEmptyClientCardAnalysis();
-            return;
-        }
-
-        document.getElementById('client-analysis-meta').textContent = `${escapeHtml(card.file)} | chargement`;
-        document.getElementById('client-analysis-copy').textContent = 'Calcul des controles navigateur en cours.';
-        document.getElementById('client-analysis-view').innerHTML = '<div class="empty-state">Analyse CNI en cours...</div>';
-        document.getElementById('client-analysis-checks').innerHTML = '<div class="empty-state">Calcul des controles...</div>';
-
-        try {
-            const analysis = await getCardAnalysis(card);
-            if (!analysis || selectedCardFile !== card.file) {
-                return;
-            }
-
-            const hashMatches = analysis.client_sha256 ? analysis.client_sha256 === analysis.image_sha256 : null;
-            const ageMatches = analysis.client_age !== null ? analysis.client_age === analysis.age : null;
-            const decision = analysis.client_is_adult ? 'Autoriser un panier Adult' : 'Bloquer un panier Adult';
-            const clientDecisionTone = analysis.client_is_adult ? 'cool' : 'danger';
-            const analysisSource = analysis.backend_analysis_source === 'fingerprint_model' ? 'modele empreinte' : 'labels fallback';
-
-            document.getElementById('client-analysis-meta').textContent = `${escapeHtml(analysis.file)} | ${escapeHtml(analysisSource)}`;
-            document.getElementById('client-analysis-copy').textContent = `${analysis.last_name || '-'} ${analysis.first_name || ''}`.trim() || analysis.file;
-            document.getElementById('client-analysis-pill').textContent = analysis.client_is_adult ? 'majeur' : 'mineur';
-            document.getElementById('client-analysis-pill').className = 'status-pill';
-            document.getElementById('client-analysis-pill').classList.add(clientDecisionTone);
-            document.getElementById('client-analysis-summary').innerHTML = `
-                <div class="key-stat-row">
-                    <span class="key-stat">Age client ${fmtNumber(analysis.client_age ?? analysis.age)} ans</span>
-                    <span class="key-stat">Hash ${analysis.client_sha256 ? 'local calcule' : 'backend seul'}</span>
-                    <span class="key-stat">Decision ${escapeHtml(analysis.client_is_adult ? 'autoriser' : 'bloquer')}</span>
-                </div>
-            `;
-            document.getElementById('client-analysis-view').innerHTML = `
-                <div class="detail-head">
-                    <div>
-                        <h3>Analyse locale de ${escapeHtml(analysis.file)}</h3>
-                        <p>Le navigateur relit l'image, recalcule l'age et controle la coherence avec l'analyse backend.</p>
-                    </div>
-                    <span class="chip ${clientDecisionTone}">${escapeHtml(decision)}</span>
-                </div>
-                <div class="identity-media">
-                    <img src="${API_URL}${analysis.image_url}" alt="${escapeHtml(analysis.file)}">
-                    <div class="identity-caption">Analyse client: la carte est lue localement pour recalculer l'age, verifier l'empreinte SHA-256 et formuler la decision checkout.</div>
-                </div>
-                <div class="detail-grid">
-                    <div class="detail-card"><span>Nom</span><strong>${escapeHtml(analysis.last_name || '-')}</strong></div>
-                    <div class="detail-card"><span>Prenom</span><strong>${escapeHtml(analysis.first_name || '-')}</strong></div>
-                    <div class="detail-card"><span>Sexe</span><strong>${escapeHtml(analysis.sex || '-')}</strong></div>
-                    <div class="detail-card"><span>Naissance</span><strong>${escapeHtml(analysis.birthdate)}</strong></div>
-                    <div class="detail-card"><span>Age backend</span><strong>${fmtNumber(analysis.age)} ans</strong></div>
-                    <div class="detail-card"><span>Age client</span><strong>${fmtNumber(analysis.client_age ?? analysis.age)} ans</strong></div>
-                    <div class="detail-card"><span>Numero document</span><strong>${escapeHtml(analysis.doc_number || '-')}</strong></div>
-                    <div class="detail-card"><span>Expiration</span><strong>${escapeHtml(analysis.expiry || '-')}</strong></div>
-                    <div class="detail-card"><span>Etat document</span><strong>${escapeHtml(analysis.expired ? 'Expire' : 'Valide')}</strong></div>
-                    <div class="detail-card"><span>Source backend</span><strong>${escapeHtml(analysisSource)}</strong></div>
-                    <div class="detail-card"><span>Taille image</span><strong>${analysis.image_width && analysis.image_height ? `${fmtNumber(analysis.image_width)} x ${fmtNumber(analysis.image_height)}` : '-'}</strong></div>
-                    <div class="detail-card"><span>Poids image</span><strong>${analysis.image_bytes ? `${fmtNumber(analysis.image_bytes)} bytes` : '-'}</strong></div>
-                </div>
-                <div class="subpanel">
-                    <div class="detail-head">
-                        <div>
-                            <h3>Decision metier</h3>
-                            <p>La lecture client doit converger avec le controle majorite applique au checkout.</p>
-                        </div>
-                    </div>
-                    <div class="status-grid">
-                        <div class="split-metric">Client majeur<strong>${yesNo(analysis.client_is_adult)}</strong></div>
-                        <div class="split-metric">Hash identique<strong>${hashMatches === null ? 'N/A' : yesNo(hashMatches)}</strong></div>
-                        <div class="split-metric">Age coherent<strong>${ageMatches === null ? 'N/A' : yesNo(ageMatches)}</strong></div>
-                    </div>
-                    <div class="divider"></div>
-                    <p class="detail-copy">Cette section rend la demonstration plus concrete: le front recalcule une partie du diagnostic sans dependre uniquement du backend. Pour une carte mineure, la conclusion attendue reste un blocage des produits Adult.</p>
-                </div>
-            `;
-
-            const checks = [
-                {
-                    title: 'Majorite detectee',
-                    copy: `Client ${analysis.client_is_adult ? 'majeur' : 'mineur'} a partir de ${analysis.birthdate}.`,
-                    tone: analysis.client_is_adult ? 'cool' : 'danger'
-                },
-                {
-                    title: 'Empreinte image',
-                    copy: hashMatches === null
-                        ? 'Web Crypto indisponible sur ce navigateur, hash non recalcule localement.'
-                        : (hashMatches ? 'Le hash navigateur correspond au hash backend.' : 'Le hash navigateur ne correspond pas au hash backend.'),
-                    tone: hashMatches === null ? 'warning' : (hashMatches ? 'success' : 'danger')
-                },
-                {
-                    title: 'Source d analyse',
-                    copy: analysis.fingerprint_birthdate
-                        ? `Le modele empreinte (${analysis.model_version || 'version inconnue'}) retrouve ${analysis.fingerprint_birthdate}.`
-                        : 'Le backend a bascule sur les labels du dataset pour retrouver la date de naissance.',
-                    tone: analysis.fingerprint_birthdate ? 'success' : 'warning'
-                },
-                {
-                    title: 'Statut document',
-                    copy: analysis.expired ? 'Le document est expire et devrait etre traite en anomalie.' : 'Le document est encore valide sur la date d expiration.',
-                    tone: analysis.expired ? 'danger' : 'success'
-                }
-            ];
-            document.getElementById('client-analysis-checks').innerHTML = checks.map(item => `
-                <article class="list-item">
-                    <div class="list-item-head">
-                        <div>
-                            <div class="list-item-title">${escapeHtml(item.title)}</div>
-                            <div class="list-item-meta">${escapeHtml(item.copy)}</div>
-                        </div>
-                        <span class="chip ${item.tone}">${escapeHtml(item.tone)}</span>
-                    </div>
-                </article>
-            `).join('');
-        } catch (error) {
-            console.error('Erreur analyse CNI:', error);
-            renderEmptyClientCardAnalysis(`Analyse indisponible: ${error.message || error}`);
-        }
-    }
-
-    function renderBlockedAttemptsList() {
-        const container = document.getElementById('blocked-attempts-list');
-        if (!blockedAttempts.length) {
-            container.innerHTML = '<div class="empty-state">Aucune tentative bloquee sur la periode.</div>';
-            document.getElementById('attempt-list-copy').textContent = 'Aucun refus recent.';
-            document.getElementById('attempt-list-summary').innerHTML = '';
-            document.getElementById('attempt-list-pill').textContent = 'vide';
-            document.getElementById('attempt-list-pill').className = 'status-pill';
-            document.getElementById('attempt-list-pill').classList.add('cool');
-            document.getElementById('attempt-detail').innerHTML = '<div class="empty-state">Aucune tentative selectionnee.</div>';
-            return;
-        }
-        if (!blockedAttempts.some(item => String(item.attempt_id) === String(selectedAttemptId))) {
-            selectedAttemptId = blockedAttempts[0].attempt_id;
-        }
-        document.getElementById('attempt-list-copy').textContent = `${fmtNumber(blockedAttempts.length)} tentative(s) bloquees chargees`;
-        document.getElementById('attempt-list-pill').textContent = 'refus';
-        document.getElementById('attempt-list-pill').className = 'status-pill';
-        document.getElementById('attempt-list-pill').classList.add('danger');
-        document.getElementById('attempt-list-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">Derniere ${toShortDate(blockedAttempts[0]?.attempted_at)}</span>
-                <span class="key-stat">Age moyen ${fmtNumber(blockedAttempts.reduce((sum, item) => sum + (item.customer_age || 0), 0) / Math.max(blockedAttempts.length, 1), 1)} ans</span>
-            </div>
-        `;
-        container.innerHTML = blockedAttempts.map(row => `
-            <article class="list-item ${String(row.attempt_id) === String(selectedAttemptId) ? 'active' : ''}" data-attempt-id="${escapeHtml(row.attempt_id)}">
-                <div class="list-item-head">
-                    <div>
-                        <div class="list-item-title">Tentative #${escapeHtml(row.attempt_id)}</div>
-                        <div class="list-item-meta">${toShortDate(row.attempted_at)} | client ${escapeHtml(row.customer_id || '-')}</div>
-                    </div>
-                    <span class="chip danger">${fmtNumber(row.customer_age)} ans</span>
-                </div>
-                <div class="list-item-copy">Carte ${escapeHtml(row.id_card_file || '-')} | produits ${escapeHtml(row.blocked_products || '-')}</div>
-            </article>
-        `).join('');
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedAttemptId = node.dataset.attemptId;
-                renderBlockedAttemptsList();
-                renderAttemptDetail();
-            });
-        });
-    }
-
-    function renderAttemptDetail() {
-        const container = document.getElementById('attempt-detail');
-        const row = blockedAttempts.find(item => String(item.attempt_id) === String(selectedAttemptId)) || blockedAttempts[0] || null;
-        if (!row) {
-            container.innerHTML = '<div class="empty-state">Aucune tentative selectionnee.</div>';
-            return;
-        }
-        selectedAttemptId = row.attempt_id;
-        document.getElementById('attempt-detail-meta').textContent = `Tentative #${row.attempt_id} | ${toShortDate(row.attempted_at)}`;
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>Tentative #${escapeHtml(row.attempt_id)}</h3>
-                    <p>Refus checkout lie a un profil mineur.</p>
-                </div>
-                <span class="chip danger">Bloque</span>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Date</span><strong>${toShortDate(row.attempted_at)}</strong></div>
-                <div class="detail-card"><span>Client</span><strong>${escapeHtml(row.customer_id || '-')}</strong></div>
-                <div class="detail-card"><span>ID card</span><strong>${escapeHtml(row.id_card_file || '-')}</strong></div>
-                <div class="detail-card"><span>Age</span><strong>${fmtNumber(row.customer_age)} ans</strong></div>
-                <div class="detail-card"><span>Produits bloques</span><strong>${escapeHtml(row.blocked_products || '-')}</strong></div>
-                <div class="detail-card"><span>Montant</span><strong>${row.total_amount !== null && row.total_amount !== undefined ? `${fmtNumber(row.total_amount, 2)} EUR` : '-'}</strong></div>
-            </div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Lecture operationnelle</h3>
-                        <p>Le blocage est trace et rattache a la carte controlee.</p>
-                    </div>
-                </div>
-                <div class="status-grid">
-                    <div class="split-metric">Accepted<strong>${row.accepted ? 'Oui' : 'Non'}</strong></div>
-                    <div class="split-metric">Contains Adult<strong>${row.contains_adult_product ? 'Oui' : 'Non'}</strong></div>
-                    <div class="split-metric">Order id<strong>${row.order_id || '-'}</strong></div>
-                </div>
-                <div class="divider"></div>
-                <p class="detail-copy">Cette tentative a ete rejetee car la carte ${escapeHtml(row.id_card_file || '-')} a produit un age de ${fmtNumber(row.customer_age)} ans sur un panier contenant des produits Adult. ${row.notes ? `Note: ${escapeHtml(row.notes)}` : 'Aucune note additionnelle.'}</p>
-            </div>
-        `;
-    }
-
-    async function loadCards() {
-        const limit = document.getElementById('card-limit').value;
-        const [allResp, minorResp] = await Promise.all([
-            fetch(`${API_URL}/api/id-cards?limit=${limit}`),
-            fetch(`${API_URL}/api/id-cards?adult=false&limit=${limit}`)
-        ]);
-        if (!allResp.ok || !minorResp.ok) throw new Error('API ID cards indisponible');
-        allCards = await allResp.json();
-        minorCards = await minorResp.json();
-        renderCardsOverview();
-        renderMinorCardsList();
+          </div>
+          <span class="badge badge--danger">${KV.fmtNumber(c.age)} ans</span>
+        </div>
+      </button>`).join("");
+    el.querySelectorAll(".list-row").forEach((node) => {
+      node.addEventListener("click", () => {
+        selectedCardFile = node.dataset.file;
+        renderCardsList();
         renderCardDetail();
-    }
-
-    async function loadAttemptStats() {
-        const resp = await fetch(`${API_URL}/api/checkout/stats?window_hours=24`);
-        if (!resp.ok) throw new Error('API checkout stats indisponible');
-        checkoutStats = await resp.json();
-        renderCheckoutOverview();
-    }
-
-    async function loadIdentityStats() {
-        const resp = await fetch(`${API_URL}/api/identity/stats`);
-        if (!resp.ok) throw new Error('API identity stats indisponible');
-        identityStats = await resp.json();
-        renderIdentityStats();
-    }
-
-    async function loadIdentityVerifications() {
-        const resp = await fetch(`${API_URL}/api/identity/verifications?limit=40`);
-        if (!resp.ok) throw new Error('API identity verifications indisponible');
-        identityVerifications = await resp.json();
-        renderIdentityVerificationsList();
-        renderVerificationDetail();
-    }
-
-    async function loadBlockedAttempts() {
-        const limit = document.getElementById('attempt-limit').value;
-        const resp = await fetch(`${API_URL}/api/checkout/attempts?blocked_underage=true&limit=${limit}`);
-        if (!resp.ok) throw new Error('API checkout attempts indisponible');
-        blockedAttempts = await resp.json();
-        renderBlockedAttemptsList();
-        renderAttemptDetail();
-    }
-
-    async function refreshAll() {
-        try {
-            await Promise.all([loadCards(), loadAttemptStats(), loadIdentityStats(), loadIdentityVerifications(), loadBlockedAttempts()]);
-            updateHero();
-            if (opsController) {
-                opsController.markRefresh('identite');
-            }
-        } catch (error) {
-            console.error(error);
-            document.getElementById('minor-cards-list').innerHTML = '<div class="empty-state">Erreur chargement cartes.</div>';
-            document.getElementById('verification-list').innerHTML = '<div class="empty-state">Erreur chargement verifications.</div>';
-            document.getElementById('blocked-attempts-list').innerHTML = '<div class="empty-state">Erreur chargement tentatives.</div>';
-            document.getElementById('card-detail').innerHTML = '<div class="empty-state">Erreur de chargement.</div>';
-            document.getElementById('verification-detail').innerHTML = '<div class="empty-state">Erreur de chargement.</div>';
-            document.getElementById('attempt-detail').innerHTML = '<div class="empty-state">Erreur de chargement.</div>';
-        }
-    }
-
-    document.getElementById('attempt-limit').addEventListener('change', loadBlockedAttempts);
-    document.getElementById('card-limit').addEventListener('change', async () => {
-        await loadCards();
-        updateHero();
+      });
     });
+  }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        if (window.KiDashboardOps) {
-            opsController = window.KiDashboardOps.attach({
-                apiUrl: API_URL,
-                onAfterReset: () => refreshAll()
-            });
+  function renderCardDetail() {
+    const el = $("card-detail");
+    const c = minorCards.find((x) => x.file === selectedCardFile) || minorCards[0] || null;
+    if (!c) { el.innerHTML = '<div class="empty-state">Aucune carte sélectionnée.</div>'; renderDemoEmpty(); return; }
+    selectedCardFile = c.file;
+    el.innerHTML = `
+      <div class="card__head">
+        <div><h2>${KV.escapeHtml(c.file)}</h2>
+          <p>Carte mineure : tout panier 18+ issu de ce profil doit être bloqué.</p></div>
+        <span class="badge badge--danger">Mineur</span>
+      </div>
+      <div class="id-media">
+        <img loading="lazy" src="${cardImg(c.file)}"
+             alt="Carte d'identité ${KV.escapeHtml(c.file)}, date de naissance ${KV.escapeHtml(c.birthdate || "inconnue")}"
+             onerror="${HIDE_BROKEN}">
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card"><span>Fichier</span><strong>${KV.escapeHtml(c.file)}</strong></div>
+        <div class="detail-card"><span>Naissance</span><strong>${KV.escapeHtml(c.birthdate || "—")}</strong></div>
+        <div class="detail-card"><span>Âge</span><strong>${KV.fmtNumber(c.age)} ans</strong></div>
+        <div class="detail-card"><span>Restriction</span><strong>Blocage 18+</strong></div>
+      </div>`;
+    renderDemo(); // alimente la démo technique repliable
+  }
+
+  // ======================= Démo technique (repliable) =======================
+  function renderDemoEmpty(msg = "Sélectionnez d'abord une carte mineure.") {
+    $("demo-view").innerHTML = `<div class="empty-state">${KV.escapeHtml(msg)}</div>`;
+    $("demo-checks").innerHTML = "";
+  }
+
+  async function getAnalysis(card) {
+    if (!card) return null;
+    if (analysisCache.has(card.file)) return analysisCache.get(card.file);
+    const analysis = await KV.getJSON(`/api/id-cards/${encodeURIComponent(card.file)}/analysis`);
+    const data = { client_age: clientAge(analysis.birthdate), client_sha256: null,
+      image_width: null, image_height: null, image_bytes: null };
+    data.client_is_adult = data.client_age != null ? data.client_age >= 18 : null;
+    if (window.crypto?.subtle && analysis.image_url) {
+      try {
+        const r = await fetch(`${KV.API_URL}${analysis.image_url}`);
+        if (r.ok) {
+          const blob = await r.blob(), buf = await blob.arrayBuffer();
+          const digest = await window.crypto.subtle.digest("SHA-256", buf);
+          data.client_sha256 = Array.from(new Uint8Array(digest)).map((x) => x.toString(16).padStart(2, "0")).join("");
+          data.image_bytes = buf.byteLength;
+          const dims = await new Promise((res) => {
+            const url = URL.createObjectURL(blob), img = new Image();
+            img.onload = () => { res({ w: img.naturalWidth, h: img.naturalHeight }); URL.revokeObjectURL(url); };
+            img.onerror = () => { res({ w: null, h: null }); URL.revokeObjectURL(url); };
+            img.src = url;
+          });
+          data.image_width = dims.w; data.image_height = dims.h;
         }
-        setRuntimeStatus('idle');
-        refreshAll();
-        if (window.KiLiveSync) {
-            window.KiLiveSync.attach({
-                apiUrl: API_URL,
-                onTick: refreshAll,
-                onState: state => {
-                    if (opsController) {
-                        opsController.updateLiveState(state);
-                    }
-                },
-                setStatus: setRuntimeStatus,
-                refreshOnIdleEveryMs: 1000,
-                activeRefreshEveryMs: 1000,
-                minRefreshIntervalMs: 1000,
-                reconnectDelayMs: 1000,
-                fallbackEveryMs: 1000
-            });
-        }
-    });
+      } catch (e) { /* empreinte locale optionnelle */ }
+    }
+    const merged = { ...analysis, ...data };
+    analysisCache.set(card.file, merged);
+    return merged;
+  }
+
+  async function renderDemo() {
+    const card = minorCards.find((x) => x.file === selectedCardFile) || minorCards[0] || null;
+    if (!card) { renderDemoEmpty(); return; }
+    $("demo-view").innerHTML = '<div class="empty-state">Analyse CNI en cours…</div>';
+    $("demo-checks").innerHTML = "";
+    let a;
+    try { a = await getAnalysis(card); } catch (e) { renderDemoEmpty(`Analyse indisponible : ${e.message || e}`); return; }
+    if (!a || card.file !== selectedCardFile) return;
+
+    const hashMatches = a.client_sha256 ? a.client_sha256 === a.image_sha256 : null;
+    const ageMatches = a.client_age != null ? a.client_age === a.age : null;
+    const size = (a.image_width && a.image_height) ? `${KV.fmtNumber(a.image_width)} × ${KV.fmtNumber(a.image_height)}` : "—";
+    $("demo-view").innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-card"><span>Nom</span><strong>${KV.escapeHtml(a.last_name || "—")}</strong></div>
+        <div class="detail-card"><span>Prénom</span><strong>${KV.escapeHtml(a.first_name || "—")}</strong></div>
+        <div class="detail-card"><span>Âge backend</span><strong>${KV.fmtNumber(a.age)} ans</strong></div>
+        <div class="detail-card"><span>Âge recalculé</span><strong>${KV.fmtNumber(a.client_age ?? a.age)} ans</strong></div>
+        <div class="detail-card"><span>Numéro document</span><strong>${KV.escapeHtml(a.doc_number || "—")}</strong></div>
+        <div class="detail-card"><span>Document</span><strong>${a.expired ? "Expiré" : "Valide"}</strong></div>
+        <div class="detail-card"><span>Taille image</span><strong>${size}</strong></div>
+        <div class="detail-card"><span>Poids image</span><strong>${a.image_bytes ? KV.fmtNumber(a.image_bytes) + " o" : "—"}</strong></div>
+      </div>`;
+
+    const checks = [
+      { title: "Majorité détectée",
+        copy: `Profil ${a.client_is_adult ? "majeur" : "mineur"} d'après ${a.birthdate || "—"}.`,
+        tone: a.client_is_adult ? "success" : "danger" },
+      { title: "Empreinte SHA-256",
+        copy: hashMatches === null ? "Web Crypto indisponible, empreinte non recalculée localement."
+          : (hashMatches ? "L'empreinte locale correspond au backend." : "L'empreinte locale diffère du backend."),
+        tone: hashMatches === null ? "warning" : (hashMatches ? "success" : "danger") },
+      { title: "Cohérence de l'âge",
+        copy: ageMatches === null ? "Âge non vérifiable localement."
+          : (ageMatches ? "L'âge recalculé correspond au backend." : "L'âge recalculé diffère du backend."),
+        tone: ageMatches === null ? "warning" : (ageMatches ? "success" : "danger") },
+      { title: "Statut du document",
+        copy: a.expired ? "Document expiré : à traiter en anomalie." : "Document encore valide.",
+        tone: a.expired ? "danger" : "success" },
+    ];
+    $("demo-checks").innerHTML = checks.map((c) => {
+      const biz = toneToBusiness(c.tone);
+      return `<div class="list-row" style="cursor:default">
+        <div class="list-row__head">
+          <div><div class="list-row__title">${KV.escapeHtml(c.title)}</div>
+            <div class="list-row__meta">${KV.escapeHtml(c.copy)}</div></div>
+          <span class="badge badge--${biz.variant}">${biz.label}</span>
+        </div></div>`;
+    }).join("");
+  }
+
+  // ======================= Chargement =======================
+  async function load() {
+    $("err").classList.remove("show");
+    const [allC, minorC, chk, idStats, verifs, blk] = await Promise.allSettled([
+      KV.getJSON(`/api/id-cards?limit=${CARD_LIMIT}`),
+      KV.getJSON(`/api/id-cards?adult=false&limit=${CARD_LIMIT}`),
+      KV.getJSON("/api/checkout/stats?window_hours=24"),
+      KV.getJSON("/api/identity/stats"),
+      KV.getJSON(`/api/identity/verifications?limit=${VERIF_LIMIT}`),
+      KV.getJSON(`/api/checkout/attempts?blocked_underage=true&limit=${ATTEMPT_LIMIT}`),
+    ]).then((r) => r.map((x) => (x.status === "fulfilled" ? x.value : null)));
+
+    const anyOk = [allC, chk, idStats, verifs, blk].some((x) => x != null);
+    if (!anyOk) $("err").classList.add("show");
+
+    allCards = Array.isArray(allC) ? allC : [];
+    minorCards = Array.isArray(minorC) ? minorC : [];
+    checkoutStats = chk || {};
+    identityStats = idStats || {};
+    verifications = Array.isArray(verifs) ? verifs : [];
+    blocked = Array.isArray(blk) ? blk : [];
+
+    renderKpis();
+    buildAlerts();
+    renderAlertsList();
+    renderAlertDetail();
+    renderCardsList();
+    renderCardDetail();
+
+    $("freshness").innerHTML = '<span class="badge__dot"></span>MAJ ' + new Date().toLocaleTimeString("fr-FR");
+  }
+
+  // Barre de commande : taper Entrée = exécuter (équivalent texte de la voix)
+  $("cmd").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.value.trim() && window.KVVoice) {
+      window.KVVoice.runText(e.target.value.trim()); e.target.value = "";
+    }
+  });
+  $("refresh").addEventListener("click", load);
+  KV.createPoller(load, 15000).start();
 </script>
-<!-- Couche IA generative vocale -->
 <script src="voice_control.js"></script>
 </body>
 </html>

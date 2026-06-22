@@ -1,1067 +1,394 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fraude Globale - KiVendTout</title>
-    <link rel="stylesheet" href="dashboard_theme.css">
-    <style>
-        .signal-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .focus-copy {
-            margin-top: 10px;
-        }
-
-        .queue-summary {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .alert-score-line {
-            margin-top: 8px;
-        }
-
-        .detail-actions {
-            margin-top: 18px;
-        }
-
-        .detail-actions .action-row {
-            margin-top: 12px;
-        }
-
-        .notification-grid {
-            display: grid;
-            grid-template-columns: minmax(320px, 0.92fr) minmax(0, 1.08fr);
-            gap: 18px;
-        }
-
-        .notification-stack {
-            display: grid;
-            gap: 14px;
-        }
-
-        .notification-row {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .toggle-row {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            margin-top: 2px;
-        }
-
-        .toggle-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--ink-900);
-            font-size: 0.88rem;
-            font-weight: 800;
-        }
-
-        .toggle-item input {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--accent);
-        }
-
-        .notification-summary {
-            display: grid;
-            gap: 10px;
-        }
-
-        .history-list {
-            display: grid;
-            gap: 10px;
-        }
-
-        .history-item {
-            padding: 14px 15px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            background: var(--card-soft);
-        }
-
-        .history-item strong {
-            display: block;
-            font-size: 0.95rem;
-            font-weight: 900;
-            color: var(--ink-950);
-        }
-
-        .history-item p {
-            margin-top: 6px;
-            color: var(--ink-760);
-            font-size: 0.88rem;
-            line-height: 1.5;
-        }
-
-        .action-row.compact {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        @media (max-width: 980px) {
-            .signal-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .notification-grid,
-            .notification-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KiVendTout — Fraude</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme_v2.css">
 </head>
 <body>
+<!-- Top app bar : marque + barre de commande (voix + texte) + actions -->
+<header class="appbar">
+  <div class="appbar__brand"><span class="logo">K</span> KiVendTout</div>
+  <div class="appbar__spacer"></div>
+  <div class="cmdbar">
+    <span class="ic">🔎</span>
+    <input id="cmd" type="text" placeholder="Rechercher ou demander… ex : « filtre sévérité haute »"
+           aria-label="Commande" autocomplete="off">
+    <button class="mic-btn" data-voice-trigger title="Parler (ou maintenir P)" aria-label="Commande vocale">🎙️</button>
+  </div>
+  <button class="btn--icon" id="refresh" title="Actualiser" aria-label="Actualiser">↻</button>
+</header>
+
 <div class="layout">
-    <nav class="top-nav">
-        <a href="index.html">Overview</a>
-        <a class="active" href="fraud_dashboard.html">Fraude</a>
-        <a href="fraud_types_dashboard.html">Typologies</a>
-        <a href="id_cards_dashboard.html">Identite</a>
-        <a href="transfer_kpi_dashboard.html">Transferts</a>
-    </nav>
+  <nav id="nav"></nav>
 
-    <section class="masthead">
-        <div>
-            <div class="eyebrow">Fraud operations</div>
-            <h1>Centre de pilotage fraude.</h1>
-            <p>Priorites, decisions et notifications sur une lecture unique.</p>
-        </div>
-        <aside class="hero-note">
-            <h2>Situation</h2>
-            <strong id="fraud-headline">Chargement...</strong>
-            <div class="pill-row">
-                <span class="status-pill" id="fraud-level">-</span>
-                <span class="status-pill" id="transfer-level">-</span>
-            </div>
-            <p id="transfer-headline" class="focus-copy">Statut pipeline en attente.</p>
-            <ul id="fraud-insights" class="info-list"></ul>
-        </aside>
-    </section>
-
-    <div class="command-strip">
-        <div>
-            <strong>Scope</strong>
-            <div class="command-row">
-                <span class="command-chip">Fraud alerts</span>
-                <span class="command-chip">Notifications</span>
-                <span class="command-chip">Refresh 1s</span>
-            </div>
-        </div>
-        <div class="runtime-line">
-            <button class="btn-primary" onclick="refreshFraudDashboard()">Actualiser</button>
-            <span id="runtime-status">Runtime: idle</span>
-        </div>
+  <div class="page-head">
+    <div>
+      <div class="overline">Fraude</div>
+      <h1>Centre de pilotage des alertes.</h1>
+      <p class="sub">Priorités, file d'attente et décisions analyste sur une lecture unique.
+        Pilotable à la souris comme à la voix.</p>
     </div>
+    <div class="head-actions">
+      <span class="badge" id="freshness"><span class="badge__dot"></span>—</span>
+    </div>
+  </div>
 
-    <section class="metric-grid">
-        <article class="metric-card accent">
-            <div class="label"><span>Alertes</span><span>totales</span></div>
-            <div class="value" id="total-alerts">-</div>
-            <p class="support" id="coverage-copy">Couverture clients en attente.</p>
-        </article>
-        <article class="metric-card">
-            <div class="label"><span>Taux de fraude</span><span>paiements</span></div>
-            <div class="value" id="fraud-rate">-</div>
-            <p class="support" id="fraud-rate-note">-</p>
-        </article>
-        <article class="metric-card cool">
-            <div class="label"><span>Fraudes</span><span>etiquetees</span></div>
-            <div class="value" id="fraud-payments">-</div>
-            <p class="support" id="severity-note">-</p>
-        </article>
-        <article class="metric-card gold">
-            <div class="label"><span>En attente</span><span>review</span></div>
-            <div class="value" id="pending-review">-</div>
-            <p class="support" id="top-reason-copy">-</p>
-        </article>
+  <!-- Suggestions : cliquables (souris) = équivalent des commandes vocales -->
+  <div class="chip-row" aria-label="Suggestions de commandes">
+    <button class="chip chip--suggest" data-cmd="filtre les fraudes en sévérité haute">Filtre sévérité haute</button>
+    <button class="chip chip--suggest" data-cmd="montre les alertes en attente">Montre les alertes en attente</button>
+    <button class="chip chip--suggest" data-cmd="explique-moi le taux de fraude">Explique le taux de fraude</button>
+  </div>
+
+  <div class="error-banner" id="err">Impossible de charger les indicateurs. API injoignable.</div>
+
+  <!-- KPIs : 4 max, 1 héros (backlog d'alertes) -->
+  <section class="kpi-grid">
+    <article class="kpi kpi--hero">
+      <span class="kpi__label">Backlog d'alertes</span>
+      <span class="kpi__value skeleton" id="k-backlog">0000</span>
+      <span class="kpi__support skeleton" id="k-backlog-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Taux de fraude confirmée</span>
+      <span class="kpi__value skeleton" id="k-rate">00,0 %</span>
+      <span class="kpi__support skeleton" id="k-rate-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">En attente de revue</span>
+      <span class="kpi__value skeleton" id="k-pending">000</span>
+      <span class="kpi__support skeleton" id="k-pending-sub">contexte</span>
+    </article>
+    <article class="kpi">
+      <span class="kpi__label">Sur-déclenchement</span>
+      <span class="kpi__value skeleton" id="k-ratio">0</span>
+      <span class="kpi__support skeleton" id="k-ratio-sub">contexte</span>
+    </article>
+  </section>
+
+  <!-- File d'alertes + détail -->
+  <div class="split">
+    <section class="card">
+      <div class="card__head">
+        <div>
+          <h2>File d'alertes</h2>
+          <p id="queue-copy">Liste à gauche, décision à droite.</p>
+        </div>
+        <span class="badge" id="queue-pill">—</span>
+      </div>
+
+      <!-- Filtres en chips Material : un seul actif par groupe -->
+      <div class="chip-row" id="filter-severity" data-field="severity" aria-label="Filtre sévérité" style="margin-bottom:var(--space-3)">
+        <button class="chip selected" data-code="" aria-pressed="true">Toutes</button>
+        <button class="chip" data-code="HIGH" aria-pressed="false">Haute</button>
+        <button class="chip" data-code="MEDIUM" aria-pressed="false">Moyenne</button>
+        <button class="chip" data-code="LOW" aria-pressed="false">Basse</button>
+      </div>
+      <div class="chip-row" id="filter-status" data-field="status" aria-label="Filtre statut" style="margin-bottom:var(--space-4)">
+        <button class="chip selected" data-code="" aria-pressed="true">Tous</button>
+        <button class="chip" data-code="PENDING_REVIEW" aria-pressed="false">En attente</button>
+        <button class="chip" data-code="INVESTIGATING" aria-pressed="false">En investigation</button>
+        <button class="chip" data-code="APPROVED" aria-pressed="false">Approuvé</button>
+        <button class="chip" data-code="BLOCKED" aria-pressed="false">Bloqué</button>
+      </div>
+
+      <div class="rows" id="alerts-list">
+        <div class="skeleton" style="height:64px;border-radius:var(--radius-xs);margin-bottom:8px"></div>
+        <div class="skeleton" style="height:64px;border-radius:var(--radius-xs);margin-bottom:8px"></div>
+        <div class="skeleton" style="height:64px;border-radius:var(--radius-xs)"></div>
+      </div>
     </section>
 
-    <section class="metric-grid">
-        <article class="metric-card">
-            <div class="label"><span>Checkouts</span><span>24h</span></div>
-            <div class="value" id="checkout-attempts">-</div>
-            <p class="support" id="checkout-last-attempt">-</p>
-        </article>
-        <article class="metric-card">
-            <div class="label"><span>Acceptes</span><span>24h</span></div>
-            <div class="value" id="checkout-accepted">-</div>
-            <p class="support" id="checkout-accepted-note">-</p>
-        </article>
-        <article class="metric-card">
-            <div class="label"><span>Bloques</span><span>mineurs</span></div>
-            <div class="value" id="checkout-blocked">-</div>
-            <p class="support" id="checkout-blocked-note">-</p>
-        </article>
-        <article class="metric-card">
-            <div class="label"><span>Rejet</span><span>checkout</span></div>
-            <div class="value" id="checkout-reject-rate">-</div>
-            <p class="support" id="checkout-age-note">-</p>
-        </article>
-    </section>
-
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Signaux clefs</h2>
-                <p>Flux, motifs et severite.</p>
-            </div>
-            <div class="section-meta" id="signal-meta">-</div>
-        </div>
-        <div class="signal-grid">
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Flux journalier</h3>
-                        <p>Evolution des alertes sur les derniers jours disponibles.</p>
-                    </div>
-                    <span class="status-pill cool">Sparkline</span>
-                </div>
-                <strong class="chart-value" id="daily-flow-value">-</strong>
-                <p class="chart-meta" id="daily-flow-meta">-</p>
-                <div class="sparkline-frame" id="daily-flow-chart"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Flux horaire</h3>
-                        <p>Variation recente pour reperer les pointes courtes.</p>
-                    </div>
-                    <span class="status-pill">Live</span>
-                </div>
-                <strong class="chart-value" id="hourly-flow-value">-</strong>
-                <p class="chart-meta" id="hourly-flow-meta">-</p>
-                <div class="sparkline-frame" id="hourly-flow-chart"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Motifs majeurs</h3>
-                        <p>Top 5 des causes qui structurent le backlog.</p>
-                    </div>
-                    <span class="status-pill">Trend bars</span>
-                </div>
-                <strong class="chart-value" id="top-reasons-value">-</strong>
-                <p class="chart-meta" id="top-reasons-meta">-</p>
-                <div class="bar-list" id="top-reasons-bars"></div>
-            </article>
-            <article class="chart-card">
-                <div class="chart-head">
-                    <div>
-                        <h3>Severite et checkout</h3>
-                        <p>Distribution du risque et effet du garde-fou majorite.</p>
-                    </div>
-                    <span class="status-pill warning">Split</span>
-                </div>
-                <strong class="chart-value" id="severity-split-value">-</strong>
-                <p class="chart-meta" id="severity-split-meta">-</p>
-                <div id="severity-bar"></div>
-                <div class="legend-row" id="severity-legend" style="margin-top:12px;"></div>
-                <div class="divider"></div>
-                <div id="checkout-bar"></div>
-                <div class="legend-row" id="checkout-legend" style="margin-top:12px;"></div>
-            </article>
-        </div>
-    </section>
-
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Notifications</h2>
-                <p>Configurer un email ops et tracer les alertes critiques envoyees.</p>
-            </div>
-            <div class="section-meta" id="notification-meta">-</div>
-        </div>
-        <div class="notification-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Parametres</h3>
-                        <p>Email cible, seuil et mode de livraison.</p>
-                    </div>
-                    <span class="status-pill" id="notification-mode-pill">-</span>
-                </div>
-                <div class="notification-stack">
-                    <div class="notification-row">
-                        <label class="control" for="operator-identity">
-                            Operateur
-                            <input id="operator-identity" type="text" value="ops@kivendtout.fr" placeholder="ops@kivendtout.fr">
-                        </label>
-                        <label class="control" for="notification-email">
-                            Email de notification
-                            <input id="notification-email" type="email" placeholder="fraude@entreprise.fr">
-                        </label>
-                    </div>
-                    <div class="notification-row">
-                        <label class="control" for="notification-severity">
-                            Seuil
-                            <select id="notification-severity">
-                                <option value="HIGH">Haute</option>
-                                <option value="MEDIUM">Moyenne et plus</option>
-                                <option value="LOW">Toutes</option>
-                            </select>
-                        </label>
-                        <label class="control" for="notification-message">
-                            Message test
-                            <input id="notification-message" type="text" value="Validation du canal d'alerte fraude." placeholder="Message additionnel">
-                        </label>
-                    </div>
-                    <div class="toggle-row">
-                        <label class="toggle-item"><input id="notification-enabled" type="checkbox"> Canal actif</label>
-                        <label class="toggle-item"><input id="notification-on-new" type="checkbox" checked> Nouvelles alertes</label>
-                        <label class="toggle-item"><input id="notification-on-decision" type="checkbox"> Decisions</label>
-                    </div>
-                    <div class="action-row compact">
-                        <button class="btn-primary" onclick="saveNotificationConfig()">Enregistrer</button>
-                        <button class="btn-secondary" onclick="sendTestNotification()">Tester l'envoi</button>
-                    </div>
-                </div>
-            </article>
-            <article class="detail-panel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Derniers envois</h3>
-                        <p>Chaque tentative garde une trace exploitable, meme sans SMTP.</p>
-                    </div>
-                    <span class="status-pill" id="notification-history-pill">-</span>
-                </div>
-                <div class="notification-summary" id="notification-summary"></div>
-                <div class="divider"></div>
-                <div class="history-list" id="notification-history"></div>
-            </article>
-        </div>
-    </section>
-
-    <section class="panel">
-        <div class="section-head">
-            <div>
-                <h2>Queue d'alertes</h2>
-                <p>Liste a gauche, action a droite.</p>
-            </div>
-        </div>
-        <div class="control-row">
-            <label class="control" for="filter-status">
-                Statut
-                <select id="filter-status">
-                    <option value="">Tous</option>
-                    <option value="PENDING_REVIEW">En attente</option>
-                    <option value="INVESTIGATING">En investigation</option>
-                    <option value="APPROVED">Approuve</option>
-                    <option value="BLOCKED">Bloque</option>
-                </select>
-            </label>
-            <label class="control" for="filter-severity">
-                Severite
-                <select id="filter-severity">
-                    <option value="">Toutes</option>
-                    <option value="HIGH">Haute</option>
-                    <option value="MEDIUM">Moyenne</option>
-                    <option value="LOW">Basse</option>
-                </select>
-            </label>
-            <button class="btn-primary" onclick="loadAlerts()">Actualiser</button>
-        </div>
-        <div class="drilldown-grid">
-            <article class="list-panel">
-                <div class="list-head">
-                    <div>
-                        <h3>Selection active</h3>
-                        <p id="queue-copy">-</p>
-                    </div>
-                    <span class="status-pill" id="queue-status-pill">-</span>
-                </div>
-                <div class="list-summary" id="queue-summary"></div>
-                <div class="list-items" id="alerts-list"></div>
-            </article>
-            <article class="detail-panel" id="alert-detail"></article>
-        </div>
-    </section>
+    <aside class="card" id="alert-detail">
+      <div class="empty-state">Sélectionnez une alerte pour afficher le détail.</div>
+    </aside>
+  </div>
 </div>
 
-<script src="dashboard_ops.js"></script>
-<script src="live_sync.js"></script>
+<script src="dashboard_common.js"></script>
 <script>
-    const DASHBOARD_HOST = window.location.hostname || 'localhost';
-    const API_HOST = ['127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(DASHBOARD_HOST) ? 'localhost' : DASHBOARD_HOST;
-    const API_URL = `${window.location.protocol}//${API_HOST}:8000`;
-    let currentAlerts = [];
-    let selectedAlertId = null;
-    let checkoutStatsCache = null;
-    let fraudStatsCache = null;
-    let notificationConfigCache = null;
-    let notificationHistoryCache = [];
-    let opsController = null;
+  KV.renderNav("nav");
+  const $ = (id) => document.getElementById(id);
 
-    function escapeHtml(value) {
-        return String(value ?? '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+  // — État de page —
+  let currentAlerts = [];
+  let selectedAlertId = null;
+  let operatorIdentity = "ops@kivendtout.fr";
+  const filters = { severity: "", status: "" };
+
+  // — Libellés FR —
+  const STATUS_LABELS = {
+    PENDING_REVIEW: "En attente", INVESTIGATING: "En investigation",
+    APPROVED: "Approuvé", BLOCKED: "Bloqué",
+  };
+  const DECISION_LABELS = { APPROVE: "Approuver", BLOCK: "Bloquer", INVESTIGATE: "Investiguer" };
+  const SEVERITY_LABELS = { HIGH: "Haute", MEDIUM: "Moyenne", LOW: "Basse" };
+  const REASON_LABELS = {
+    FIRST_PAYMENT: "Premier paiement", NEW_CUSTOMER: "Nouveau client",
+    UNUSUAL_HOUR: "Horaire suspect", MOBILE_DEVICE: "Appareil mobile",
+    DIRECT_TRAFFIC: "Trafic direct", PAYMENT_FAILED: "Paiement échoué",
+    VELOCITY_HIGH: "Vélocité élevée", NEW_DEVICE: "Nouvel appareil",
+    UNUSUAL_AMOUNT: "Montant inhabituel", FAST_CHECKOUT: "Validation rapide",
+    GEO_MISMATCH: "Incohérence géographique", AGE_RESTRICTED_ATTEMPT: "Tentative produit 18+ mineur",
+    IDENTITY_CHECK_REQUIRED: "Contrôle identité requis", ADULT_CATALOG: "Produit sensible",
+    YOUNG_ADULT: "Jeune adulte", ALT_PAYMENT_METHOD: "Moyen de paiement alternatif",
+    MANUAL_SETTLEMENT: "Règlement manuel", PAYMENT_RISK_REVIEW: "Revue risque paiement",
+  };
+  const statusLabel = (s) => STATUS_LABELS[s] || s || "—";
+  const severityLabel = (s) => SEVERITY_LABELS[s] || s || "—";
+  const reasonLabel = (r) => REASON_LABELS[r] || r || "—";
+  const severityVariant = (s) => (s === "HIGH" ? "danger" : s === "MEDIUM" ? "warning" : "info");
+  const statusVariant = (s) =>
+    s === "APPROVED" ? "success" : s === "BLOCKED" ? "danger" : s === "INVESTIGATING" ? "warning" : "info";
+
+  function setKpi(id, v) { const e = $(id); if (e) { e.textContent = v; e.classList.remove("skeleton"); } }
+
+  // ======================== KPIs ========================
+  async function loadKpis() {
+    const [statsR, readableR] = await Promise.allSettled([
+      KV.getJSON("/api/stats"),
+      KV.getJSON("/api/kpis/readable?limit=200&micro_batch_window_hours=24"),
+    ]);
+    const stats = statsR.status === "fulfilled" ? statsR.value : null;
+    const readable = readableR.status === "fulfilled" ? readableR.value : null;
+
+    if (!stats && !readable) { $("err").classList.add("show"); return; }
+
+    const fraud = readable?.fraud || {};
+    const fraudKpis = fraud.kpis || {};
+    const alerts = stats?.total_alerts ?? 0;
+    const confirmed = stats?.fraudulent_payments ?? 0;
+    const totalPay = stats?.total_payments ?? 0;
+    const pending = stats?.alerts_by_status?.PENDING_REVIEW ?? 0;
+    const high = stats?.alerts_by_severity?.HIGH ?? 0;
+    const fraudRate = fraudKpis.fraud_rate_percent ?? stats?.fraud_rate;
+
+    // Héros : backlog d'alertes
+    setKpi("k-backlog", KV.fmtNumber(alerts));
+    setKpi("k-backlog-sub", `${KV.fmtNumber(high)} en sévérité haute · ${fraud.risk_level || "niveau de risque"}`);
+
+    // Taux de fraude confirmée
+    setKpi("k-rate", fraudRate != null ? KV.fmtPercent(fraudRate) : "—");
+    setKpi("k-rate-sub", `${KV.fmtNumber(confirmed)} fraude(s) confirmée(s) sur ${KV.fmtNumber(totalPay)} paiement(s)`);
+
+    // En attente de revue
+    setKpi("k-pending", KV.fmtNumber(pending));
+    setKpi("k-pending-sub", `Motif dominant : ${reasonLabel(fraudKpis.top_reason)}`);
+
+    // Ratio alertes / fraude confirmée (sur-déclenchement)
+    const ratio = confirmed > 0 ? Math.round(alerts / confirmed) : alerts;
+    setKpi("k-ratio", confirmed > 0 ? `≈ ${KV.fmtNumber(ratio)}` : "—");
+    setKpi("k-ratio-sub", confirmed > 0
+      ? `${KV.fmtNumber(ratio)} alerte(s) par fraude confirmée`
+      : "Aucune fraude confirmée pour comparer");
+  }
+
+  // ======================== File d'alertes ========================
+  async function loadAlerts() {
+    const params = new URLSearchParams();
+    if (filters.status) params.append("status", filters.status);
+    if (filters.severity) params.append("severity", filters.severity);
+    params.append("limit", "60");
+
+    const r = await Promise.allSettled([KV.getJSON(`/api/alerts?${params.toString()}`)]);
+    if (r[0].status !== "fulfilled") {
+      $("err").classList.add("show");
+      $("alerts-list").innerHTML = '<div class="empty-state">Erreur de chargement de la file.</div>';
+      $("queue-pill").textContent = "erreur";
+      $("queue-pill").className = "badge badge--danger";
+      return;
     }
-
-    function setRuntimeStatus(message, isError = false) {
-        const el = document.getElementById('runtime-status');
-        if (!el) return;
-        el.textContent = `Runtime: ${message}`;
-        el.style.color = isError ? 'var(--danger)' : 'var(--ink-760)';
+    currentAlerts = Array.isArray(r[0].value) ? r[0].value : [];
+    if (!currentAlerts.some((a) => a.alert_id === selectedAlertId)) {
+      selectedAlertId = currentAlerts[0]?.alert_id || null;
     }
+    renderAlertList();
+    renderAlertDetail();
+  }
 
-    function setTonePill(id, label) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = label || '-';
-        el.className = 'status-pill';
-        if (['modere', 'moyenne', 'inactif'].includes(label)) {
-            el.classList.add('warning');
-        } else if (['eleve', 'aucune_donnee'].includes(label)) {
-            el.classList.add('danger');
-        } else if (['faible', 'ok', 'actif', 'large'].includes(label)) {
-            el.classList.add('success');
-        } else {
-            el.classList.add('cool');
-        }
+  function renderAlertList() {
+    const list = $("alerts-list");
+    if (!currentAlerts.length) {
+      list.innerHTML = '<div class="empty-state">Aucune alerte ne correspond à ce filtre.</div>';
+      $("queue-copy").textContent = "Aucune ligne disponible.";
+      $("queue-pill").textContent = "vide";
+      $("queue-pill").className = "badge";
+      $("alert-detail").innerHTML = '<div class="empty-state">Aucune alerte à afficher.</div>';
+      return;
     }
+    const visible = currentAlerts.slice(0, 18);
+    const high = currentAlerts.filter((a) => a.severity === "HIGH").length;
+    $("queue-copy").textContent = `${visible.length} / ${currentAlerts.length} ligne(s) affichée(s)`;
+    $("queue-pill").textContent = high > 0 ? `${KV.fmtNumber(high)} haute(s)` : "mix stable";
+    $("queue-pill").className = "badge " + (high > 0 ? "badge--danger" : "badge--info");
 
-    function translateStatus(status) {
-        const translations = {
-            PENDING_REVIEW: 'En attente',
-            INVESTIGATING: 'En investigation',
-            APPROVED: 'Approuve',
-            BLOCKED: 'Bloque'
-        };
-        return translations[status] || status || '-';
-    }
+    list.innerHTML = visible.map((a) => `
+      <div class="row" role="button" tabindex="0" data-alert-id="${KV.escapeHtml(a.alert_id)}"
+           style="cursor:pointer;${a.alert_id === selectedAlertId ? "background:var(--surface-2);border-radius:var(--radius-xs);" : ""}">
+        <div>
+          <div class="row__title">${KV.escapeHtml(a.alert_id)}</div>
+          <div class="row__meta">${statusLabel(a.status)} · client ${KV.escapeHtml(a.customer_id || "—")} · score ${KV.fmtNumber(a.risk_score)} · ${KV.fmtDate(a.alert_timestamp)}</div>
+        </div>
+        <span class="badge badge--${severityVariant(a.severity)}">${severityLabel(a.severity)}</span>
+      </div>
+    `).join("");
 
-    function translateDecision(decision) {
-        const translations = {
-            APPROVE: 'Approuver',
-            BLOCK: 'Bloquer',
-            INVESTIGATE: 'Investigation'
-        };
-        return translations[decision] || decision || '-';
-    }
-
-    function translateReason(reason) {
-        const translations = {
-            FIRST_PAYMENT: 'Premier paiement',
-            NEW_CUSTOMER: 'Nouveau client',
-            UNUSUAL_HOUR: 'Horaire suspect',
-            MOBILE_DEVICE: 'Appareil mobile',
-            DIRECT_TRAFFIC: 'Trafic direct',
-            PAYMENT_FAILED: 'Paiement echoue',
-            VELOCITY_HIGH: 'Velocite elevee',
-            NEW_DEVICE: 'Nouvel appareil',
-            UNUSUAL_AMOUNT: 'Montant inhabituel',
-            FAST_CHECKOUT: 'Checkout rapide',
-            GEO_MISMATCH: 'Geo mismatch',
-            AGE_RESTRICTED_ATTEMPT: 'Tentative produit 18+ mineur',
-            IDENTITY_CHECK_REQUIRED: 'Controle identite requis',
-            ADULT_CATALOG: 'Produit sensible',
-            YOUNG_ADULT: 'Jeune adulte',
-            ALT_PAYMENT_METHOD: 'Moyen de paiement alternatif',
-            MANUAL_SETTLEMENT: 'Reglement manuel',
-            PAYMENT_RISK_REVIEW: 'Revue risque paiement'
-        };
-        return translations[reason] || reason || '-';
-    }
-
-    function severityLabel(severity) {
-        return ({ HIGH: 'Haute', MEDIUM: 'Moyenne', LOW: 'Basse' }[severity]) || severity || '-';
-    }
-
-    function severityTone(severity) {
-        if (severity === 'HIGH') return 'danger';
-        if (severity === 'MEDIUM') return 'warning';
-        return 'cool';
-    }
-
-    function riskBarColor(score) {
-        if (score >= 80) return 'var(--danger)';
-        if (score >= 60) return 'var(--warning)';
-        return 'var(--accent-cool)';
-    }
-
-    function fmtNumber(value, digits = 0) {
-        if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
-        return Number(value).toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-    }
-
-    function toShortDate(value) {
-        if (!value) return '-';
-        return new Date(value).toLocaleString('fr-FR');
-    }
-
-    function getOperatorIdentity() {
-        const value = (document.getElementById('operator-identity')?.value || '').trim();
-        return value || 'ops@kivendtout.fr';
-    }
-
-    function buildSparklineSvg(points, tone = 'accent') {
-        if (!points.length) {
-            return '<div class="empty-state">Aucune serie disponible.</div>';
-        }
-
-        const width = 320;
-        const height = 90;
-        const paddingX = 10;
-        const paddingY = 8;
-        const max = Math.max(...points.map(point => Number(point.value) || 0), 1);
-        const min = Math.min(...points.map(point => Number(point.value) || 0), 0);
-        const range = Math.max(max - min, 1);
-        const step = points.length === 1 ? 0 : (width - paddingX * 2) / (points.length - 1);
-        const coords = points.map((point, index) => {
-            const x = paddingX + step * index;
-            const y = height - paddingY - (((Number(point.value) || 0) - min) / range) * (height - paddingY * 2);
-            return { x, y };
-        });
-        const path = coords.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
-        const area = `M ${coords[0].x} ${height - paddingY} ${coords.map(point => `L ${point.x} ${point.y}`).join(' ')} L ${coords[coords.length - 1].x} ${height - paddingY} Z`;
-        const last = coords[coords.length - 1];
-        const firstLabel = escapeHtml(points[0].label || 'debut');
-        const lastLabel = escapeHtml(points[points.length - 1].label || 'fin');
-
-        return `
-            <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
-                <line class="sparkline-grid" x1="0" y1="${height - paddingY}" x2="${width}" y2="${height - paddingY}"></line>
-                <line class="sparkline-grid" x1="0" y1="${(height - paddingY) / 2}" x2="${width}" y2="${(height - paddingY) / 2}"></line>
-                <path class="sparkline-area ${tone}" d="${area}"></path>
-                <path class="sparkline-line ${tone}" d="${path}"></path>
-                ${coords.map(point => `<circle class="sparkline-point ${tone}" cx="${point.x}" cy="${point.y}" r="3.5"></circle>`).join('')}
-                <text x="0" y="${height - 2}">${firstLabel}</text>
-                <text x="${width}" y="${height - 2}" text-anchor="end">${lastLabel}</text>
-                <text x="${Math.max(0, last.x - 6)}" y="${Math.max(12, last.y - 10)}" text-anchor="end">${fmtNumber(points[points.length - 1].value)}</text>
-            </svg>
-        `;
-    }
-
-    function renderSparkline(containerId, points, tone = 'accent') {
-        document.getElementById(containerId).innerHTML = buildSparklineSvg(points, tone);
-    }
-
-    function renderBarList(containerId, rows, labelFn = value => value, tone = 'accent') {
-        const container = document.getElementById(containerId);
-        if (!rows.length) {
-            container.innerHTML = '<div class="empty-state">Aucune valeur disponible.</div>';
-            return;
-        }
-        const max = Math.max(...rows.map(row => Number(row.count) || 0), 1);
-        container.innerHTML = rows.map(row => {
-            const pct = ((Number(row.count) || 0) / max) * 100;
-            return `
-                <div class="bar-row">
-                    <div class="bar-label">${escapeHtml(labelFn(row.reason || row.label || '-'))}</div>
-                    <div class="bar-track"><div class="bar-fill ${tone}" style="width:${pct}%;"></div></div>
-                    <div class="bar-value">${fmtNumber(row.count || row.value || 0)}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function renderSplitBar(targetId, counts, total, mode = 'severity') {
-        const el = document.getElementById(targetId);
-        if (!total) {
-            el.innerHTML = '<div class="empty-state">Aucune repartition disponible.</div>';
-            return;
-        }
-        const segments = counts.map(item => {
-            const width = Math.max((item.value / total) * 100, item.value > 0 ? 6 : 0);
-            return `<div class="stacked-segment ${item.tone}" style="width:${width}%;"></div>`;
-        }).join('');
-        el.innerHTML = `<div class="stacked-bar" role="img" aria-label="${mode}">${segments}</div>`;
-    }
-
-    function updateSeverityVisuals(stats) {
-        const counts = [
-            { label: 'Haute', value: stats.alerts_by_severity?.HIGH || 0, tone: 'high' },
-            { label: 'Moyenne', value: stats.alerts_by_severity?.MEDIUM || 0, tone: 'medium' },
-            { label: 'Basse', value: stats.alerts_by_severity?.LOW || 0, tone: 'low' }
-        ];
-        const total = counts.reduce((sum, item) => sum + item.value, 0);
-        document.getElementById('severity-split-value').textContent = `${fmtNumber(total)} alertes`;
-        document.getElementById('severity-split-meta').textContent = `Haute ${fmtNumber(counts[0].value)} | Moyenne ${fmtNumber(counts[1].value)} | Basse ${fmtNumber(counts[2].value)}`;
-        renderSplitBar('severity-bar', counts, total, 'repartition severite');
-        document.getElementById('severity-legend').innerHTML = counts.map(item => `
-            <span class="legend-chip"><span class="legend-dot ${item.tone}"></span>${item.label} ${fmtNumber(item.value)}</span>
-        `).join('');
-    }
-
-    function updateCheckoutVisuals(stats) {
-        if (!stats) return;
-        const counts = [
-            { label: 'Acceptes', value: stats.accepted_orders || 0, tone: 'low' },
-            { label: 'Bloques', value: stats.blocked_underage_orders || 0, tone: 'high' }
-        ];
-        const total = counts.reduce((sum, item) => sum + item.value, 0);
-        renderSplitBar('checkout-bar', counts, total, 'checkout');
-        document.getElementById('checkout-legend').innerHTML = counts.map(item => `
-            <span class="legend-chip"><span class="legend-dot ${item.tone}"></span>${item.label} ${fmtNumber(item.value)}</span>
-        `).join('');
-    }
-
-    function renderAlertList() {
-        const container = document.getElementById('alerts-list');
-        if (!currentAlerts.length) {
-            container.innerHTML = '<div class="empty-state">Aucune alerte sur ce filtre.</div>';
-            document.getElementById('queue-summary').innerHTML = '';
-            document.getElementById('queue-copy').textContent = 'Aucune ligne disponible.';
-            document.getElementById('queue-status-pill').textContent = 'vide';
-            document.getElementById('queue-status-pill').className = 'status-pill';
-            document.getElementById('queue-status-pill').classList.add('cool');
-            document.getElementById('alert-detail').innerHTML = '<div class="empty-state">Selectionner un filtre ou relancer les flux.</div>';
-            return;
-        }
-
-        const visibleAlerts = currentAlerts.slice(0, 18);
-        const highCount = currentAlerts.filter(alert => alert.severity === 'HIGH').length;
-        const avgScore = currentAlerts.reduce((sum, alert) => sum + (alert.risk_score || 0), 0) / currentAlerts.length;
-        document.getElementById('queue-copy').textContent = `${visibleAlerts.length}/${currentAlerts.length} lignes affichees`;
-        const leadSeverity = highCount > 0 ? 'focus haute severite' : 'mix stable';
-        document.getElementById('queue-status-pill').textContent = leadSeverity;
-        document.getElementById('queue-status-pill').className = 'status-pill';
-        document.getElementById('queue-status-pill').classList.add(highCount > 0 ? 'danger' : 'cool');
-        document.getElementById('queue-summary').innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">En file ${fmtNumber(currentAlerts.length)}</span>
-                <span class="key-stat">High ${fmtNumber(highCount)}</span>
-                <span class="key-stat">Score moyen ${fmtNumber(avgScore, 1)}</span>
-            </div>
-        `;
-
-        container.innerHTML = visibleAlerts.map(alert => `
-            <article class="list-item ${alert.alert_id === selectedAlertId ? 'active' : ''}" data-alert-id="${escapeHtml(alert.alert_id)}">
-                <div class="list-item-head">
-                    <div>
-                        <div class="list-item-title">${escapeHtml(alert.alert_id)}</div>
-                        <div class="list-item-meta">${translateStatus(alert.status)} | ${toShortDate(alert.alert_timestamp)}</div>
-                    </div>
-                    <span class="chip ${severityTone(alert.severity)}">${severityLabel(alert.severity)}</span>
-                </div>
-                <div class="list-item-copy">Client ${escapeHtml(alert.customer_id || '-')} | Score ${fmtNumber(alert.risk_score)}</div>
-                <div class="alert-score-line">
-                    <div class="progress-track">
-                        <div class="progress-value" style="width:${Math.min(Math.max(alert.risk_score || 0, 0), 100)}%; background:${riskBarColor(alert.risk_score || 0)};"></div>
-                    </div>
-                </div>
-                <div class="tag-row">
-                    ${(alert.fraud_reasons || []).slice(0, 3).map(reason => `<span class="soft-tag">${escapeHtml(translateReason(reason))}</span>`).join('')}
-                </div>
-            </article>
-        `).join('');
-
-        container.querySelectorAll('.list-item').forEach(node => {
-            node.addEventListener('click', () => {
-                selectedAlertId = node.dataset.alertId;
-                renderAlertList();
-                renderAlertDetail();
-            });
-        });
-    }
-
-    function renderAlertDetail() {
-        const container = document.getElementById('alert-detail');
-        const alert = currentAlerts.find(item => item.alert_id === selectedAlertId) || currentAlerts[0];
-        if (!alert) {
-            container.innerHTML = '<div class="empty-state">Aucune alerte selectionnee.</div>';
-            return;
-        }
-        selectedAlertId = alert.alert_id;
-        const reasons = Array.isArray(alert.fraud_reasons) ? alert.fraud_reasons : [];
-        container.innerHTML = `
-            <div class="detail-head">
-                <div>
-                    <h3>${escapeHtml(alert.alert_id)}</h3>
-                    <p>${translateStatus(alert.status)} | ${toShortDate(alert.alert_timestamp)}</p>
-                </div>
-                <span class="chip ${severityTone(alert.severity)}">${severityLabel(alert.severity)}</span>
-            </div>
-            <div class="detail-score">
-                <div class="list-item-head">
-                    <div>
-                        <div class="list-item-title">Score de risque ${fmtNumber(alert.risk_score)}/100</div>
-                        <div class="list-item-meta">${escapeHtml(alert.event_type || '-')} | ${escapeHtml(alert.utm_source || '-')}</div>
-                    </div>
-                    <span class="status-pill ${severityTone(alert.severity)}">${translateStatus(alert.status)}</span>
-                </div>
-                <div class="progress-track" style="margin-top:10px; height:12px;">
-                    <div class="progress-value" style="width:${Math.min(Math.max(alert.risk_score || 0, 0), 100)}%; background:${riskBarColor(alert.risk_score || 0)};"></div>
-                </div>
-            </div>
-            <div class="detail-grid">
-                <div class="detail-card"><span>Client</span><strong>${escapeHtml(alert.customer_id || '-')}</strong></div>
-                <div class="detail-card"><span>Session</span><strong>${escapeHtml(alert.session_id || '-')}</strong></div>
-                <div class="detail-card"><span>Pays</span><strong>${escapeHtml(alert.customer_country || '-')}</strong></div>
-                <div class="detail-card"><span>Appareil</span><strong>${escapeHtml(alert.device || '-')}</strong></div>
-                <div class="detail-card"><span>Paiements precedents</span><strong>${fmtNumber(alert.previous_payments || 0)}</strong></div>
-                <div class="detail-card"><span>Nouveau client</span><strong>${alert.is_new_customer ? 'Oui' : 'Non'}</strong></div>
-            </div>
-            <div class="subpanel">
-                <div class="detail-head">
-                    <div>
-                        <h3>Motifs et contexte</h3>
-                        <p>Signaux actifs pour cette alerte.</p>
-                    </div>
-                </div>
-                <div class="tag-row">
-                    ${reasons.length ? reasons.map(reason => `<span class="soft-tag">${escapeHtml(translateReason(reason))}</span>`).join('') : '<span class="soft-tag">Aucun motif</span>'}
-                </div>
-                <div class="divider"></div>
-                <p class="detail-copy">Evenement ${escapeHtml(alert.event_type || '-')} declenche a ${toShortDate(alert.event_timestamp || alert.alert_timestamp)} depuis ${escapeHtml(alert.customer_country || '-')}. Le canal ${escapeHtml(alert.utm_source || '-')} et l'appareil ${escapeHtml(alert.device || '-')} sont inclus dans la decision.</p>
-            </div>
-            <div class="detail-actions">
-                ${alert.status === 'PENDING_REVIEW' ? `
-                    <div class="emphasis-note">Action recommandee: trancher rapidement la decision pour sortir la ligne du backlog.</div>
-                    <div class="action-row">
-                        <button class="btn-success" onclick="decideAlert('${escapeHtml(alert.alert_id)}', 'APPROVE')">Approuver</button>
-                        <button class="btn-danger" onclick="decideAlert('${escapeHtml(alert.alert_id)}', 'BLOCK')">Bloquer</button>
-                        <button class="btn-warning" onclick="decideAlert('${escapeHtml(alert.alert_id)}', 'INVESTIGATE')">Investiguer</button>
-                        <button class="btn-secondary" onclick="notifySelectedAlert('${escapeHtml(alert.alert_id)}')">Notifier</button>
-                    </div>
-                ` : `
-                    <div class="emphasis-note">Decision appliquee: ${escapeHtml(translateDecision(alert.decision || alert.status))}${alert.decided_by ? ` par ${escapeHtml(alert.decided_by)}` : ''}${alert.decided_at ? ` le ${toShortDate(alert.decided_at)}` : ''}.</div>
-                    <div class="action-row compact">
-                        <button class="btn-secondary" onclick="notifySelectedAlert('${escapeHtml(alert.alert_id)}')">Notifier</button>
-                    </div>
-                `}
-            </div>
-        `;
-    }
-
-    function renderNotificationHistory() {
-        const summary = document.getElementById('notification-summary');
-        const container = document.getElementById('notification-history');
-        const pill = document.getElementById('notification-history-pill');
-        const config = notificationConfigCache || {};
-        const history = notificationHistoryCache || [];
-
-        summary.innerHTML = `
-            <div class="key-stat-row">
-                <span class="key-stat">Canal ${config.enabled ? 'actif' : 'inactif'}</span>
-                <span class="key-stat">Seuil ${config.min_severity || '-'}</span>
-                <span class="key-stat">${config.delivery_mode || '-'}</span>
-            </div>
-        `;
-
-        pill.textContent = history.length ? `${history.length} trace(s)` : 'aucune trace';
-        pill.className = 'status-pill';
-        pill.classList.add(history.length ? 'success' : 'cool');
-
-        if (!history.length) {
-            container.innerHTML = '<div class="empty-state">Aucun envoi enregistre.</div>';
-            return;
-        }
-
-        container.innerHTML = history.slice(0, 6).map(item => `
-            <article class="history-item">
-                <strong>${escapeHtml(item.subject || item.alert_id || 'Notification')}</strong>
-                <div class="tag-row">
-                    <span class="soft-tag">${escapeHtml(item.delivery_mode || '-')}</span>
-                    <span class="soft-tag">${escapeHtml(item.status || '-')}</span>
-                    <span class="soft-tag">${escapeHtml(item.recipient_email || '-')}</span>
-                </div>
-                <p>${toShortDate(item.timestamp)}${item.preview_file ? ` • ${escapeHtml(item.preview_file)}` : ''}</p>
-            </article>
-        `).join('');
-    }
-
-    async function loadNotificationConfig() {
-        const response = await fetch(`${API_URL}/api/alert-notifications/config`);
-        if (!response.ok) throw new Error(`HTTP ${response.status} on notification config`);
-        const config = await response.json();
-        notificationConfigCache = config;
-        document.getElementById('notification-enabled').checked = !!config.enabled;
-        document.getElementById('notification-email').value = config.recipient_email || '';
-        document.getElementById('notification-severity').value = config.min_severity || 'HIGH';
-        document.getElementById('notification-on-new').checked = !!config.notify_on_new_alert;
-        document.getElementById('notification-on-decision').checked = !!config.notify_on_decision;
-        document.getElementById('notification-meta').textContent = config.smtp_configured
-            ? `SMTP actif • expéditeur ${config.sender_email || '-'}`
-            : 'Mode apercu local si SMTP absent';
-        const modePill = document.getElementById('notification-mode-pill');
-        modePill.textContent = config.delivery_mode || '-';
-        modePill.className = 'status-pill';
-        modePill.classList.add(config.delivery_mode === 'smtp' ? 'success' : config.delivery_mode === 'preview' ? 'warning' : 'cool');
-        renderNotificationHistory();
-    }
-
-    async function loadNotificationHistory() {
-        const response = await fetch(`${API_URL}/api/alert-notifications/history?limit=10`);
-        if (!response.ok) throw new Error(`HTTP ${response.status} on notification history`);
-        const payload = await response.json();
-        notificationHistoryCache = payload.items || [];
-        renderNotificationHistory();
-    }
-
-    async function saveNotificationConfig() {
-        try {
-            const response = await fetch(`${API_URL}/api/alert-notifications/config`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    enabled: document.getElementById('notification-enabled').checked,
-                    recipient_email: document.getElementById('notification-email').value,
-                    min_severity: document.getElementById('notification-severity').value,
-                    notify_on_new_alert: document.getElementById('notification-on-new').checked,
-                    notify_on_decision: document.getElementById('notification-on-decision').checked,
-                    updated_by: getOperatorIdentity()
-                })
-            });
-            if (!response.ok) {
-                const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.detail || `HTTP ${response.status}`);
-            }
-            await loadNotificationConfig();
-            await loadNotificationHistory();
-            setRuntimeStatus('configuration notification enregistree');
-        } catch (error) {
-            console.error('Erreur save notification config:', error);
-            setRuntimeStatus(`notification: ${error.message || error}`, true);
-        }
-    }
-
-    async function sendTestNotification() {
-        try {
-            const response = await fetch(`${API_URL}/api/alert-notifications/test`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    recipient_email: document.getElementById('notification-email').value,
-                    message: document.getElementById('notification-message').value,
-                    updated_by: getOperatorIdentity()
-                })
-            });
-            if (!response.ok) {
-                const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.detail || `HTTP ${response.status}`);
-            }
-            await loadNotificationHistory();
-            setRuntimeStatus('notification test envoyee');
-        } catch (error) {
-            console.error('Erreur test notification:', error);
-            setRuntimeStatus(`notification test: ${error.message || error}`, true);
-        }
-    }
-
-    async function notifySelectedAlert(alertId) {
-        try {
-            const response = await fetch(`${API_URL}/api/alerts/${encodeURIComponent(alertId)}/notify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    recipient_email: document.getElementById('notification-email').value,
-                    message: 'Escalade manuelle depuis la queue d alertes.',
-                    updated_by: getOperatorIdentity()
-                })
-            });
-            if (!response.ok) {
-                const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.detail || `HTTP ${response.status}`);
-            }
-            await loadNotificationHistory();
-            setRuntimeStatus(`notification envoyee pour ${alertId}`);
-        } catch (error) {
-            console.error('Erreur notification alerte:', error);
-            setRuntimeStatus(`notification alerte: ${error.message || error}`, true);
-        }
-    }
-
-    async function loadReadableSummary() {
-        try {
-            const response = await fetch(`${API_URL}/api/kpis/readable?limit=200&micro_batch_window_hours=24`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const payload = await response.json();
-            const fraud = payload.fraud || {};
-            const fraudKpis = fraud.kpis || {};
-            const transfer = payload.transfer || {};
-
-            document.getElementById('fraud-headline').textContent = fraud.headline || '-';
-            document.getElementById('transfer-headline').textContent = transfer.headline || '-';
-            document.getElementById('coverage-copy').textContent = `Couverture clients ${fraudKpis.customer_alert_coverage_percent ?? '-'}%`;
-            document.getElementById('top-reason-copy').textContent = `Motif dominant ${fraudKpis.top_reason || '-'}`;
-            setTonePill('fraud-level', fraud.risk_level || '-');
-            setTonePill('transfer-level', transfer.micro_batch_status || transfer.availability || '-');
-
-            const insights = []
-                .concat(Array.isArray(fraud.interpretation) ? fraud.interpretation : [])
-                .concat(Array.isArray(transfer.interpretation) ? transfer.interpretation : []);
-            document.getElementById('fraud-insights').innerHTML = insights.length
-                ? insights.slice(0, 4).map(item => `<li>${escapeHtml(item)}</li>`).join('')
-                : '<li>Aucune interpretation disponible.</li>';
-        } catch (error) {
-            console.error('Erreur chargement synthese:', error);
-        }
-    }
-
-    async function loadStats() {
-        try {
-            const response = await fetch(`${API_URL}/api/stats`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const stats = await response.json();
-            fraudStatsCache = stats;
-
-            document.getElementById('total-alerts').textContent = fmtNumber(stats.total_alerts || 0);
-            document.getElementById('fraud-rate').textContent = `${fmtNumber(stats.fraud_rate || 0, 2)}%`;
-            document.getElementById('fraud-payments').textContent = fmtNumber(stats.fraudulent_payments || 0);
-            document.getElementById('pending-review').textContent = fmtNumber(stats.alerts_by_status?.PENDING_REVIEW || 0);
-            document.getElementById('fraud-rate-note').textContent = `${fmtNumber(stats.fraudulent_payments || 0)}/${fmtNumber(stats.total_payments || 0)} paiements frauduleux`;
-            document.getElementById('severity-note').textContent = `Haute severite ${fmtNumber(stats.alerts_by_severity?.HIGH || 0)}`;
-            document.getElementById('signal-meta').textContent = `Raison dominante ${translateReason(stats.top_fraud_reasons?.[0]?.reason || '-')}`;
-
-            const dailyPoints = (stats.alerts_by_day || []).map(item => ({ label: item.day, value: item.count }));
-            const hourlyPoints = (stats.alerts_by_hour || []).map(item => ({ label: `${String(item.hour).padStart(2, '0')}h`, value: item.count }));
-            const topReasons = (stats.top_fraud_reasons || []).slice(0, 5).map(item => ({ reason: item.reason, count: item.count }));
-
-            document.getElementById('daily-flow-value').textContent = dailyPoints.length ? fmtNumber(dailyPoints[dailyPoints.length - 1].value) : '-';
-            document.getElementById('daily-flow-meta').textContent = dailyPoints.length > 1
-                ? `${fmtNumber(dailyPoints.length)} points | dernier jour ${dailyPoints[dailyPoints.length - 1].label}`
-                : 'Serie courte';
-            renderSparkline('daily-flow-chart', dailyPoints, 'accent');
-
-            document.getElementById('hourly-flow-value').textContent = hourlyPoints.length ? fmtNumber(hourlyPoints[hourlyPoints.length - 1].value) : '-';
-            document.getElementById('hourly-flow-meta').textContent = hourlyPoints.length > 1
-                ? `${fmtNumber(hourlyPoints.length)} points horaires`
-                : 'Serie courte';
-            renderSparkline('hourly-flow-chart', hourlyPoints, 'cool');
-
-            document.getElementById('top-reasons-value').textContent = topReasons.length ? translateReason(topReasons[0].reason) : '-';
-            document.getElementById('top-reasons-meta').textContent = topReasons.length ? `${fmtNumber(topReasons[0].count)} occurrences sur le motif dominant` : '-';
-            renderBarList('top-reasons-bars', topReasons, translateReason, 'gold');
-
-            updateSeverityVisuals(stats);
-        } catch (error) {
-            console.error('Erreur chargement stats:', error);
-        }
-    }
-
-    async function loadCheckoutStats() {
-        try {
-            const response = await fetch(`${API_URL}/api/checkout/stats?window_hours=24`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const stats = await response.json();
-            checkoutStatsCache = stats;
-
-            document.getElementById('checkout-attempts').textContent = fmtNumber(stats.total_attempts || 0);
-            document.getElementById('checkout-accepted').textContent = fmtNumber(stats.accepted_orders || 0);
-            document.getElementById('checkout-blocked').textContent = fmtNumber(stats.blocked_underage_orders || 0);
-            document.getElementById('checkout-reject-rate').textContent = `${fmtNumber(stats.rejection_rate || 0, 2)}%`;
-            document.getElementById('checkout-accepted-note').textContent = `${fmtNumber(stats.accepted_orders || 0)}/${fmtNumber(stats.total_attempts || 0)} acceptes`;
-            document.getElementById('checkout-blocked-note').textContent = `${fmtNumber(stats.adult_product_rejected || 0)}/${fmtNumber(stats.adult_product_attempts || 0)} refus Adult`;
-            document.getElementById('checkout-age-note').textContent = `Age moyen ${fmtNumber(stats.avg_customer_age || 0, 1)} ans`;
-            document.getElementById('checkout-last-attempt').textContent = stats.last_attempt_at
-                ? `Derniere tentative ${toShortDate(stats.last_attempt_at)}`
-                : 'Derniere tentative indisponible';
-            updateCheckoutVisuals(stats);
-        } catch (error) {
-            console.error('Erreur checkout stats:', error);
-            document.getElementById('checkout-last-attempt').textContent = 'Derniere tentative indisponible';
-        }
-    }
-
-    async function loadAlerts() {
-        const status = document.getElementById('filter-status').value;
-        const severity = document.getElementById('filter-severity').value;
-        const params = new URLSearchParams();
-        if (status) params.append('status', status);
-        if (severity) params.append('severity', severity);
-        params.append('limit', '60');
-
-        try {
-            const response = await fetch(`${API_URL}/api/alerts?${params.toString()}`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            currentAlerts = await response.json();
-            if (!currentAlerts.some(alert => alert.alert_id === selectedAlertId)) {
-                selectedAlertId = currentAlerts[0]?.alert_id || null;
-            }
-            renderAlertList();
-            renderAlertDetail();
-        } catch (error) {
-            console.error('Erreur chargement alertes:', error);
-            currentAlerts = [];
-            document.getElementById('alerts-list').innerHTML = '<div class="empty-state">Erreur de chargement API.</div>';
-            document.getElementById('alert-detail').innerHTML = '<div class="empty-state">Verifiez que l\'API est demarree.</div>';
-        }
-    }
-
-    async function decideAlert(alertId, decision) {
-        const decidedBy = getOperatorIdentity();
-        const notes = prompt('Note optionnelle:') || '';
-        try {
-            const response = await fetch(`${API_URL}/api/alerts/${alertId}/decide`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ decision, decided_by: decidedBy, notes })
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            await Promise.all([loadAlerts(), loadStats(), loadReadableSummary(), loadNotificationHistory()]);
-        } catch (error) {
-            console.error('Erreur decision:', error);
-            alert('Erreur lors de la prise de decision');
-        }
-    }
-
-    async function refreshFraudDashboard() {
-        await Promise.all([
-            loadStats(),
-            loadCheckoutStats(),
-            loadAlerts(),
-            loadReadableSummary(),
-            loadNotificationConfig(),
-            loadNotificationHistory()
-        ]);
-        if (opsController) {
-            opsController.markRefresh('fraude');
-        }
-    }
-
-    document.getElementById('filter-status').addEventListener('change', loadAlerts);
-    document.getElementById('filter-severity').addEventListener('change', loadAlerts);
-
-    window.addEventListener('DOMContentLoaded', () => {
-        if (window.KiDashboardOps) {
-            opsController = window.KiDashboardOps.attach({
-                apiUrl: API_URL,
-                onAfterReset: () => refreshFraudDashboard()
-            });
-        }
-        setRuntimeStatus('idle');
-        refreshFraudDashboard();
-        setInterval(() => {
-            refreshFraudDashboard();
-        }, 1000);
-        if (window.KiLiveSync) {
-            window.KiLiveSync.attach({
-                apiUrl: API_URL,
-                onTick: refreshFraudDashboard,
-                onState: state => {
-                    if (opsController) {
-                        opsController.updateLiveState(state);
-                    }
-                },
-                setStatus: setRuntimeStatus,
-                refreshOnIdleEveryMs: 1000,
-                activeRefreshEveryMs: 1000,
-                minRefreshIntervalMs: 1000,
-                reconnectDelayMs: 1000,
-                fallbackEveryMs: 1000
-            });
-        }
+    list.querySelectorAll("[data-alert-id]").forEach((node) => {
+      const select = () => { selectedAlertId = node.dataset.alertId; renderAlertList(); renderAlertDetail(); };
+      node.addEventListener("click", select);
+      node.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); } });
     });
+  }
+
+  function renderAlertDetail() {
+    const el = $("alert-detail");
+    const a = currentAlerts.find((x) => x.alert_id === selectedAlertId) || currentAlerts[0];
+    if (!a) { el.innerHTML = '<div class="empty-state">Aucune alerte sélectionnée.</div>'; return; }
+    selectedAlertId = a.alert_id;
+    const reasons = Array.isArray(a.fraud_reasons) ? a.fraud_reasons : [];
+    const isPending = a.status === "PENDING_REVIEW";
+
+    el.innerHTML = `
+      <div class="card__head">
+        <div>
+          <h2>${KV.escapeHtml(a.alert_id)}</h2>
+          <p>${statusLabel(a.status)} · ${KV.fmtDate(a.alert_timestamp)}</p>
+        </div>
+        <span class="badge badge--${severityVariant(a.severity)}">${severityLabel(a.severity)}</span>
+      </div>
+
+      <div class="stack">
+        <div class="row" style="border:none;padding:0">
+          <span class="row__meta">Score de risque</span>
+          <span class="row__title">${KV.fmtNumber(a.risk_score)} / 100</span>
+        </div>
+        <div class="grid-2">
+          <div class="row" style="border:none;padding:0"><span class="row__meta">Client</span><span class="row__title">${KV.escapeHtml(a.customer_id || "—")}</span></div>
+          <div class="row" style="border:none;padding:0"><span class="row__meta">Pays</span><span class="row__title">${KV.escapeHtml(a.customer_country || "—")}</span></div>
+          <div class="row" style="border:none;padding:0"><span class="row__meta">Appareil</span><span class="row__title">${KV.escapeHtml(a.device || "—")}</span></div>
+          <div class="row" style="border:none;padding:0"><span class="row__meta">Nouveau client</span><span class="row__title">${a.is_new_customer ? "Oui" : "Non"}</span></div>
+          <div class="row" style="border:none;padding:0"><span class="row__meta">Session</span><span class="row__title">${KV.escapeHtml(a.session_id || "—")}</span></div>
+          <div class="row" style="border:none;padding:0"><span class="row__meta">Paiements précédents</span><span class="row__title">${KV.fmtNumber(a.previous_payments || 0)}</span></div>
+        </div>
+
+        <div>
+          <div class="row__meta" style="margin-bottom:var(--space-2)">Motifs détectés</div>
+          <div class="chip-row">
+            ${reasons.length
+              ? reasons.map((r) => `<span class="chip" style="cursor:default">${KV.escapeHtml(reasonLabel(r))}</span>`).join("")
+              : '<span class="chip" style="cursor:default">Aucun motif</span>'}
+          </div>
+        </div>
+
+        ${isPending ? `
+          <div class="toolbar">
+            <button class="btn btn--filled" data-decide="APPROVE">Approuver</button>
+            <button class="btn btn--danger" data-decide="BLOCK">Bloquer</button>
+            <button class="btn btn--tonal" data-decide="INVESTIGATE">Investiguer</button>
+          </div>
+        ` : `
+          <div class="empty-state">Décision appliquée : ${KV.escapeHtml(DECISION_LABELS[a.decision] || statusLabel(a.status))}${a.decided_by ? ` par ${KV.escapeHtml(a.decided_by)}` : ""}${a.decided_at ? ` le ${KV.fmtDate(a.decided_at)}` : ""}.</div>
+        `}
+      </div>
+    `;
+
+    el.querySelectorAll("[data-decide]").forEach((btn) => {
+      btn.addEventListener("click", () => decideAlert(a.alert_id, btn.dataset.decide));
+    });
+  }
+
+  // ======================== Décision analyste (modale, plus de prompt/alert) ========================
+  async function decideAlert(alertId, decision) {
+    const out = await KV.modal({
+      title: `${DECISION_LABELS[decision] || decision} — ${alertId}`,
+      message: "Confirmez la décision. La note est facultative.",
+      fields: [
+        { key: "operator", label: "Opérateur", value: operatorIdentity, placeholder: "ops@kivendtout.fr" },
+        { key: "notes", label: "Note (facultative)", type: "textarea", placeholder: "Contexte de la décision…" },
+      ],
+      confirmLabel: DECISION_LABELS[decision] || "Valider",
+      danger: decision === "BLOCK",
+    });
+    if (!out) return;
+    operatorIdentity = (out.operator || "").trim() || "ops@kivendtout.fr";
+
+    try {
+      const r = await fetch(`${KV.API_URL}/api/alerts/${encodeURIComponent(alertId)}/decide`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision, decided_by: operatorIdentity, notes: out.notes || "" }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      $("err").classList.remove("show");
+      await Promise.allSettled([loadAlerts(), loadKpis()]);
+    } catch (e) {
+      console.error("Erreur décision:", e);
+      await KV.modal({ title: "Décision impossible", message: `La décision n'a pas pu être enregistrée (${e.message || e}).`, confirmLabel: "Fermer", danger: true });
+    }
+  }
+
+  // ======================== Filtres en chips ========================
+  function selectChip(groupId, code) {
+    const group = $(groupId);
+    if (!group) return false;
+    let matched = false;
+    group.querySelectorAll(".chip").forEach((chip) => {
+      const on = chip.dataset.code === code;
+      chip.classList.toggle("selected", on);
+      chip.setAttribute("aria-pressed", on ? "true" : "false");
+      if (on) matched = true;
+    });
+    return matched;
+  }
+
+  ["filter-severity", "filter-status"].forEach((groupId) => {
+    const group = $(groupId);
+    const field = group.dataset.field;
+    group.querySelectorAll(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        filters[field] = chip.dataset.code;
+        selectChip(groupId, chip.dataset.code);
+        loadAlerts();
+      });
+    });
+  });
+
+  // — Contrat voix : applyVoiceFilter(field, code) —
+  window.applyVoiceFilter = function (field, code) {
+    const groupId = field === "severity" ? "filter-severity"
+      : field === "status" ? "filter-status" : null;
+    if (!groupId) return false;
+    const cleaned = code == null ? "" : String(code);
+    if (!selectChip(groupId, cleaned)) return false;
+    filters[field] = cleaned;
+    loadAlerts();
+    return true;
+  };
+  // — Repli V1 attendu par voice_control.js si applyVoiceFilter absent —
+  window.loadAlerts = loadAlerts;
+
+  // ======================== Chargement global ========================
+  async function load() {
+    $("err").classList.remove("show");
+    await Promise.allSettled([loadKpis(), loadAlerts()]);
+    $("freshness").innerHTML = '<span class="badge__dot"></span>MAJ ' + new Date().toLocaleTimeString("fr-FR");
+  }
+
+  // Barre de commande : Entrée = exécuter (équivalent texte de la voix)
+  $("cmd").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.value.trim() && window.KVVoice) {
+      window.KVVoice.runText(e.target.value.trim()); e.target.value = "";
+    }
+  });
+  $("refresh").addEventListener("click", load);
+  KV.createPoller(load, 15000).start();
 </script>
-<!-- Couche IA generative vocale -->
+<!-- Couche IA générative vocale -->
 <script src="voice_control.js"></script>
 </body>
 </html>
