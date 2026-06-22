@@ -25,7 +25,7 @@
     const el = document.getElementById(targetId || "nav");
     if (!el) return;
     const current = (global.location.pathname.split("/").pop() || "index.html");
-    el.className = "nav";
+    el.className = "tabs";
     el.innerHTML = NAV.map((n) =>
       `<a href="${n.href}"${n.href === current ? ' class="active"' : ""}>${n.label}</a>`
     ).join("");

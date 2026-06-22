@@ -4,28 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KiVendTout — Vue d'ensemble</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="theme_v2.css">
 </head>
 <body>
+<!-- Top app bar : marque + barre de commande (voix + texte) + actions -->
+<header class="appbar">
+  <div class="appbar__brand"><span class="logo">K</span> KiVendTout</div>
+  <div class="appbar__spacer"></div>
+  <div class="cmdbar">
+    <span class="ic">🔎</span>
+    <input id="cmd" type="text" placeholder="Rechercher ou demander… ex : « filtre sévérité haute »"
+           aria-label="Commande" autocomplete="off">
+    <button class="mic-btn" data-voice-trigger title="Parler (ou maintenir P)" aria-label="Commande vocale">🎙️</button>
+  </div>
+  <button class="btn--icon" id="refresh" title="Actualiser" aria-label="Actualiser">↻</button>
+</header>
+
 <div class="layout">
   <nav id="nav"></nav>
 
-  <header class="masthead">
+  <div class="page-head">
     <div>
-      <div class="eyebrow">Vue d'ensemble</div>
+      <div class="overline">Vue d'ensemble</div>
       <h1>Les signaux utiles, sans surcharge.</h1>
-      <p class="lead">État de la plateforme, pression de fraude, contrôle d'identité et pipeline de
-        données — l'essentiel ici, le détail dans chaque module.</p>
+      <p class="sub">État de la plateforme, pression de fraude, contrôle d'identité et pipeline de
+        données. Pilotable à la souris comme à la voix.</p>
     </div>
-    <div class="masthead__actions">
+    <div class="head-actions">
       <span class="badge" id="freshness"><span class="badge__dot"></span>—</span>
-      <button class="btn btn--secondary" id="refresh">Actualiser</button>
     </div>
-  </header>
+  </div>
+
+  <!-- Suggestions : cliquables (souris) = équivalent des commandes vocales -->
+  <div class="chip-row" aria-label="Suggestions de commandes">
+    <button class="chip chip--suggest" data-cmd="ouvre la vue fraude">Ouvrir la fraude</button>
+    <button class="chip chip--suggest" data-cmd="filtre les fraudes en sévérité haute">Filtrer sévérité haute</button>
+    <button class="chip chip--suggest" data-cmd="explique-moi le taux de fraude">Expliquer le taux</button>
+    <button class="chip chip--suggest" data-cmd="montre les cas d'usage">Cas d'usage</button>
+  </div>
 
   <div class="error-banner" id="err">Impossible de charger les indicateurs. API injoignable.</div>
 
-  <!-- KPIs : 1 héros + 3 secondaires -->
   <section class="kpi-grid">
     <article class="kpi kpi--hero">
       <span class="kpi__label">Taux de fraude confirmée</span>
@@ -50,34 +72,31 @@
   </section>
 
   <div class="split">
-    <!-- Accès rapide aux modules (avec statut live) -->
     <section class="card">
       <div class="card__head"><div><h2>Accès rapide</h2>
         <p>Un module par domaine, avec son indicateur clé.</p></div></div>
       <div class="grid-3">
         <a class="card card--clickable" href="fraud_dashboard.html">
-          <div class="badge badge--accent" id="m-fraud">—</div>
-          <h2 style="margin-top:12px;font-size:var(--text-lg)">Fraude</h2>
-          <p class="muted" style="font-size:var(--text-sm)">Backlog, décisions analyste.</p></a>
+          <span class="badge badge--info" id="m-fraud">—</span>
+          <div style="margin-top:12px;font-size:var(--t-title);font-weight:500">Fraude</div>
+          <div class="muted" style="font-size:var(--t-body-sm)">Backlog, décisions analyste.</div></a>
         <a class="card card--clickable" href="fraud_types_dashboard.html">
-          <div class="badge" id="m-types">—</div>
-          <h2 style="margin-top:12px;font-size:var(--text-lg)">Typologies</h2>
-          <p class="muted" style="font-size:var(--text-sm)">Motifs et sévérité.</p></a>
+          <span class="badge" id="m-types">—</span>
+          <div style="margin-top:12px;font-size:var(--t-title);font-weight:500">Typologies</div>
+          <div class="muted" style="font-size:var(--t-body-sm)">Motifs et sévérité.</div></a>
         <a class="card card--clickable" href="id_cards_dashboard.html">
-          <div class="badge" id="m-identity">—</div>
-          <h2 style="margin-top:12px;font-size:var(--text-lg)">Identité</h2>
-          <p class="muted" style="font-size:var(--text-sm)">Contrôle de majorité, CNI.</p></a>
+          <span class="badge" id="m-identity">—</span>
+          <div style="margin-top:12px;font-size:var(--t-title);font-weight:500">Identité</div>
+          <div class="muted" style="font-size:var(--t-body-sm)">Contrôle de majorité, CNI.</div></a>
         <a class="card card--clickable" href="transfer_kpi_dashboard.html">
-          <div class="badge" id="m-transfer">—</div>
-          <h2 style="margin-top:12px;font-size:var(--text-lg)">Transferts</h2>
-          <p class="muted" style="font-size:var(--text-sm)">Snapshots et micro-batch.</p></a>
+          <span class="badge" id="m-transfer">—</span>
+          <div style="margin-top:12px;font-size:var(--t-title);font-weight:500">Transferts</div>
+          <div class="muted" style="font-size:var(--t-body-sm)">Snapshots et micro-batch.</div></a>
       </div>
     </section>
 
-    <!-- État des services -->
     <aside class="card">
-      <div class="card__head"><div><h2>État des services</h2>
-        <p>Les briques qui comptent.</p></div></div>
+      <div class="card__head"><div><h2>État des services</h2><p>Les briques qui comptent.</p></div></div>
       <div class="rows">
         <div class="row"><div><div class="row__title">API fraude</div>
           <div class="row__meta">Port 8000</div></div><span class="badge" id="s-api">—</span></div>
@@ -96,8 +115,7 @@
 <script>
   KV.renderNav("nav");
   const $ = (id) => document.getElementById(id);
-
-  function setKpi(id, value) { const e = $(id); if (e) { e.textContent = value; e.classList.remove("skeleton"); } }
+  function setKpi(id, v) { const e = $(id); if (e) { e.textContent = v; e.classList.remove("skeleton"); } }
   function setBadge(id, label, variant) {
     const e = $(id); if (!e) return;
     e.className = "badge" + (variant ? " badge--" + variant : "");
@@ -107,48 +125,39 @@
   async function load() {
     $("err").classList.remove("show");
     const [health, stats, checkout, readable, analytics] = await Promise.allSettled([
-      KV.getJSON("/health"),
-      KV.getJSON("/api/stats"),
+      KV.getJSON("/health"), KV.getJSON("/api/stats"),
       KV.getJSON("/api/checkout/stats?window_hours=24"),
       KV.getJSON("/api/kpis/readable?limit=100&micro_batch_window_hours=24"),
       KV.getJSON("/api/analytics/status"),
     ]).then((r) => r.map((x) => (x.status === "fulfilled" ? x.value : {})));
 
-    if (!stats.total_alerts && !health.status) { $("err").classList.add("show"); }
+    if (!stats.total_alerts && !health.status) $("err").classList.add("show");
 
-    // — KPI héros : taux + contexte anti-malentendu —
     const fraudRate = readable?.fraud?.kpis?.fraud_rate_percent;
-    const confirmed = stats.fraudulent_payments ?? 0;
-    const totalPay = stats.total_payments ?? 0;
+    const confirmed = stats.fraudulent_payments ?? 0, totalPay = stats.total_payments ?? 0;
     setKpi("k-rate", fraudRate != null ? KV.fmtPercent(fraudRate) : "—");
     setKpi("k-rate-sub", `${KV.fmtNumber(confirmed)} paiement(s) frauduleux confirmé(s) sur ${KV.fmtNumber(totalPay)}`);
 
-    // — Backlog + ratio alertes/fraude (signale le sur-déclenchement) —
     const alerts = stats.total_alerts ?? 0;
     const ratio = confirmed > 0 ? Math.round(alerts / confirmed) : alerts;
     setKpi("k-alerts", KV.fmtNumber(alerts));
-    setKpi("k-alerts-sub", `${KV.fmtNumber(stats.alerts_by_severity?.HIGH ?? 0)} haute sévérité · ≈ ${KV.fmtNumber(ratio)} alerte(s) par fraude confirmée`);
+    setKpi("k-alerts-sub", `${KV.fmtNumber(stats.alerts_by_severity?.HIGH ?? 0)} haute sévérité · ≈ ${KV.fmtNumber(ratio)} alerte(s) par fraude`);
 
-    // — Contrôle 18+ (fenêtre indiquée) —
     setKpi("k-underage", KV.fmtNumber(checkout.blocked_underage_orders ?? 0));
     setKpi("k-underage-sub", `${KV.fmtNumber(checkout.accepted_orders ?? 0)} acceptées · fenêtre 24 h`);
 
-    // — Transferts —
     const tev = readable?.transfer?.kpis?.micro_batch_total_events_window ?? 0;
     setKpi("k-transfer", KV.fmtNumber(tev));
     setKpi("k-transfer-sub", readable?.transfer?.headline || "Pipeline de transfert");
 
-    // — Services —
     setBadge("s-api", health.status === "healthy" ? "En ligne" : "Hors ligne", health.status === "healthy" ? "success" : "danger");
-    setBadge("s-checkout", `${KV.fmtNumber(checkout.blocked_underage_orders ?? 0)} blocages`, "accent");
+    setBadge("s-checkout", `${KV.fmtNumber(checkout.blocked_underage_orders ?? 0)} blocages`, "info");
     const tStatus = readable?.transfer?.micro_batch_status;
     setBadge("s-transfer", tStatus === "present" ? "Présent" : (tStatus || "n/a"), tStatus === "present" ? "success" : "warning");
-    // FIX data : statut basé sur le rapport (PASS), pas sur live.schema_exists
     const aReport = analytics?.latest_report?.status || (analytics?.live?.schema_exists ? "PASS" : null);
     setBadge("s-analytics", aReport === "PASS" ? "Opérationnel" : "À vérifier", aReport === "PASS" ? "success" : "warning");
 
-    // — Badges modules —
-    setBadge("m-fraud", `${readable?.fraud?.risk_level || "risque"} · ${KV.fmtNumber(alerts)} alertes`, "accent");
+    setBadge("m-fraud", `${readable?.fraud?.risk_level || "risque"} · ${KV.fmtNumber(alerts)} alertes`, "info");
     setBadge("m-types", readable?.fraud?.kpis?.top_reason || "—");
     setBadge("m-identity", `${KV.fmtNumber(checkout.blocked_underage_orders ?? 0)} blocages 24 h`);
     setBadge("m-transfer", tStatus === "present" ? "Pipeline actif" : "Pipeline inactif");
@@ -156,9 +165,14 @@
     $("freshness").innerHTML = '<span class="badge__dot"></span>MAJ ' + new Date().toLocaleTimeString("fr-FR");
   }
 
+  // Barre de commande : taper Entrée = exécuter (équivalent texte de la voix)
+  $("cmd").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.value.trim() && window.KVVoice) {
+      window.KVVoice.runText(e.target.value.trim()); e.target.value = "";
+    }
+  });
   $("refresh").addEventListener("click", load);
-  const poller = KV.createPoller(load, 15000);
-  poller.start();
+  KV.createPoller(load, 15000).start();
 </script>
 <script src="voice_control.js"></script>
 </body>
