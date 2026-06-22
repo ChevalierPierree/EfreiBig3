@@ -1,0 +1,345 @@
+{
+  "stt": [
+    {
+      "ref": "ouvre la vue fraude",
+      "hyp": "Ouvre la vue fraude.",
+      "wer": 0.0
+    },
+    {
+      "ref": "affiche les transferts",
+      "hyp": "affiches les transferts.",
+      "wer": 0.333
+    },
+    {
+      "ref": "montre les cartes d'identite",
+      "hyp": "Montre les cartes d'identie.",
+      "wer": 0.25
+    },
+    {
+      "ref": "reviens a l'accueil",
+      "hyp": "reviens à l'accueil.",
+      "wer": 0.0
+    },
+    {
+      "ref": "ouvre les typologies de fraude",
+      "hyp": "ouvre les typologies de Freud.",
+      "wer": 0.2
+    },
+    {
+      "ref": "montre les cas d'usage",
+      "hyp": "Montre les cas d'usage.",
+      "wer": 0.0
+    },
+    {
+      "ref": "filtre les fraudes en severite haute",
+      "hyp": "Filtre les fruits en severi taux.",
+      "wer": 0.5
+    },
+    {
+      "ref": "affiche seulement les alertes moyennes",
+      "hyp": "affiche seulement les alertes moyennes.",
+      "wer": 0.0
+    },
+    {
+      "ref": "montre les alertes en attente",
+      "hyp": "Montre les alertes en attente.",
+      "wer": 0.0
+    },
+    {
+      "ref": "explique moi le taux de fraude",
+      "hyp": "Explique-moi le taux de fraude.",
+      "wer": 0.0
+    },
+    {
+      "ref": "combien d'alertes de severite haute",
+      "hyp": "Combien d'alerte de Severi taut ?",
+      "wer": 0.6
+    },
+    {
+      "ref": "quelle est la meteo demain a paris",
+      "hyp": "Quelle est la météo demain à Paris ?",
+      "wer": 0.0
+    }
+  ],
+  "intent": [
+    {
+      "ref": "ouvre la vue fraude",
+      "hyp": "Ouvre la vue fraude.",
+      "expected": {
+        "action": "navigate",
+        "view": "fraud",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "navigate",
+        "view": "fraud",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "affiche les transferts",
+      "hyp": "affiches les transferts.",
+      "expected": {
+        "action": "navigate",
+        "view": "transfer_kpi",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "navigate",
+        "view": "transfer_kpi",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "montre les cartes d'identite",
+      "hyp": "Montre les cartes d'identie.",
+      "expected": {
+        "action": "navigate",
+        "view": "id_cards",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "navigate",
+        "view": "id_cards",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "reviens a l'accueil",
+      "hyp": "reviens à l'accueil.",
+      "expected": {
+        "action": "navigate",
+        "view": "overview",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "navigate",
+        "view": "overview",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "ouvre les typologies de fraude",
+      "hyp": "ouvre les typologies de Freud.",
+      "expected": {
+        "action": "navigate",
+        "view": "fraud_types",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "navigate",
+        "view": "fraud_types",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "montre les cas d'usage",
+      "hyp": "Montre les cas d'usage.",
+      "expected": {
+        "action": "navigate",
+        "view": "use_cases",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "unknown",
+        "view": null,
+        "field": null,
+        "code": null
+      },
+      "ok_action": false,
+      "full_ok": false
+    },
+    {
+      "ref": "filtre les fraudes en severite haute",
+      "hyp": "Filtre les fruits en severi taux.",
+      "expected": {
+        "action": "filter",
+        "view": "fraud",
+        "field": "severity",
+        "code": "HIGH"
+      },
+      "got": {
+        "action": "unknown",
+        "view": "overview",
+        "field": null,
+        "code": null
+      },
+      "ok_action": false,
+      "full_ok": false
+    },
+    {
+      "ref": "affiche seulement les alertes moyennes",
+      "hyp": "affiche seulement les alertes moyennes.",
+      "expected": {
+        "action": "filter",
+        "view": "fraud",
+        "field": "severity",
+        "code": "MEDIUM"
+      },
+      "got": {
+        "action": "filter",
+        "view": "fraud",
+        "field": "severity",
+        "code": "MEDIUM"
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "montre les alertes en attente",
+      "hyp": "Montre les alertes en attente.",
+      "expected": {
+        "action": "filter",
+        "view": "fraud",
+        "field": "status",
+        "code": "PENDING_REVIEW"
+      },
+      "got": {
+        "action": "filter",
+        "view": "fraud",
+        "field": "status",
+        "code": "PENDING_REVIEW"
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "explique moi le taux de fraude",
+      "hyp": "Explique-moi le taux de fraude.",
+      "expected": {
+        "action": "ask",
+        "view": "fraud",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "ask",
+        "view": "fraud",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "combien d'alertes de severite haute",
+      "hyp": "Combien d'alerte de Severi taut ?",
+      "expected": {
+        "action": "ask",
+        "view": "fraud",
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "ask",
+        "view": "fraud",
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    },
+    {
+      "ref": "quelle est la meteo demain a paris",
+      "hyp": "Quelle est la météo demain à Paris ?",
+      "expected": {
+        "action": "unknown",
+        "view": null,
+        "field": null,
+        "code": null
+      },
+      "got": {
+        "action": "unknown",
+        "view": null,
+        "field": null,
+        "code": null
+      },
+      "ok_action": true,
+      "full_ok": true
+    }
+  ],
+  "narration": {
+    "narrate": {
+      "text": "Voici un résumé des KPIs en français, avec chaque chiffre cité avec le bon libellé :\n\n* Le nombre d'alertes de fraude total est de 3 632.\n* Les alertes de sévérité haute représentent 9% du total, soit 313 cas.\n* Les alertes de sévérité moyenne sont les plus fréquentes, avec 3 319 cas.\n* Le montant total des paiements est de 1 053 euros.\n* Seul un paiement a été identifié comme frauduleux, représentant 0,09% du total.\n* La base de clients totale compte 2 500 personnes.\n* 1 181 clients ont été couverts par au moins une alerte, ce qui représente 47,24% de la base de clients.",
+      "numbers_cited": [
+        "0,09",
+        "053",
+        "1",
+        "181",
+        "2",
+        "3",
+        "313",
+        "319",
+        "47,24",
+        "500",
+        "632",
+        "9"
+      ],
+      "invented": [
+        "053",
+        "181",
+        "2",
+        "3",
+        "319",
+        "500",
+        "632",
+        "9"
+      ]
+    },
+    "ask": {
+      "text": "Selon les KPIs disponibles, il y a 313 alertes de sévérité Haute.\n\nLe taux de fraude est de 0,09 %.",
+      "numbers_cited": [
+        "0,09",
+        "313"
+      ],
+      "invented": []
+    }
+  },
+  "latency": {
+    "stt_ms_avg": 1018,
+    "stt_ms_max": 1387,
+    "intent_ms_avg": 542,
+    "narrate_ask_ms": 1029
+  },
+  "meta": {
+    "truth": {
+      "total_alerts": 3632,
+      "HIGH": 313,
+      "MEDIUM": 3319,
+      "LOW": null,
+      "total_payments": 1053,
+      "fraudulent_payments": 1,
+      "fraud_rate": 0.09,
+      "total_customers": 2500,
+      "alerted_customers": 1181,
+      "customer_alert_coverage": 47.24
+    },
+    "wer_avg": 0.157,
+    "wer_exact": 7,
+    "n": 12,
+    "intent_action_acc": 0.833,
+    "intent_full_acc": 0.833,
+    "invented_numbers_total": 8
+  }
+}

@@ -89,10 +89,14 @@ L'assistant repond dans un panneau type chatbot et a voix haute.
 ## Etat
 
 ✅ **Pipeline valide de bout en bout** (audio -> transcription -> intention ->
-navigation / narration) :
-- STT faster-whisper : transcription FR correcte (~1 s a chaud).
-- Intention (llama3.2 3B, sortie JSON) : 5/5 sur le jeu de commandes de test.
-- Narration : cite les KPIs reels avec les bons libelles (anti-hallucination).
+navigation / narration). Mesure du 2026-06-22 (12 commandes, 100 % local —
+detail dans [tests/scenarios.md](./tests/scenarios.md)) :
+- STT faster-whisper : WER moyen **0,157** (~1 s a chaud) ; erreurs concentrees
+  sur les mots metier mal prononces par la voix de synthese de test.
+- Intention (llama3.2 3B, sortie JSON, temperature 0) : accuracy **0,833**
+  (10/12) ; les echecs sont 1 limite modele + 1 rejet sur transcription corrompue.
+- Narration / Q&A : **0 chiffre invente** (cite les KPIs reels avec les bons
+  libelles ; ancrage anti-hallucination valide).
 
 ### ⚠️ Pre-requis Ollama : version >= 0.30
 Sur macOS recent (Darwin 25.x), Ollama 0.22 plante a l'init Metal

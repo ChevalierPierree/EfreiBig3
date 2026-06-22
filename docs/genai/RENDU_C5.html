@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Atelier IA générative — KiVendTout — Rapport C5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1a73e8; --green:#1e8e3e; --yellow:#f9ab00; --red:#d93025;
+    --ink:#202124; --muted:#5f6368; --line:#dadce0; --surface:#f8f9fa;
+  }
+  *{box-sizing:border-box}
+  html{font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--ink);line-height:1.55;font-size:11pt}
+  body{margin:0}
+  .page{max-width:820px;margin:0 auto;padding:32px 40px}
+  h1{font-size:26pt;font-weight:700;margin:0 0 4px;letter-spacing:-.5px}
+  h2{font-size:15pt;font-weight:700;color:var(--blue);margin:30px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:12pt;font-weight:500;margin:18px 0 6px}
+  p{margin:8px 0}
+  .lede{font-size:12.5pt;color:var(--muted);margin:0 0 8px}
+  .overline{text-transform:uppercase;letter-spacing:1.2px;font-size:9pt;font-weight:700;color:var(--blue)}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:10pt}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:var(--surface);font-weight:500}
+  code,.mono{font-family:'Roboto Mono',monospace;font-size:9.5pt;background:var(--surface);padding:1px 5px;border-radius:4px}
+  pre{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;font-family:'Roboto Mono',monospace;font-size:9pt;line-height:1.45}
+  .grid{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+  .kpi{flex:1;min-width:150px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff}
+  .kpi .v{font-size:20pt;font-weight:700;display:block;line-height:1.1}
+  .kpi .l{font-size:9pt;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .kpi.good .v{color:var(--green)} .kpi.blue .v{color:var(--blue)}
+  .tag{display:inline-block;font-size:8.5pt;font-weight:700;padding:2px 8px;border-radius:999px;vertical-align:middle}
+  .tag.g{background:#e6f4ea;color:var(--green)} .tag.o{background:#fef7e0;color:#b06000} .tag.r{background:#fce8e6;color:var(--red)} .tag.b{background:#e8f0fe;color:var(--blue)}
+  .callout{border-left:4px solid var(--blue);background:var(--surface);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+  .muted{color:var(--muted)}
+  ul{margin:8px 0 8px 0;padding-left:20px} li{margin:3px 0}
+  .cover{padding:60px 40px 24px;border-bottom:3px solid var(--blue)}
+  .meta-row{display:flex;gap:28px;flex-wrap:wrap;font-size:10pt;color:var(--muted);margin-top:14px}
+  @page{size:A4;margin:14mm}
+  @media print{ h2{page-break-after:avoid} table,pre,.callout,.kpi{page-break-inside:avoid} .page{padding:0} }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="cover">
+  <div class="overline">Atelier IA générative · Bloc C5 · RNCP40875</div>
+  <h1>Pilotage vocal d'un dashboard de fraude</h1>
+  <p class="lede">Une couche d'IA générative <strong>100 % locale</strong> greffée sur la plateforme data KiVendTout — navigation, filtrage, narration et Q&amp;A à la voix.</p>
+  <div class="meta-row">
+    <span><strong>Projet</strong> · KiVendTout (M1 Data Engineering)</span>
+    <span><strong>Mesures</strong> · 2026-06-22</span>
+    <span><strong>Stack</strong> · faster-whisper · Ollama llama3.2 · FastAPI</span>
+  </div>
+</div>
+
+<h2>Contexte &amp; mise en situation</h2>
+<p>L'entreprise veut se différencier en intégrant l'IA générative à la présentation de ses
+statistiques et tableaux de bord (B2B et B2C). À la demande du vice-président — ayant perdu
+l'usage de ses bras — un <strong>système de reconnaissance vocale (STT) intégré à l'application</strong>,
+<strong>au moins en usage local</strong>, doit lui permettre de <strong>naviguer dans le dashboard à la voix</strong>.
+Ce rapport couvre les trois compétences : identification des cas d'usage (C5.1), développement
+d'une solution générative argumentée Local vs API (C5.2) et évaluation chiffrée de la qualité (C5.3).</p>
+
+<div class="callout">
+  <strong>Périmètre livré.</strong> Le minimum imposé (STT local pour naviguer) est <strong>dépassé</strong> :
+  les trois axes sont implémentés et intégrés à l'app — <em>navigation</em>, <em>filtrage des alertes</em>,
+  <em>narration générative des KPIs</em> et <em>questions-réponses</em> en langage naturel, avec restitution
+  vocale (TTS). Pilotable à la voix (push-to-talk touche <code>P</code>) comme à la souris.
+</div>
+
+<h2>C5.1 — Cas d'usage de l'IA générative</h2>
+<h3>Les 3 axes envisagés (B2B + B2C)</h3>
+<table>
+  <tr><th>Axe</th><th>Description</th><th>B2B</th><th>B2C</th></tr>
+  <tr><td><strong>1. Navigation vocale (STT)</strong> <span class="tag b">minimum imposé</span></td>
+      <td>Piloter et filtrer le dashboard à la voix.</td>
+      <td>Accessibilité analyste, mains-libres.</td>
+      <td>Inclusion (déficiences motrices/visuelles), mobilité.</td></tr>
+  <tr><td><strong>2. Narration générative des KPIs</strong></td>
+      <td>Résumé en langage naturel des chiffres de fraude.</td>
+      <td>Rapports exécutifs auto-rédigés.</td>
+      <td>Vulgarisation de statistiques.</td></tr>
+  <tr><td><strong>3. Q&amp;A en langage naturel</strong></td>
+      <td>Questions libres sur les données réelles.</td>
+      <td>Self-service analytics.</td>
+      <td>Exploration guidée grand public.</td></tr>
+</table>
+
+<h3>Convergence — pourquoi les axes se rejoignent</h3>
+<p>Les trois axes partagent <strong>une même couche de compréhension d'intention (NLU)</strong>. La voix
+alimente la narration et le Q&amp;A selon une chaîne unique :</p>
+<pre>audio ─▶ texte (STT) ─▶ intention (LLM) ─▶ action (navigate/filter) │ génération (narration/réponse) ─▶ voix (TTS)</pre>
+<p>Ce socle commun sert <strong>à la fois</strong> le B2B (self-service) et le B2C (accessibilité) : c'est le
+point de jonction des trois axes, et la raison pour laquelle un seul investissement technique les couvre tous.</p>
+
+<h3>Axes écartés (et pourquoi ils le sont moins pertinents)</h3>
+<ul>
+  <li><strong>Génération d'images / données synthétiques</strong> — aucune valeur pour un dashboard de fraude :
+      le dataset est déjà fourni et l'enjeu est la lecture, pas la création.</li>
+  <li><strong>Chatbot généraliste non ancré</strong> — risque d'hallucination sur des chiffres
+      réglementaires (fraude, identité). Écarté au profit d'un Q&amp;A <em>ancré sur les KPIs réels</em>.</li>
+</ul>
+
+<h2>C5.2 — Solution développée &amp; argumentaire Local vs API</h2>
+<p>Foundation model / LLM utilisé : <strong>llama3.2 (3B) via Ollama</strong>, en local. STT :
+<strong>faster-whisper</strong>. TTS : <strong>SpeechSynthesis</strong> du navigateur (voix macOS). Architecture
+<strong>découplée</strong> : un service vocal FastAPI autonome sur le port <code>8100</code>, qui n'altère pas le
+cœur data (port <code>8000</code>) ni le dashboard (port <code>7600</code>).</p>
+
+<h3>Décision : tout en local — et pourquoi</h3>
+<table>
+  <tr><th>Brique</th><th>Choix local</th><th>Alternative API écartée</th></tr>
+  <tr><td>STT</td><td><strong>faster-whisper</strong></td><td>Cloud STT (Google, Whisper API)</td></tr>
+  <tr><td>LLM (intention + narration)</td><td><strong>Ollama / llama3.2</strong></td><td>Claude API (Haiku 4.5 / Opus 4.8)</td></tr>
+  <tr><td>TTS</td><td><strong>SpeechSynthesis navigateur</strong></td><td>Cloud TTS (ElevenLabs…)</td></tr>
+</table>
+<ul>
+  <li><strong>Exigence métier explicite</strong> — le VP doit naviguer « pour un usage au moins local » :
+      le local est le cahier des charges, pas une option.</li>
+  <li><strong>Sensibilité des données (RGPD)</strong> — paiements, alertes de fraude, vérifications d'identité (CNI).
+      En local, <strong>aucune donnée ne quitte la machine</strong>.</li>
+  <li><strong>Coût</strong> — zéro coût par requête ; <strong>hors-ligne</strong> et latence maîtrisée.</li>
+</ul>
+
+<h3>Mais le choix a été pesé (concertation IT)</h3>
+<table>
+  <tr><th>Critère</th><th>Local (notre choix)</th><th>API (Claude)</th></tr>
+  <tr><td>Confidentialité</td><td><span class="tag g">✓</span> données locales</td><td><span class="tag o">~</span> envoi cloud</td></tr>
+  <tr><td>Coût</td><td><span class="tag g">✓</span> gratuit</td><td><span class="tag g">✓</span> très bas (Haiku ≈ 1$/5$ par M tokens)</td></tr>
+  <tr><td>Qualité rédaction FR</td><td><span class="tag o">~</span> correcte (3B)</td><td><span class="tag g">✓</span> supérieure</td></tr>
+  <tr><td>Hors-ligne</td><td><span class="tag g">✓</span> oui</td><td><span class="tag r">✗</span> non</td></tr>
+</table>
+<div class="callout"><strong>Conclusion argumentée.</strong> Pour ce cas d'usage (données sensibles +
+exigence locale du VP), le <strong>local domine</strong> malgré une qualité de rédaction inférieure.
+L'architecture découplée permet, <em>si le besoin évoluait vers du B2C sans données sensibles</em>, de
+remplacer la seule brique LLM par une API (Claude Haiku, très bon marché) <strong>sans toucher au reste</strong>.</div>
+
+<h3>Opportunité B2C</h3>
+<p>La navigation vocale dépasse l'accessibilité du VP : mains-libres en mobilité, inclusion des
+déficiences motrices/visuelles, et vulgarisation de statistiques pour le grand public via la
+narration. Le même socle NLU sert le B2B et le B2C — la convergence identifiée en C5.1.</p>
+
+<h2>C5.3 — Évaluation de la qualité des résultats</h2>
+<p class="muted">Mesures réelles du 2026-06-22, 100 % local, 12 commandes. Harnais reproductible
+(<code>run_eval.py</code>) ; commandes FR synthétisées (<code>say</code>, voix Thomas) → Whisper → Ollama,
+comparées à la vérité terrain de l'API. Déterminisme garanti par <code>temperature: 0</code>.</p>
+
+<div class="grid">
+  <div class="kpi blue"><span class="v">0,157</span><span class="l">WER moyen (STT) · 7/12 exacts</span></div>
+  <div class="kpi blue"><span class="v">83 %</span><span class="l">Accuracy intention (10/12)</span></div>
+  <div class="kpi good"><span class="v">0</span><span class="l">KPI inventé (hallucination)</span></div>
+  <div class="kpi"><span class="v">≈2,5 s</span><span class="l">Latence question (perçue)</span></div>
+</div>
+
+<h3>1. STT — Word Error Rate</h3>
+<p><strong>WER moyen 0,157</strong> (7/12 transcriptions exactes). Les 3 pires scores (0,50–0,60) ne sont
+pas des faiblesses de Whisper mais des <strong>artefacts de la voix de synthèse</strong> de test :
+« fraude »→« Freud », « fraudes »→« fruits », « sévérité haute »→« severi taux ». Sur une
+<strong>voix humaine</strong>, ces mots sont correctement articulés et le WER chute (les 9 commandes
+sans mot piégé sont à WER ≤ 0,33, dont 7 à 0,00).</p>
+
+<h3>2. Intention — accuracy &amp; matrice de confusion</h3>
+<p>Classification effectuée sur la transcription réelle (chaîne bout-en-bout). <strong>10/12 correctes</strong>.</p>
+<table>
+  <tr><th>attendu \ obtenu</th><th>navigate</th><th>filter</th><th>ask</th><th>unknown</th></tr>
+  <tr><th>navigate (6)</th><td>5</td><td>0</td><td>0</td><td>1</td></tr>
+  <tr><th>filter (3)</th><td>0</td><td>2</td><td>0</td><td>1</td></tr>
+  <tr><th>ask (2)</th><td>0</td><td>0</td><td>2</td><td>0</td></tr>
+  <tr><th>unknown (1)</th><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+</table>
+<p>Deux échecs, de natures opposées : (1) « <em>Montre les cas d'usage</em> » (transcription parfaite)
+classé <code>unknown</code> = <strong>vraie limite du 3B</strong>, corrigeable par un exemple few-shot ;
+(2) « <em>Filtre les fruits en severi taux</em> » (STT corrompu) classé <code>unknown</code> = <strong>rejet sûr</strong> :
+le modèle refuse plutôt que d'inventer un filtre. Aucune confusion vers une mauvaise action,
+et la commande hors-domaine (« météo ») est correctement rejetée.</p>
+
+<h3>3. Narration — exactitude factuelle (anti-hallucination)</h3>
+<p>Vérité terrain : alertes <strong>3632</strong> (HIGH 313, MEDIUM 3319), paiements 1053 (1 frauduleux),
+taux <strong>0,09 %</strong>, clients 2500 (1181 couverts, 47,24 %).</p>
+<table>
+  <tr><th>KPI</th><th>Valeur API</th><th>Cité par le LLM</th><th>Exact ?</th></tr>
+  <tr><td>total_alerts</td><td>3632</td><td>3 632</td><td><span class="tag g">✓</span></td></tr>
+  <tr><td>alerts HIGH / MEDIUM</td><td>313 / 3319</td><td>313 / 3 319</td><td><span class="tag g">✓</span></td></tr>
+  <tr><td>fraud_rate</td><td>0,09 %</td><td>0,09 %</td><td><span class="tag g">✓</span></td></tr>
+  <tr><td>clients / couverts / couverture</td><td>2500 / 1181 / 47,24 %</td><td>2 500 / 1 181 / 47,24 %</td><td><span class="tag g">✓</span></td></tr>
+</table>
+<p><strong>100 % des KPIs cités sont exacts, 0 chiffre inventé</strong> (narration <em>et</em> Q&amp;A). Seule
+imprécision : une part <em>calculée</em> (« 9 % » des alertes hautes, ratio réel 8,6 %) — arrondi
+lâche, pas une hallucination de KPI. C'est l'objectif critique du projet (données réglementaires)
+et il est atteint grâce à l'<strong>ancrage des KPIs réels dans le prompt</strong>.</p>
+
+<h3>4. Latence (à chaud)</h3>
+<table>
+  <tr><th>STT</th><th>Intention</th><th>Narration/Q&amp;A</th><th>Navigation perçue</th><th>Question perçue</th></tr>
+  <tr><td>≈ 1018 ms</td><td>≈ 542 ms</td><td>≈ 1029 ms</td><td>≈ 1,5 s</td><td>≈ 2,5 s</td></tr>
+</table>
+
+<h3>5. Ajustements de paramètres (analyse)</h3>
+<table>
+  <tr><th>Ajustement</th><th>Problème avant</th><th>Effet mesuré</th></tr>
+  <tr><td>Ollama 0.22 → 0.30.10</td><td><code>panic</code> init Metal (macOS Darwin 25.3)</td><td>Débloque le LLM local.</td></tr>
+  <tr><td><code>temperature: 0</code></td><td>sorties variables, non testables</td><td>Déterminisme → métriques reproductibles.</td></tr>
+  <tr><td><code>format: json</code> (intention)</td><td>JSON enrobé de prose</td><td>Parsing fiable.</td></tr>
+  <tr><td>Libellés FR + KPIs réels injectés</td><td>confusion totaux/frauduleux, invention</td><td><strong>0 hallucination</strong>, 0 confusion de libellé.</td></tr>
+  <tr><td>Modèle 3B vs 1B</td><td>le 1B suit mal le schéma</td><td>Meilleur respect format + FR.</td></tr>
+</table>
+
+<h2>Livrables — étapes, choix, résultats</h2>
+<table>
+  <tr><th>Étapes réalisées</th><th>Choix méthodologiques</th><th>Résultats obtenus</th></tr>
+  <tr>
+    <td>Architecture découplée (STT/NLU/narration/TTS) · service FastAPI :8100 · widget vocal
+        navigateur (push-to-talk <code>P</code>) · intégration aux 6 pages · test end-to-end mesuré.</td>
+    <td>100 % local (RGPD + exigence VP) · intention contrainte en JSON · KPIs réels injectés
+        (anti-hallucination) · <code>temperature: 0</code> (déterminisme) · architecture qui autorise une
+        bascule API ciblée si besoin B2C.</td>
+    <td>WER 0,157 · intention 83 % · <strong>0 hallucination</strong> · latence ≈ 2,5 s/question.
+        Minimum imposé dépassé (3 axes intégrés).</td>
+  </tr>
+</table>
+
+<h2>Annexe — Architecture &amp; reproduction</h2>
+<pre>🎙️ Micro (navigateur, MediaRecorder)  ──POST /api/voice/command──▶  Service vocal :8100
+   ├─ STT local        : faster-whisper            (stt_service.py)
+   ├─ Intention (JSON) : Ollama / llama3.2, temp 0 (intent_service.py)  → navigate | filter | ask | unknown
+   └─ Narration / Q&A  : Ollama lit les KPIs réels de l'API :8000 (narrate_service.py)
+                         🔊 TTS : SpeechSynthesis (voix macOS, local)</pre>
+<pre># Pré-requis : stack data (./patator), Ollama ≥ 0.30 (ollama serve), service vocal.
+python -m api.voice.voice_app                 # service vocal :8100
+python3 docs/genai/tests/run_eval.py          # rejoue toutes les mesures C5.3 (déterministe)
+# Dans le dashboard : maintenir la touche P pour parler, relâcher pour envoyer.</pre>
+<p class="muted" style="margin-top:18px;font-size:9pt">Sources détaillées dans le dépôt EfreiBig3 — branche <code>genai-voice</code> :
+<code>docs/genai/README.md</code>, <code>ARGUMENTAIRE_LOCAL_VS_API.md</code>, <code>RAPPORT_C5.md</code>,
+<code>tests/scenarios.md</code>, <code>tests/results_2026-06-22.json</code>.</p>
+
+</div>
+</body>
+</html>
