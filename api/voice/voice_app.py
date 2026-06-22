@@ -74,9 +74,16 @@ def narrate(body: NarrateIn):
     return narrate_service.narrate(body.view)
 
 
+@app.post("/api/voice/ask")
+def ask(body: TextIn):
+    """Repond a une question libre a partir des KPIs reels."""
+    view = "fraud"
+    return narrate_service.answer_question(body.text, view)
+
+
 @app.post("/api/voice/command")
 async def command(audio: UploadFile = File(...)):
-    """Pipeline complet : audio -> texte -> intention -> (narration)."""
+    """Pipeline complet (non-stage) : audio -> texte -> intention -> reponse."""
     path = await _save_upload(audio)
     try:
         stt = stt_service.transcribe(path)
@@ -84,11 +91,11 @@ async def command(audio: UploadFile = File(...)):
         os.remove(path)
 
     intent = intent_service.classify(stt["text"])
-    result = {"transcript": stt["text"], "intent": intent, "narration": None}
+    result = {"transcript": stt["text"], "intent": intent, "answer": None}
 
-    if intent["action"] == "explain":
-        view = intent.get("view") or "fraud"
-        result["narration"] = narrate_service.narrate(view)["narration"]
+    if intent["action"] == "ask":
+        result["answer"] = narrate_service.answer_question(stt["text"],
+                                                           intent.get("view") or "fraud")["answer"]
     return result
 
 

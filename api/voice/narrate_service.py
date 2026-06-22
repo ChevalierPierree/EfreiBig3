@@ -49,8 +49,8 @@ def _label_kpis(kpis: dict) -> str:
     sev = stats.get("alerts_by_severity", {})
     lignes = [
         f"- Alertes de fraude (total) : {stats.get('total_alerts')}",
-        f"- Alertes de severite HIGH : {sev.get('HIGH')}",
-        f"- Alertes de severite MEDIUM : {sev.get('MEDIUM')}",
+        f"- Alertes de severite Haute : {sev.get('HIGH')}",
+        f"- Alertes de severite Moyenne : {sev.get('MEDIUM')}",
         f"- Paiements totaux : {stats.get('total_payments')}",
         f"- Paiements frauduleux : {stats.get('fraudulent_payments')}",
         f"- Taux de fraude : {stats.get('fraud_rate')} %",
@@ -74,7 +74,7 @@ def narrate(view: str = "fraud") -> dict:
     user = f"KPIs de la vue '{view}' :\n{_label_kpis(kpis)}"
     payload = {
         "model": OLLAMA_MODEL,
-        "stream": False,
+        "stream": False, "options": {"temperature": 0},
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
@@ -87,3 +87,30 @@ def narrate(view: str = "fraud") -> dict:
     except (requests.RequestException, KeyError) as exc:
         narration = f"Narration indisponible ({exc})."
     return {"kpis": kpis, "narration": narration}
+
+
+def answer_question(question: str, view: str = "fraud") -> dict:
+    """Repond a une question libre en s'appuyant sur les KPIs reels (anti-hallucination)."""
+    kpis = _fetch_kpis(view)
+    system = (
+        "Tu es un analyste fraude. Reponds en francais, en 1 a 2 phrases courtes, "
+        "a la question posee, en t'appuyant UNIQUEMENT sur les KPIs etiquetes fournis. "
+        "Cite le bon chiffre avec le bon libelle. Si l'information demandee n'est pas "
+        "dans les KPIs, dis-le simplement."
+    )
+    user = f"KPIs disponibles :\n{_label_kpis(kpis)}\n\nQuestion : {question}"
+    payload = {
+        "model": OLLAMA_MODEL,
+        "stream": False, "options": {"temperature": 0},
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+    }
+    try:
+        resp = requests.post(OLLAMA_URL, json=payload, timeout=60)
+        resp.raise_for_status()
+        answer = resp.json()["message"]["content"].strip()
+    except (requests.RequestException, KeyError) as exc:
+        answer = f"Reponse indisponible ({exc})."
+    return {"kpis": kpis, "answer": answer}

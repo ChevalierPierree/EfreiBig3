@@ -55,9 +55,19 @@ python -m api.voice.voice_app
 #   ou : uvicorn api.voice.voice_app:app --host 0.0.0.0 --port 8100
 ```
 
-Ouvrir http://localhost:7600/index.html : un bouton 🎙️ flottant apparait.
-Cliquer, parler (« ouvre la vue fraude », « explique-moi le taux de fraude »),
-re-cliquer pour envoyer.
+Ouvrir http://localhost:7600/index.html. **Maintenir la touche `P`** pour parler,
+relacher pour envoyer (push-to-talk ; l'orbe en bas a droite reagit a la voix).
+L'assistant repond dans un panneau type chatbot et a voix haute.
+
+### Commandes reconnues (langage naturel)
+- **Navigation** : « ouvre la vue fraude », « affiche les transferts »,
+  « montre l'identite », « reviens a l'accueil ».
+- **Filtre** (pilote les vrais `<select>` de la file d'alertes, puis `loadAlerts()`) :
+  « filtre les fraudes en severite haute », « montre seulement les alertes moyennes »,
+  « affiche les alertes en attente ». Depuis une autre page, l'assistant ouvre
+  d'abord la vue fraude puis applique le filtre.
+- **Questions / resume** : « combien d'alertes de severite haute », « quel est le
+  taux de fraude », « explique-moi les chiffres ». Reponse basee sur les KPIs reels.
 
 ## Endpoints du service vocal
 
