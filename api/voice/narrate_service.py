@@ -37,16 +37,41 @@ def _fetch_kpis(view: str) -> dict:
     return data
 
 
+def _label_kpis(kpis: dict) -> str:
+    """Reformate les champs cles de /api/stats en libelles FR explicites.
+
+    Evite que le LLM confonde 'paiements totaux' et 'paiements frauduleux'
+    (ancrage anti-hallucination, verifiable en C5.3).
+    """
+    stats = kpis.get("/api/stats", {})
+    if not isinstance(stats, dict) or "error" in stats:
+        return f"Donnees brutes : {kpis}"
+    sev = stats.get("alerts_by_severity", {})
+    lignes = [
+        f"- Alertes de fraude (total) : {stats.get('total_alerts')}",
+        f"- Alertes de severite HIGH : {sev.get('HIGH')}",
+        f"- Alertes de severite MEDIUM : {sev.get('MEDIUM')}",
+        f"- Paiements totaux : {stats.get('total_payments')}",
+        f"- Paiements frauduleux : {stats.get('fraudulent_payments')}",
+        f"- Taux de fraude : {stats.get('fraud_rate')} %",
+        f"- Clients totaux : {stats.get('total_customers')}",
+        f"- Clients couverts par au moins une alerte : {stats.get('alerted_customers')} "
+        f"({stats.get('customer_alert_coverage')} %)",
+    ]
+    return "\n".join(l for l in lignes if "None" not in l)
+
+
 def narrate(view: str = "fraud") -> dict:
     """Renvoie {kpis, narration}. La narration cite uniquement les KPIs fournis."""
     kpis = _fetch_kpis(view)
     system = (
-        "Tu es un analyste fraude. On te donne des KPIs JSON reels. "
+        "Tu es un analyste fraude. On te donne une liste de KPIs etiquetes. "
         "Resume-les en francais en 2 a 3 phrases claires pour un dirigeant. "
-        "Cite UNIQUEMENT les chiffres presents dans les donnees, n'invente rien, "
-        "ne donne pas de conseils non demandes."
+        "Cite chaque chiffre avec le BON libelle (ne confonds pas 'paiements totaux' "
+        "et 'paiements frauduleux'). N'invente aucun chiffre absent de la liste, "
+        "et ne donne pas de conseils non demandes."
     )
-    user = f"KPIs de la vue '{view}' :\n{kpis}"
+    user = f"KPIs de la vue '{view}' :\n{_label_kpis(kpis)}"
     payload = {
         "model": OLLAMA_MODEL,
         "stream": False,

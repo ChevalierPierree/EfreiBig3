@@ -78,7 +78,17 @@ re-cliquer pour envoyer.
 
 ## Etat
 
-⚠️ **Scaffold a tester de bout en bout** : faster-whisper et Ollama doivent etre
-installes/lances. Les services sont ecrits et branches ; la phase suivante est le
-test end-to-end + l'ajustement du modele de narration (option : `ollama pull qwen2.5:3b`
-pour un FR plus soigne).
+✅ **Pipeline valide de bout en bout** (audio -> transcription -> intention ->
+navigation / narration) :
+- STT faster-whisper : transcription FR correcte (~1 s a chaud).
+- Intention (llama3.2 3B, sortie JSON) : 5/5 sur le jeu de commandes de test.
+- Narration : cite les KPIs reels avec les bons libelles (anti-hallucination).
+
+### ⚠️ Pre-requis Ollama : version >= 0.30
+Sur macOS recent (Darwin 25.x), Ollama 0.22 plante a l'init Metal
+(`static_assert half/bfloat` -> `panic: unable to create llama context`) sans
+fallback CPU. **Mettre a jour** : `brew upgrade ollama` (>= 0.30.10 OK).
+
+### Pistes d'amelioration
+- Narration : le 3B est parfois verbeux/format libre. Affiner le prompt (prose,
+  2-3 phrases) ou tester `ollama pull qwen2.5:3b` pour un FR plus soigne.
