@@ -1,0 +1,11 @@
+# Couche IA generative vocale (branche genai-voice)
+# Installation : pip install -r requirements.voice.txt
+#
+# STT 100% local. Le LLM (intention + narration) passe par Ollama via REST,
+# donc seul `requests` est necessaire cote Python (deja dans requirements.txt).
+
+faster-whisper==1.0.3
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.9
+requests==2.31.0
