@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiVendTout Overview</title>
+    <link rel="stylesheet" href="dashboard_theme.css">
+    <style>
+        .overview-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .overview-panel {
+            padding: 28px;
+            border-radius: var(--radius-xl);
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .overview-panel h1 {
+            max-width: 12ch;
+            margin-bottom: 14px;
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 4.8vw, 4.2rem);
+            line-height: 0.98;
+            letter-spacing: -0.05em;
+            color: var(--ink-950);
+        }
+
+        .overview-panel p {
+            max-width: 64ch;
+            color: var(--ink-760);
+            line-height: 1.65;
+        }
+
+        .service-panel {
+            padding: 22px;
+            border-radius: var(--radius-lg);
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .service-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            padding: 14px;
+            border-radius: 14px;
+            background: var(--card-soft);
+            border: 1px solid var(--border);
+        }
+
+        .service-row strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--ink-950);
+        }
+
+        .service-row span {
+            color: var(--ink-760);
+            font-size: 0.92rem;
+        }
+
+        .summary-note {
+            margin-top: 14px;
+            color: var(--ink-760);
+            line-height: 1.6;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .module-card {
+            padding: 20px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            gap: 12px;
+        }
+
+        .module-card h3 {
+            font-size: 1.2rem;
+            color: var(--ink-950);
+        }
+
+        .module-card p {
+            color: var(--ink-760);
+            line-height: 1.55;
+        }
+
+        .module-card a {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 10px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+        }
+
+        .module-meta {
+            display: grid;
+            gap: 8px;
+        }
+
+        .module-meta span {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(31, 91, 143, 0.08);
+            color: var(--ink-900);
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .ops-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .ops-card {
+            padding: 18px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ops-card h3 {
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: var(--ink-950);
+        }
+
+        .ops-card p {
+            color: var(--ink-760);
+            line-height: 1.55;
+        }
+
+        @media (max-width: 980px) {
+            .overview-grid,
+            .ops-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <nav class="top-nav">
+        <a class="active" href="index.html">Overview</a>
+        <a href="fraud_dashboard.html">Fraude</a>
+        <a href="fraud_types_dashboard.html">Typologies</a>
+        <a href="id_cards_dashboard.html">Identite</a>
+        <a href="transfer_kpi_dashboard.html">Transferts</a>
+    </nav>
+
+    <div class="command-strip">
+        <div>
+            <strong>Lecture</strong>
+            <div class="command-row">
+                <span class="command-chip">Vue d'ensemble</span>
+                <span class="command-chip">Services</span>
+                <span class="command-chip">Refresh 1s</span>
+            </div>
+        </div>
+        <div class="runtime-line">
+            <button class="btn-primary" onclick="refreshPage('manual')">Actualiser</button>
+        </div>
+    </div>
+
+    <section class="overview-grid">
+        <article class="overview-panel">
+            <div class="eyebrow">Platform overview</div>
+            <h1>Les signaux utiles, sans surcharge.</h1>
+            <p>
+                Cette page donne l'etat de la plateforme, le niveau de risque, le controle d'identite
+                et le statut du pipeline de donnees. Le detail se fait ensuite dans les modules specialises.
+            </p>
+        </article>
+        <aside class="service-panel">
+            <div class="section-head" style="margin-bottom:14px;">
+                <div>
+                    <h2>Etat des services</h2>
+                    <p>Disponibilite des briques qui comptent pour le projet.</p>
+                </div>
+            </div>
+            <div class="service-list">
+                <div class="service-row">
+                    <div>
+                        <strong>API fraude</strong>
+                        <span>Port 8000</span>
+                    </div>
+                    <span class="status-pill" id="service-api">-</span>
+                </div>
+                <div class="service-row">
+                    <div>
+                        <strong>Controle checkout</strong>
+                        <span>Blocages mineurs 24h</span>
+                    </div>
+                    <span class="status-pill" id="service-checkout">-</span>
+                </div>
+                <div class="service-row">
+                    <div>
+                        <strong>Pipeline de transfert</strong>
+                        <span>Snapshots et micro-batch</span>
+                    </div>
+                    <span class="status-pill" id="service-transfer">-</span>
+                </div>
+                <div class="service-row">
+                    <div>
+                        <strong>Analytics</strong>
+                        <span>Warehouse et datamarts</span>
+                    </div>
+                    <span class="status-pill" id="service-analytics">-</span>
+                </div>
+            </div>
+            <p class="summary-note" id="overview-copy">Chargement des indicateurs...</p>
+        </aside>
+    </section>
+
+    <section class="metric-grid">
+        <article class="metric-card accent">
+            <div class="label"><span>Fraude</span><span>paiements</span></div>
+            <div class="value" id="overview-fraud-rate">-</div>
+            <p class="support" id="overview-fraud-copy">-</p>
+        </article>
+        <article class="metric-card">
+            <div class="label"><span>Alertes</span><span>backlog</span></div>
+            <div class="value" id="overview-alerts">-</div>
+            <p class="support" id="overview-alerts-copy">-</p>
+        </article>
+        <article class="metric-card cool">
+            <div class="label"><span>Controle 18+</span><span>blocages</span></div>
+            <div class="value" id="overview-underage">-</div>
+            <p class="support" id="overview-underage-copy">-</p>
+        </article>
+        <article class="metric-card gold">
+            <div class="label"><span>Transferts</span><span>pipeline</span></div>
+            <div class="value" id="overview-transfer">-</div>
+            <p class="support" id="overview-transfer-copy">-</p>
+        </article>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <div>
+                <h2>Modules utiles</h2>
+                <p>Une page par domaine fonctionnel, pas plus.</p>
+            </div>
+        </div>
+        <div class="module-grid">
+            <article class="module-card">
+                <div class="module-meta">
+                    <span id="module-fraud-status">Risque global</span>
+                </div>
+                <h3>Fraude</h3>
+                <p>Backlog, notifications et decisions analyste.</p>
+                <a href="fraud_dashboard.html">Ouvrir</a>
+            </article>
+            <article class="module-card">
+                <div class="module-meta">
+                    <span id="module-types-status">Typologies actives</span>
+                </div>
+                <h3>Typologies</h3>
+                <p>Motifs de fraude, severite et priorite d'action.</p>
+                <a href="fraud_types_dashboard.html">Ouvrir</a>
+            </article>
+            <article class="module-card">
+                <div class="module-meta">
+                    <span id="module-identity-status">Verification d'identite</span>
+                </div>
+                <h3>Identite</h3>
+                <p>Controle de majorite, CNI synthetiques et tentatives bloquees.</p>
+                <a href="id_cards_dashboard.html">Ouvrir</a>
+            </article>
+            <article class="module-card">
+                <div class="module-meta">
+                    <span id="module-transfer-status">Pipeline de donnees</span>
+                </div>
+                <h3>Transferts</h3>
+                <p>Snapshots bronze, micro-batch et KPI de transfert.</p>
+                <a href="transfer_kpi_dashboard.html">Ouvrir</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <div>
+                <h2>Grille de lecture</h2>
+                <p>Trois questions suffisent pour lire rapidement l'etat du projet.</p>
+            </div>
+        </div>
+        <div class="ops-grid">
+            <article class="ops-card">
+                <h3>1. Risque</h3>
+                <p>Le taux de fraude et le backlog remontent-ils une pression inhabituelle ?</p>
+            </article>
+            <article class="ops-card">
+                <h3>2. Conformite</h3>
+                <p>Les controles d'identite et le garde-fou 18+ bloquent-ils correctement ?</p>
+            </article>
+            <article class="ops-card">
+                <h3>3. Donnee</h3>
+                <p>Le lake, le micro-batch et l'analytics sont-ils actifs et lisibles ?</p>
+            </article>
+        </div>
+    </section>
+</div>
+
+<script src="dashboard_ops.js"></script>
+<script src="live_sync.js"></script>
+<script>
+    const DASHBOARD_HOST = window.location.hostname || 'localhost';
+    const API_HOST = ['127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(DASHBOARD_HOST) ? 'localhost' : DASHBOARD_HOST;
+    const API_URL = `${window.location.protocol}//${API_HOST}:8000`;
+    let opsController = null;
+
+    function setPill(id, label, tone) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = label;
+        el.className = 'status-pill';
+        if (tone) el.classList.add(tone);
+    }
+
+    function readableTone(label) {
+        if (['ok', 'actif', 'large', 'faible', 'online'].includes(label)) return 'success';
+        if (['modere', 'moyenne', 'inactif', 'degrade'].includes(label)) return 'warning';
+        if (['eleve', 'aucune_donnee', 'offline', 'error'].includes(label)) return 'danger';
+        return 'cool';
+    }
+
+    async function loadOverview() {
+        try {
+            const [
+                healthResp,
+                statsResp,
+                checkoutResp,
+                readableResp,
+                analyticsResp
+            ] = await Promise.all([
+                fetch(`${API_URL}/health`, { cache: 'no-store' }),
+                fetch(`${API_URL}/api/stats`, { cache: 'no-store' }),
+                fetch(`${API_URL}/api/checkout/stats?window_hours=24`, { cache: 'no-store' }),
+                fetch(`${API_URL}/api/kpis/readable?limit=100&micro_batch_window_hours=24`, { cache: 'no-store' }),
+                fetch(`${API_URL}/api/analytics/status`, { cache: 'no-store' })
+            ]);
+
+            const health = healthResp.ok ? await healthResp.json() : {};
+            const stats = statsResp.ok ? await statsResp.json() : {};
+            const checkout = checkoutResp.ok ? await checkoutResp.json() : {};
+            const readable = readableResp.ok ? await readableResp.json() : {};
+            const analytics = analyticsResp.ok ? await analyticsResp.json() : {};
+
+            const fraud = readable.fraud || {};
+            const fraudKpis = fraud.kpis || {};
+            const transfer = readable.transfer || {};
+            const transferKpis = transfer.kpis || {};
+            const analyticsLive = analytics.live || {};
+            const analyticsObjects = analyticsLive.objects || {};
+            const datamartsCount = [
+                analyticsObjects.mart_fraud_daily || 0,
+                analyticsObjects.mart_identity_controls_daily || 0,
+                analyticsObjects.mart_checkout_risk_daily || 0,
+                analyticsObjects.mart_product_sales_daily || 0
+            ].filter(Boolean).length;
+
+            setPill('service-api', health.status === 'healthy' ? 'online' : 'offline', health.status === 'healthy' ? 'success' : 'danger');
+            setPill('service-checkout', `${checkout.blocked_underage_orders ?? 0} bloques`, 'cool');
+            setPill('service-transfer', transfer.micro_batch_status || 'n/a', readableTone(transfer.micro_batch_status || transfer.availability || 'cool'));
+            setPill('service-analytics', analyticsLive.schema_exists ? `${datamartsCount} marts` : 'absent', analyticsLive.schema_exists ? 'success' : 'warning');
+
+            document.getElementById('overview-copy').textContent = fraud.headline
+                ? `${fraud.headline}. Analytics: ${analyticsLive.schema_exists ? 'schema actif' : 'schema indisponible'} • micro-batch: ${transferKpis.micro_batch_total_events_window ?? 0} evenement(s).`
+                : 'Les indicateurs consolides ne sont pas encore disponibles.';
+
+            document.getElementById('overview-fraud-rate').textContent = `${fraudKpis.fraud_rate_percent ?? '-'}%`;
+            document.getElementById('overview-fraud-copy').textContent = fraud.headline || 'Taux de fraude indisponible.';
+
+            document.getElementById('overview-alerts').textContent = stats.total_alerts ?? 0;
+            document.getElementById('overview-alerts-copy').textContent = `${stats.alerts_by_status?.PENDING_REVIEW ?? 0} en attente • ${stats.alerts_by_severity?.HIGH ?? 0} haute severite`;
+
+            document.getElementById('overview-underage').textContent = checkout.blocked_underage_orders ?? 0;
+            document.getElementById('overview-underage-copy').textContent = `${checkout.accepted_orders ?? 0} commandes acceptees • rejet ${Number(checkout.rejection_rate ?? 0).toFixed(2)}%`;
+
+            document.getElementById('overview-transfer').textContent = `${transferKpis.micro_batch_total_events_window ?? 0}`;
+            document.getElementById('overview-transfer-copy').textContent = `${transfer.headline || 'Pipeline de transfert'} • snapshot ${transferKpis.latest_snapshot_size_human || '-'}`;
+
+            document.getElementById('module-fraud-status').textContent = `${fraud.risk_level || 'risque'} • ${fraudKpis.total_alerts ?? 0} alertes`;
+            document.getElementById('module-types-status').textContent = fraudKpis.top_reason || 'Aucune typologie dominante';
+            document.getElementById('module-identity-status').textContent = `${checkout.blocked_underage_orders ?? 0} blocages sur 24h`;
+            document.getElementById('module-transfer-status').textContent = transfer.headline || 'Statut transfert indisponible';
+        } catch (error) {
+            console.error(error);
+            setPill('service-api', 'error', 'danger');
+            setPill('service-checkout', 'error', 'danger');
+            setPill('service-transfer', 'error', 'danger');
+            setPill('service-analytics', 'error', 'danger');
+            document.getElementById('overview-copy').textContent = 'Impossible de charger les indicateurs consolides.';
+        }
+    }
+
+    async function refreshPage(reason = 'auto') {
+        await loadOverview();
+        if (opsController) {
+            opsController.markRefresh(reason);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.KiDashboardOps) {
+            opsController = window.KiDashboardOps.attach({
+                apiUrl: API_URL,
+                onAfterReset: () => refreshPage('reset')
+            });
+        }
+        refreshPage('init');
+        setInterval(() => refreshPage('interval'), 1000);
+        if (window.KiLiveSync) {
+            window.KiLiveSync.attach({
+                apiUrl: API_URL,
+                onTick: () => refreshPage('live'),
+                onState: state => {
+                    if (opsController) {
+                        opsController.updateLiveState(state);
+                    }
+                },
+                refreshOnIdleEveryMs: 1000,
+                activeRefreshEveryMs: 1000,
+                minRefreshIntervalMs: 1000,
+                reconnectDelayMs: 1000,
+                fallbackEveryMs: 1000
+            });
+        }
+    });
+</script>
+</body>
+</html>

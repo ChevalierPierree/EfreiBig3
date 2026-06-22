@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-03-18T14:30:22.015993+00:00",
+  "summary": {
+    "total_checks": 7,
+    "passed": 7,
+    "failed": 0,
+    "success_rate_percent": 100.0
+  },
+  "checks": [
+    {
+      "url": "http://127.0.0.1:8011/api/stats",
+      "method": "GET",
+      "expected": 401,
+      "actual": 401,
+      "ok": true
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/stats",
+      "method": "GET",
+      "expected": 401,
+      "actual": 401,
+      "ok": true
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/stats",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/orders/checkout",
+      "method": "POST",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/products?limit=1",
+      "method": "GET",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/stats",
+      "method": "GET",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/products?limit=1",
+      "method": "GET[x6]",
+      "expected": "contains 429",
+      "actual": [
+        200,
+        200,
+        200,
+        200,
+        429,
+        429
+      ],
+      "ok": true
+    }
+  ]
+}

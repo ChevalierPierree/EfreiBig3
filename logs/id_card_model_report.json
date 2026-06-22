@@ -1,0 +1,14 @@
+{
+  "trained_at": "2026-03-18T14:30:21.016428+00:00",
+  "dataset_dir": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/kivendtout_dataset",
+  "labels_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/kivendtout_dataset/synthetic_id_labels.csv",
+  "cards_dir": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/kivendtout_dataset/synthetic_id_cards",
+  "model_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/models/id_card_fingerprint_model.json",
+  "metrics": {
+    "samples": 60,
+    "unique_hashes": 60,
+    "matched": 60,
+    "accuracy_percent": 100.0,
+    "coverage_percent": 100.0
+  }
+}

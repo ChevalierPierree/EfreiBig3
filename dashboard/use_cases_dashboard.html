@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use Cases - KiVendTout</title>
+    <link rel="stylesheet" href="dashboard_theme.css">
+    <style>
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .scenario-card {
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            gap: 14px;
+        }
+
+        .scenario-card h3 {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--ink-950);
+        }
+
+        .scenario-card p {
+            color: var(--ink-760);
+            line-height: 1.55;
+            font-size: 0.92rem;
+        }
+
+        .scenario-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .resource-card {
+            padding: 14px;
+            border-radius: 16px;
+            background: var(--card-soft);
+            border: 1px solid var(--border);
+        }
+
+        .resource-card span {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--ink-640);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .resource-card strong {
+            color: var(--ink-950);
+            font-size: 0.98rem;
+            line-height: 1.45;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: minmax(220px, 0.62fr) minmax(0, 1.38fr);
+            gap: 18px;
+        }
+
+        .preview-frame {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #fff;
+            min-height: 260px;
+        }
+
+        .preview-frame img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .json-block {
+            margin: 0;
+            padding: 16px;
+            border-radius: 18px;
+            background: #0f1b2a;
+            color: #dce6f0;
+            overflow: auto;
+            font-size: 0.83rem;
+            line-height: 1.6;
+            font-family: var(--font-mono);
+        }
+
+        .history-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .history-item {
+            padding: 14px 15px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--card-soft);
+        }
+
+        .history-item strong {
+            display: block;
+            color: var(--ink-950);
+            font-size: 0.95rem;
+            font-weight: 900;
+        }
+
+        .history-item p {
+            margin-top: 6px;
+            color: var(--ink-760);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 980px) {
+            .resource-grid,
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <nav class="top-nav">
+        <a href="index.html">Overview</a>
+        <a href="fraud_dashboard.html">Fraude</a>
+        <a href="fraud_types_dashboard.html">Typologies</a>
+        <a href="id_cards_dashboard.html">Identite</a>
+        <a href="transfer_kpi_dashboard.html">Transferts</a>
+        <a class="active" href="use_cases_dashboard.html">Use cases</a>
+    </nav>
+
+    <section class="masthead">
+        <div>
+            <div class="eyebrow">Use cases</div>
+            <h1>Scenarios concrets, testables en direct.</h1>
+            <p>Declencher un cas, lire le resultat, verifier la preuve metier.</p>
+        </div>
+        <aside class="hero-note">
+            <h2>Lecture rapide</h2>
+            <strong id="use-case-headline">Chargement...</strong>
+            <div class="pill-row">
+                <span class="status-pill" id="use-case-level">-</span>
+                <span class="status-pill" id="notification-mode-pill">-</span>
+            </div>
+            <p id="use-case-copy">Selectionner un scenario.</p>
+            <ul class="info-list" id="use-case-insights"></ul>
+        </aside>
+    </section>
+
+    <div class="command-strip">
+        <div>
+            <strong>Scope</strong>
+            <div class="command-row">
+                <span class="command-chip">Commande mineur</span>
+                <span class="command-chip">Commande majeur</span>
+                <span class="command-chip">Verification identite</span>
+                <span class="command-chip">Alerte fraude</span>
+                <span class="command-chip">Episode fraude</span>
+            </div>
+        </div>
+        <div class="runtime-line">
+            <button class="btn-primary" onclick="loadUseCases()">Actualiser</button>
+            <span id="page-status">Status: idle</span>
+        </div>
+    </div>
+
+    <section class="metric-grid">
+        <article class="metric-card accent">
+            <div class="label"><span>Scenarios</span><span>disponibles</span></div>
+            <div class="value" id="metric-scenarios">-</div>
+            <p class="support" id="metric-scenarios-copy">-</p>
+        </article>
+        <article class="metric-card">
+            <div class="label"><span>Executions</span><span>recentes</span></div>
+            <div class="value" id="metric-runs">-</div>
+            <p class="support" id="metric-runs-copy">-</p>
+        </article>
+        <article class="metric-card cool">
+            <div class="label"><span>Dernier</span><span>statut</span></div>
+            <div class="value" id="metric-status">-</div>
+            <p class="support" id="metric-status-copy">-</p>
+        </article>
+        <article class="metric-card gold">
+            <div class="label"><span>Notifications</span><span>mode</span></div>
+            <div class="value" id="metric-notifications">-</div>
+            <p class="support" id="metric-notifications-copy">-</p>
+        </article>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <div>
+                <h2>Scenarios a lancer</h2>
+                <p>Chaque scenario selectionne seul les bonnes ressources de demo.</p>
+            </div>
+            <div class="section-meta" id="scenario-meta">-</div>
+        </div>
+        <div class="scenario-grid" id="scenario-grid"></div>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <div>
+                <h2>Resultat detaille</h2>
+                <p>Ressources utilisees, reponse API et preuve metier.</p>
+            </div>
+            <div class="section-meta" id="result-meta">-</div>
+        </div>
+        <div class="preview-grid">
+            <article class="detail-panel" id="result-detail"></article>
+            <aside class="detail-panel" id="result-response"></aside>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="section-head">
+            <div>
+                <h2>Historique recent</h2>
+                <p>Derniers runs des cas d'usage.</p>
+            </div>
+            <div class="section-meta" id="history-meta">-</div>
+        </div>
+        <div class="history-grid" id="history-grid"></div>
+    </section>
+</div>
+
+<script src="dashboard_ops.js"></script>
+<script src="live_sync.js"></script>
+<script>
+    const DASHBOARD_HOST = window.location.hostname || 'localhost';
+    const API_HOST = ['127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(DASHBOARD_HOST) ? 'localhost' : DASHBOARD_HOST;
+    const API_URL = `${window.location.protocol}//${API_HOST}:8000`;
+
+    let useCases = [];
+    let useCaseHistory = [];
+    let selectedUseCaseKey = null;
+    let selectedResult = null;
+    let notificationMode = '-';
+    let opsController = null;
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function fmtDate(value) {
+        if (!value) return '-';
+        return new Date(value).toLocaleString('fr-FR');
+    }
+
+    function setStatus(message, isError = false) {
+        const el = document.getElementById('page-status');
+        el.textContent = `Status: ${message}`;
+        el.style.color = isError ? 'var(--danger)' : 'var(--ink-700)';
+    }
+
+    function toneForPass(passed) {
+        if (passed === true) return 'success';
+        if (passed === false) return 'danger';
+        return 'cool';
+    }
+
+    function toneForMode(mode) {
+        if (mode === 'smtp') return 'success';
+        if (mode === 'preview') return 'warning';
+        return 'cool';
+    }
+
+    function currentRecord() {
+        if (selectedResult) return selectedResult;
+        if (selectedUseCaseKey) {
+            return useCaseHistory.find(item => item.use_case_key === selectedUseCaseKey) || null;
+        }
+        return useCaseHistory[0] || null;
+    }
+
+    function renderSummary() {
+        const record = currentRecord();
+        const passedCount = useCaseHistory.filter(item => item.passed).length;
+        document.getElementById('metric-scenarios').textContent = useCases.length;
+        document.getElementById('metric-scenarios-copy').textContent = `${useCases.filter(item => item.last_run).length} deja executes`;
+        document.getElementById('metric-runs').textContent = useCaseHistory.length;
+        document.getElementById('metric-runs-copy').textContent = `${passedCount} run(s) conformes`;
+        document.getElementById('metric-status').textContent = record ? (record.passed ? 'OK' : 'KO') : '-';
+        document.getElementById('metric-status-copy').textContent = record ? `${record.title || record.definition?.title || '-'} • ${record.outcome || '-'}` : 'Aucun run';
+        document.getElementById('metric-notifications').textContent = notificationMode || '-';
+        document.getElementById('metric-notifications-copy').textContent = notificationMode === 'preview'
+            ? 'Apercu email genere localement'
+            : notificationMode === 'smtp'
+                ? 'Canal SMTP branche'
+                : 'Canal non configure';
+
+        document.getElementById('use-case-headline').textContent = record
+            ? `${record.title || record.definition?.title || '-'} • ${record.passed ? 'conforme' : 'a verifier'}`
+            : 'Aucun scenario lance';
+        document.getElementById('use-case-copy').textContent = record
+            ? (record.business_message || 'Resultat disponible')
+            : 'Lancer un use case pour verifier le projet.';
+        const level = document.getElementById('use-case-level');
+        level.textContent = record ? (record.passed ? 'conforme' : 'a verifier') : 'idle';
+        level.className = 'status-pill';
+        level.classList.add(record ? toneForPass(record.passed) : 'cool');
+        const modePill = document.getElementById('notification-mode-pill');
+        modePill.textContent = notificationMode || '-';
+        modePill.className = 'status-pill';
+        modePill.classList.add(toneForMode(notificationMode));
+
+        const insights = [];
+        if (record) {
+            insights.push(`Resultat attendu: ${record.expected_outcome || '-'}`);
+            insights.push(`Statut HTTP: ${record.http_status || '-'}`);
+            insights.push(`Execute le: ${fmtDate(record.timestamp)}`);
+        } else {
+            insights.push('Declencher un scenario pour visualiser la preuve.');
+        }
+        document.getElementById('use-case-insights').innerHTML = insights.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    }
+
+    function renderScenarioGrid() {
+        const container = document.getElementById('scenario-grid');
+        if (!useCases.length) {
+            container.innerHTML = '<div class="empty-state">Aucun use case disponible.</div>';
+            return;
+        }
+        container.innerHTML = useCases.map(item => {
+            const lastRun = item.last_run;
+            const active = item.key === selectedUseCaseKey;
+            return `
+                <article class="scenario-card ${active ? 'active' : ''}">
+                    <div class="list-item-head">
+                        <div>
+                            <h3>${escapeHtml(item.title)}</h3>
+                            <div class="list-item-meta">${escapeHtml(item.domain)} • attendu: ${escapeHtml(item.expected_outcome)}</div>
+                        </div>
+                        <span class="chip ${lastRun ? toneForPass(lastRun.passed) : 'cool'}">${lastRun ? (lastRun.passed ? 'OK' : 'KO') : 'new'}</span>
+                    </div>
+                    <p>${escapeHtml(item.description)}</p>
+                    <div class="tag-row">
+                        <span class="soft-tag">${escapeHtml(item.proof)}</span>
+                    </div>
+                    <div class="scenario-actions">
+                        <button class="btn-primary" onclick="runUseCase('${escapeHtml(item.key)}')">Executer</button>
+                        <span class="status-pill ${lastRun ? toneForPass(lastRun.passed) : 'cool'}">${lastRun ? fmtDate(lastRun.timestamp) : 'Jamais lance'}</span>
+                    </div>
+                </article>
+            `;
+        }).join('');
+        document.getElementById('scenario-meta').textContent = `${useCases.length} scenario(s) disponibles`;
+    }
+
+    function renderResultDetail() {
+        const record = currentRecord();
+        const detail = document.getElementById('result-detail');
+        const response = document.getElementById('result-response');
+        if (!record) {
+            detail.innerHTML = '<div class="empty-state">Aucun resultat a afficher.</div>';
+            response.innerHTML = '<div class="empty-state">Executer un scenario.</div>';
+            document.getElementById('result-meta').textContent = '-';
+            return;
+        }
+
+        selectedUseCaseKey = record.use_case_key || record.definition?.key || selectedUseCaseKey;
+        const resources = record.resources || {};
+        const idCard = resources.id_card || {};
+        const product = resources.product || {};
+        const notificationHistory = record.notification_history || [];
+
+        detail.innerHTML = `
+            <div class="detail-head">
+                <div>
+                    <h3>${escapeHtml(record.title || record.definition?.title || '-')}</h3>
+                    <p>${escapeHtml(record.business_message || '-')}</p>
+                </div>
+                <span class="chip ${toneForPass(record.passed)}">${record.passed ? 'Conforme' : 'A verifier'}</span>
+            </div>
+            <div class="resource-grid">
+                <div class="resource-card"><span>Outcome</span><strong>${escapeHtml(record.outcome || '-')}</strong></div>
+                <div class="resource-card"><span>HTTP</span><strong>${escapeHtml(record.http_status || '-')}</strong></div>
+                <div class="resource-card"><span>Client</span><strong>${escapeHtml(resources.customer_id || '-')}</strong></div>
+                <div class="resource-card"><span>Execution</span><strong>${escapeHtml(fmtDate(record.timestamp))}</strong></div>
+                <div class="resource-card"><span>Produit</span><strong>${escapeHtml(product.name || '-')}</strong></div>
+                <div class="resource-card"><span>Stock</span><strong>${escapeHtml(product.stock_quantity ?? '-')}</strong></div>
+                <div class="resource-card"><span>Carte ID</span><strong>${escapeHtml(idCard.file || '-')}</strong></div>
+                <div class="resource-card"><span>Age lu</span><strong>${escapeHtml(idCard.age ?? '-')}</strong></div>
+            </div>
+            <div class="divider"></div>
+            ${idCard.image_url ? `
+                <div class="preview-frame">
+                    <img src="${escapeHtml(`${API_URL}${idCard.image_url}`)}" alt="ID card preview">
+                </div>
+            ` : '<div class="empty-state">Aucune image associee.</div>'}
+            ${notificationHistory.length ? `
+                <div class="divider"></div>
+                <div class="subpanel">
+                    <div class="detail-head">
+                        <div>
+                            <h3>Notifications</h3>
+                            <p>Traces liees a cette execution.</p>
+                        </div>
+                    </div>
+                    <div class="tag-row">
+                        ${notificationHistory.map(item => `<span class="soft-tag">${escapeHtml(item.event_type || '-')} • ${escapeHtml(item.delivery_mode || '-')}</span>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+
+        response.innerHTML = `
+            <div class="detail-head">
+                <div>
+                    <h3>Reponse API</h3>
+                    <p>Payload retourne par le scenario.</p>
+                </div>
+            </div>
+            <pre class="json-block">${escapeHtml(JSON.stringify(record.response || {}, null, 2))}</pre>
+        `;
+        document.getElementById('result-meta').textContent = `${record.title || '-'} • ${record.duration_ms || '-'} ms`;
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('history-grid');
+        if (!useCaseHistory.length) {
+            container.innerHTML = '<div class="empty-state">Aucun run recent.</div>';
+            document.getElementById('history-meta').textContent = '-';
+            return;
+        }
+        container.innerHTML = useCaseHistory.slice(0, 8).map(item => `
+            <article class="history-item">
+                <strong>${escapeHtml(item.title || item.use_case_key || '-')}</strong>
+                <div class="tag-row">
+                    <span class="soft-tag">${escapeHtml(item.outcome || '-')}</span>
+                    <span class="soft-tag">${escapeHtml(item.http_status || '-')}</span>
+                    <span class="soft-tag">${item.passed ? 'OK' : 'KO'}</span>
+                </div>
+                <p>${escapeHtml(item.business_message || '-')} • ${fmtDate(item.timestamp)}</p>
+            </article>
+        `).join('');
+        document.getElementById('history-meta').textContent = `${useCaseHistory.length} run(s) traces`;
+    }
+
+    async function runUseCase(useCaseKey) {
+        try {
+            setStatus(`execution ${useCaseKey}...`);
+            const response = await fetch(`${API_URL}/api/use-cases/${encodeURIComponent(useCaseKey)}/run`, {
+                method: 'POST'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            selectedResult = await response.json();
+            selectedUseCaseKey = useCaseKey;
+            await loadUseCases();
+            setStatus(`${useCaseKey} termine`);
+        } catch (error) {
+            console.error(error);
+            setStatus(`erreur ${useCaseKey}`, true);
+        }
+    }
+
+    async function loadUseCases() {
+        try {
+            setStatus('refresh...');
+            const response = await fetch(`${API_URL}/api/use-cases?limit_history=12`, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const payload = await response.json();
+            useCases = payload.items || [];
+            useCaseHistory = payload.history || [];
+            notificationMode = payload.notification_mode || '-';
+            if (!selectedUseCaseKey && useCases.length) {
+                selectedUseCaseKey = useCases[0].key;
+            }
+            renderSummary();
+            renderScenarioGrid();
+            renderResultDetail();
+            renderHistory();
+            if (opsController) {
+                opsController.markRefresh('use-cases');
+            }
+            setStatus('ok');
+        } catch (error) {
+            console.error(error);
+            setStatus('erreur API', true);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.KiDashboardOps) {
+            opsController = window.KiDashboardOps.attach({
+                apiUrl: API_URL,
+                onAfterReset: () => loadUseCases()
+            });
+        }
+        loadUseCases();
+        setInterval(loadUseCases, 1000);
+        if (window.KiLiveSync) {
+            window.KiLiveSync.attach({
+                apiUrl: API_URL,
+                onTick: loadUseCases,
+                onState: state => {
+                    if (opsController) {
+                        opsController.updateLiveState(state);
+                    }
+                },
+                setStatus,
+                refreshOnIdleEveryMs: 1000,
+                activeRefreshEveryMs: 1000,
+                minRefreshIntervalMs: 1000,
+                reconnectDelayMs: 1000,
+                fallbackEveryMs: 1000
+            });
+        }
+    });
+</script>
+</body>
+</html>

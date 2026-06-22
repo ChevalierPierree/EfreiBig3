@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+.venv_patator/
+venv/
+
+# Local env/config
+.env
+.env.local
+
+# Logs and runtime artifacts
+logs/*.log
+logs/*.pid
+logs/micro_batch_state.json
+logs/runtime_refresh.log
+logs/alert_notification_history.jsonl
+logs/use_case_history.jsonl
+logs/data_factory_history.jsonl
+logs/presentation_test_history.jsonl
+logs/alert_email_preview/
+logs/* [2-9].jsonl
+logs/* [2-9].log
+
+# Editor/OS
+.DS_Store
+.idea/
+.vscode/
+~$*.xlsx
+
+# Local security artifacts
+security/minio/certs/private.key
+security/minio/certs/public.crt
+security/minio/certs/CAs/
+
+# Generated delivery bundle
+delivery_pack/
+delivery_pack/* [2-9]*/
+delivery_pack/* [2-9].txt
+delivery_pack/* [2-9].md
+
+# Project docs workspace requested to ignore
+markdowns/
+
+# Local generated data
+data/external/

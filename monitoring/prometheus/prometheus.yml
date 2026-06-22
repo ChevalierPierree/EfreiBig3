@@ -1,0 +1,43 @@
+# Configuration Prometheus pour KiVendTout
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'kivendtout-monitor'
+
+# Alertmanager configuration (optionnel)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Règles d'alerte (optionnel)
+rule_files:
+  # - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'postgres'
+
+  # Kafka JMX Exporter (à configurer si besoin)
+  # - job_name: 'kafka'
+  #   static_configs:
+  #     - targets: ['kafka-1:9999', 'kafka-2:9999', 'kafka-3:9999']
+
+  # FastAPI (si métriques exposées)
+  # - job_name: 'fastapi'
+  #   static_configs:
+  #     - targets: ['api:8000']
+  #   metrics_path: '/metrics'

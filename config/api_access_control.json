@@ -1,0 +1,76 @@
+{
+  "default_quota": {
+    "window_seconds": 60,
+    "max_requests": 120
+  },
+  "role_permissions": {
+    "admin": [
+      "*"
+    ],
+    "analyst": [
+      "GET:/api/alerts*",
+      "POST:/api/alerts/*",
+      "GET:/api/stats*",
+      "GET:/api/fraud/*",
+      "GET:/api/alert-notifications*",
+      "POST:/api/alert-notifications*",
+      "PUT:/api/alert-notifications*",
+      "GET:/api/use-cases*",
+      "POST:/api/use-cases*",
+      "GET:/api/presentation/tests*",
+      "POST:/api/presentation/tests*",
+      "GET:/api/data-factory*",
+      "POST:/api/data-factory*",
+      "GET:/api/identity/*",
+      "GET:/api/checkout/*",
+      "GET:/api/payments/*",
+      "GET:/api/products*",
+      "GET:/api/id-cards*",
+      "GET:/api/micro-batch/*",
+      "POST:/api/micro-batch/*",
+      "GET:/api/transfer/*",
+      "GET:/api/data-lake/*",
+      "GET:/api/data-platform/*",
+      "GET:/api/kpis/*",
+      "GET:/api/system/*",
+      "GET:/api/live/*"
+    ],
+    "partner": [
+      "GET:/api/products*",
+      "POST:/api/orders/checkout",
+      "GET:/api/checkout/stats*"
+    ]
+  },
+  "keys": [
+    {
+      "key_id": "admin-demo",
+      "user": "platform-admin",
+      "role": "admin",
+      "key_sha256": "ac5bb3526d3be432ba19fb1fc0712d350c160bd2169cd24401c9fcaeaac2d860",
+      "quota": {
+        "window_seconds": 60,
+        "max_requests": 1000
+      }
+    },
+    {
+      "key_id": "analyst-demo",
+      "user": "fraud-analyst",
+      "role": "analyst",
+      "key_sha256": "ba041bbd3d5f84055d10645d916eeace5ad28692224918c320e627f95bccbd3b",
+      "quota": {
+        "window_seconds": 60,
+        "max_requests": 300
+      }
+    },
+    {
+      "key_id": "partner-demo",
+      "user": "checkout-partner",
+      "role": "partner",
+      "key_sha256": "5f7b2ed74a9736a538a6fb5a5a1a76afdcdd0d177d7fc6e79c6b6843527d848d",
+      "quota": {
+        "window_seconds": 60,
+        "max_requests": 90
+      }
+    }
+  ]
+}

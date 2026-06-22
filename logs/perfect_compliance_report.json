@@ -1,0 +1,289 @@
+{
+  "generated_at": "2026-03-18T14:30:24.690547+00:00",
+  "api_url": "http://localhost:8000",
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "success_rate_percent": 100.0,
+    "global_status": "PASS"
+  },
+  "checks": [
+    {
+      "item": "rbac_rate_limit",
+      "status": "PASS",
+      "details": {
+        "exit_code": 0,
+        "summary": {
+          "total_checks": 7,
+          "passed": 7,
+          "failed": 0,
+          "success_rate_percent": 100.0
+        },
+        "stderr_tail": ""
+      }
+    },
+    {
+      "item": "data_lake_security",
+      "status": "PASS",
+      "details": {
+        "policies_ok": true,
+        "tls_certs_present": true,
+        "tls_generated_during_validation": false,
+        "tls_generate_exit_code": null,
+        "tls_generate_stderr_tail": "",
+        "compose_security_ok": true,
+        "promotion_ok": true,
+        "promotion_exit_code": null,
+        "promotion_stdout_tail": "",
+        "promotion_stderr_tail": "",
+        "promotion_report": {
+          "generated_at": "2026-03-18T14:30:02.150378+00:00",
+          "source_manifest_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T142946Z.json",
+          "source_snapshot_utc": "20260318T142946Z",
+          "minio_target": "https://localhost:9000",
+          "layers": {
+            "bronze": {
+              "bucket": "bronze",
+              "snapshot_prefix": "bronze/raw_snapshot/20260318T142946Z",
+              "uploaded_files": 77,
+              "total_bytes": 30602845
+            },
+            "silver": {
+              "bucket": "silver",
+              "status": "published",
+              "objects": [
+                {
+                  "object_path": "silver/normalized_snapshot/20260318T142946Z/normalized_manifest.json",
+                  "size_bytes": 34265,
+                  "latency_seconds": 0.139,
+                  "speed_bytes_per_second": 246050.99
+                },
+                {
+                  "object_path": "silver/normalized_snapshot/latest.json",
+                  "size_bytes": 34265,
+                  "latency_seconds": 0.169,
+                  "speed_bytes_per_second": 203056.11
+                }
+              ],
+              "summary": {
+                "files_total": 77,
+                "total_bytes": 30602845,
+                "domains": {
+                  "customers": 2,
+                  "events": 2,
+                  "raw": 7,
+                  "orders": 2,
+                  "payments": 2,
+                  "catalog": 2,
+                  "identity": 60
+                },
+                "extensions": {
+                  ".csv": 8,
+                  ".parquet": 8,
+                  ".jsonl": 1,
+                  ".png": 60
+                },
+                "datasets": {
+                  "customers": 2,
+                  "events": 2,
+                  "fraud_alerts": 2,
+                  "order_items": 2,
+                  "orders": 2,
+                  "payments": 2,
+                  "products": 2,
+                  "sessions": 2,
+                  "id_0000": 1,
+                  "id_0001": 1,
+                  "id_0002": 1,
+                  "id_0003": 1,
+                  "id_0004": 1,
+                  "id_0005": 1,
+                  "id_0006": 1,
+                  "id_0007": 1,
+                  "id_0008": 1,
+                  "id_0009": 1,
+                  "id_0010": 1,
+                  "id_0011": 1,
+                  "id_0012": 1,
+                  "id_0013": 1,
+                  "id_0014": 1,
+                  "id_0015": 1,
+                  "id_0016": 1,
+                  "id_0017": 1,
+                  "id_0018": 1,
+                  "id_0019": 1,
+                  "id_0020": 1,
+                  "id_0021": 1,
+                  "id_0022": 1,
+                  "id_0023": 1,
+                  "id_0024": 1,
+                  "id_0025": 1,
+                  "id_0026": 1,
+                  "id_0027": 1,
+                  "id_0028": 1,
+                  "id_0029": 1,
+                  "id_0030": 1,
+                  "id_0031": 1,
+                  "id_0032": 1,
+                  "id_0033": 1,
+                  "id_0034": 1,
+                  "id_0035": 1,
+                  "id_0036": 1,
+                  "id_0037": 1,
+                  "id_0038": 1,
+                  "id_0039": 1,
+                  "id_0040": 1,
+                  "id_0041": 1,
+                  "id_0042": 1,
+                  "id_0043": 1,
+                  "id_0044": 1,
+                  "id_0045": 1,
+                  "id_0046": 1,
+                  "id_0047": 1,
+                  "id_0048": 1,
+                  "id_0049": 1,
+                  "id_0050": 1,
+                  "id_0051": 1,
+                  "id_0052": 1,
+                  "id_0053": 1,
+                  "id_0054": 1,
+                  "id_0055": 1,
+                  "id_0056": 1,
+                  "id_0057": 1,
+                  "id_0058": 1,
+                  "id_0059": 1,
+                  "synthetic_id_labels": 1
+                }
+              }
+            },
+            "gold": {
+              "bucket": "gold",
+              "status": "published",
+              "objects": [
+                {
+                  "object_path": "gold/business_kpis/20260318T142946Z/fraud_operational_kpis.json",
+                  "size_bytes": 2421,
+                  "latency_seconds": 0.149,
+                  "speed_bytes_per_second": 16294.5
+                },
+                {
+                  "object_path": "gold/business_kpis/latest.json",
+                  "size_bytes": 2421,
+                  "latency_seconds": 0.151,
+                  "speed_bytes_per_second": 16025.05
+                }
+              ],
+              "business_kpis": {
+                "successful_payments": 2155,
+                "fraudulent_payments": 224,
+                "fraud_rate_percent": 10.39,
+                "total_alerts": 2200,
+                "checkout_attempts": 1514,
+                "blocked_underage_orders": 412,
+                "blocked_underage_rate_percent": 27.21,
+                "identity_verifications": 1576,
+                "orders_total": 2391,
+                "orders_manual_review": 524,
+                "events_total": 71694
+              }
+            }
+          },
+          "report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_promotion_20260318T143002Z.json"
+        },
+        "policy_files": [
+          "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/security/minio/policies/bronze-writer.json",
+          "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/security/minio/policies/silver-reader.json",
+          "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/security/minio/policies/gold-reader.json"
+        ]
+      }
+    },
+    {
+      "item": "micro_batch_flow",
+      "status": "PASS",
+      "details": {
+        "exit_code": 0,
+        "api_summary": {
+          "rows": 1,
+          "windows": 1,
+          "active_windows": 1,
+          "total_events": 1,
+          "avg_latency_ms": 11.36,
+          "avg_speed_events_per_sec": 88.01,
+          "latest_batch_ended_at": "2026-01-01T00:11:19.292000",
+          "latest_processed_at": "2026-03-18T14:30:22.165030"
+        },
+        "stdout_tail": "hor_mode      : auto\nsource_max_ts    : 2026-01-01T00:11:19.292000Z\ninitial_watermark: 2026-01-01T00:10:49.292000Z\n[batch 0001] window=2026-01-01T00:10:49.292000Z->2026-01-01T00:11:19.292000Z events=1 types=1 processing_latency_ms=11.36 speed_events_per_sec=88.01\nMicro-batch termin\u00e9. batches_done=1\n",
+        "stderr_tail": ""
+      }
+    },
+    {
+      "item": "analytics_warehouse",
+      "status": "PASS",
+      "details": {
+        "exit_code": 0,
+        "schema": "analytics",
+        "dimensions": {
+          "dim_date": 62,
+          "dim_customer": 2500,
+          "dim_product": 200
+        },
+        "facts": {
+          "fact_order": 2425,
+          "fact_payment": 2429,
+          "fact_identity_verification": 1618,
+          "fact_checkout_attempt": 1556,
+          "fact_fraud_alert": 2211
+        },
+        "datamarts": {
+          "mart_fraud_daily": 62,
+          "mart_identity_controls_daily": 62,
+          "mart_checkout_risk_daily": 62,
+          "mart_product_sales_daily": 2539
+        },
+        "report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/analytics_warehouse_report.json",
+        "stdout_tail": "=== ANALYTICS WAREHOUSE BUILD ===\nSchema       : analytics\nDimensions   : 2762\nFacts        : 10239\nDatamarts    : 2725\nChecks       : 9/9 PASS\nReport       : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/analytics_warehouse_report.json\n",
+        "stderr_tail": ""
+      }
+    },
+    {
+      "item": "db_load_test",
+      "status": "PASS",
+      "details": {
+        "exit_code": 0,
+        "status": "PASS",
+        "stderr_tail": ""
+      }
+    },
+    {
+      "item": "resilience_failover",
+      "status": "PASS",
+      "details": {
+        "exit_code": 0,
+        "status": "PASS",
+        "dry_run": true,
+        "stderr_tail": ""
+      }
+    },
+    {
+      "item": "transfer_kpi_dashboard_data",
+      "status": "PASS",
+      "details": {
+        "points": 43,
+        "metrics_count": {
+          "data_lake_snapshot": 17,
+          "data_lake_silver": 6,
+          "data_lake_gold": 6,
+          "micro_batch_events": 14
+        },
+        "summary": {
+          "health_score": 100,
+          "monitored_flows": 4,
+          "active_micro_batch_windows": 14,
+          "latest_snapshot_size_human": "77 fichiers | 29.19 MB",
+          "latest_micro_batch_volume_human": "1 evt | 1 type(s)"
+        }
+      }
+    }
+  ]
+}

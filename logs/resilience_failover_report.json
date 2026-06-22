@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-03-18T14:30:24.551758+00:00",
+  "service": "postgres",
+  "api_url": "http://localhost:8000",
+  "dry_run": true,
+  "steps": [
+    {
+      "step": "api_health_before",
+      "ok": true
+    },
+    {
+      "step": "service_running_before",
+      "ok": true
+    },
+    {
+      "step": "dry_run_no_stop_start",
+      "ok": true
+    }
+  ],
+  "status": "PASS"
+}

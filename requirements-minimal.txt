@@ -1,0 +1,24 @@
+# ============================================================================
+# KIVENDTOUT - DÉPENDANCES MINIMALES (Compatible Mac M1/M2)
+# ============================================================================
+# Pour installer : pip3 install -r requirements-minimal.txt
+
+# Base de données
+psycopg2-binary>=2.9.0
+pymongo>=4.6.0
+
+# Apache Kafka
+kafka-python>=2.0.0
+
+# FastAPI & Web
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+
+# Data Processing (version flexible pour Mac M1/M2)
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0

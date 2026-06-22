@@ -1,0 +1,95 @@
+{
+  "generated_at": "2026-03-18T14:30:23.270693+00:00",
+  "status": "PASS",
+  "schema": "analytics",
+  "dimensions": {
+    "dim_date": 62,
+    "dim_customer": 2500,
+    "dim_product": 200
+  },
+  "facts": {
+    "fact_order": 2425,
+    "fact_payment": 2429,
+    "fact_identity_verification": 1618,
+    "fact_checkout_attempt": 1556,
+    "fact_fraud_alert": 2211
+  },
+  "datamarts": {
+    "mart_fraud_daily": 62,
+    "mart_identity_controls_daily": 62,
+    "mart_checkout_risk_daily": 62,
+    "mart_product_sales_daily": 2539
+  },
+  "operational_source": {
+    "orders": 2425,
+    "payments": 2429,
+    "identity_verifications": 1618,
+    "checkout_attempts": 1556,
+    "fraud_alerts": 2211
+  },
+  "consistency_checks": {
+    "fact_order_vs_orders": {
+      "expected": 2425,
+      "actual": 2425,
+      "status": "PASS"
+    },
+    "fact_payment_vs_payments": {
+      "expected": 2429,
+      "actual": 2429,
+      "status": "PASS"
+    },
+    "fact_identity_verification_vs_identity_verifications": {
+      "expected": 1618,
+      "actual": 1618,
+      "status": "PASS"
+    },
+    "fact_checkout_attempt_vs_checkout_attempts": {
+      "expected": 1556,
+      "actual": 1556,
+      "status": "PASS"
+    },
+    "fact_fraud_alert_vs_fraud_alerts": {
+      "expected": 2211,
+      "actual": 2211,
+      "status": "PASS"
+    }
+  },
+  "freshness_checks": {
+    "mart_fraud_daily": {
+      "expected_latest_date": "2026-03-18",
+      "actual_latest_date": "2026-03-18",
+      "status": "PASS"
+    },
+    "mart_identity_controls_daily": {
+      "expected_latest_date": "2026-03-18",
+      "actual_latest_date": "2026-03-18",
+      "status": "PASS"
+    },
+    "mart_checkout_risk_daily": {
+      "expected_latest_date": "2026-03-18",
+      "actual_latest_date": "2026-03-18",
+      "status": "PASS"
+    },
+    "mart_product_sales_daily": {
+      "expected_latest_date": "2026-03-18",
+      "actual_latest_date": "2026-03-18",
+      "status": "PASS"
+    }
+  },
+  "summary": {
+    "total_checks": 9,
+    "passed": 9,
+    "failed": 0,
+    "success_rate_percent": 100.0
+  },
+  "latest_dates": {
+    "mart_fraud_latest": "2026-03-18",
+    "mart_identity_latest": "2026-03-18",
+    "mart_checkout_latest": "2026-03-18",
+    "mart_product_latest": "2026-03-18"
+  },
+  "refresh_log": {
+    "refresh_id": 1,
+    "refreshed_at": "2026-03-18T14:30:23.266097"
+  }
+}

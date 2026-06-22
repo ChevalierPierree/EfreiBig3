@@ -1,0 +1,153 @@
+{
+  "generated_at": "2026-03-18T12:15:49.326106+00:00",
+  "source_manifest_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T121532Z.json",
+  "source_snapshot_utc": "20260318T121532Z",
+  "minio_target": "https://localhost:9000",
+  "layers": {
+    "bronze": {
+      "bucket": "bronze",
+      "snapshot_prefix": "bronze/raw_snapshot/20260318T121532Z",
+      "uploaded_files": 77,
+      "total_bytes": 30602845
+    },
+    "silver": {
+      "bucket": "silver",
+      "status": "published",
+      "objects": [
+        {
+          "object_path": "silver/normalized_snapshot/20260318T121532Z/normalized_manifest.json",
+          "size_bytes": 34265,
+          "latency_seconds": 0.293,
+          "speed_bytes_per_second": 117042.46
+        },
+        {
+          "object_path": "silver/normalized_snapshot/latest.json",
+          "size_bytes": 34265,
+          "latency_seconds": 0.324,
+          "speed_bytes_per_second": 105861.48
+        }
+      ],
+      "summary": {
+        "files_total": 77,
+        "total_bytes": 30602845,
+        "domains": {
+          "customers": 2,
+          "events": 2,
+          "raw": 7,
+          "orders": 2,
+          "payments": 2,
+          "catalog": 2,
+          "identity": 60
+        },
+        "extensions": {
+          ".csv": 8,
+          ".parquet": 8,
+          ".jsonl": 1,
+          ".png": 60
+        },
+        "datasets": {
+          "customers": 2,
+          "events": 2,
+          "fraud_alerts": 2,
+          "order_items": 2,
+          "orders": 2,
+          "payments": 2,
+          "products": 2,
+          "sessions": 2,
+          "id_0000": 1,
+          "id_0001": 1,
+          "id_0002": 1,
+          "id_0003": 1,
+          "id_0004": 1,
+          "id_0005": 1,
+          "id_0006": 1,
+          "id_0007": 1,
+          "id_0008": 1,
+          "id_0009": 1,
+          "id_0010": 1,
+          "id_0011": 1,
+          "id_0012": 1,
+          "id_0013": 1,
+          "id_0014": 1,
+          "id_0015": 1,
+          "id_0016": 1,
+          "id_0017": 1,
+          "id_0018": 1,
+          "id_0019": 1,
+          "id_0020": 1,
+          "id_0021": 1,
+          "id_0022": 1,
+          "id_0023": 1,
+          "id_0024": 1,
+          "id_0025": 1,
+          "id_0026": 1,
+          "id_0027": 1,
+          "id_0028": 1,
+          "id_0029": 1,
+          "id_0030": 1,
+          "id_0031": 1,
+          "id_0032": 1,
+          "id_0033": 1,
+          "id_0034": 1,
+          "id_0035": 1,
+          "id_0036": 1,
+          "id_0037": 1,
+          "id_0038": 1,
+          "id_0039": 1,
+          "id_0040": 1,
+          "id_0041": 1,
+          "id_0042": 1,
+          "id_0043": 1,
+          "id_0044": 1,
+          "id_0045": 1,
+          "id_0046": 1,
+          "id_0047": 1,
+          "id_0048": 1,
+          "id_0049": 1,
+          "id_0050": 1,
+          "id_0051": 1,
+          "id_0052": 1,
+          "id_0053": 1,
+          "id_0054": 1,
+          "id_0055": 1,
+          "id_0056": 1,
+          "id_0057": 1,
+          "id_0058": 1,
+          "id_0059": 1,
+          "synthetic_id_labels": 1
+        }
+      }
+    },
+    "gold": {
+      "bucket": "gold",
+      "status": "published",
+      "objects": [
+        {
+          "object_path": "gold/business_kpis/20260318T121532Z/fraud_operational_kpis.json",
+          "size_bytes": 2404,
+          "latency_seconds": 0.224,
+          "speed_bytes_per_second": 10713.4
+        },
+        {
+          "object_path": "gold/business_kpis/latest.json",
+          "size_bytes": 2404,
+          "latency_seconds": 0.176,
+          "speed_bytes_per_second": 13633.51
+        }
+      ],
+      "business_kpis": {
+        "successful_payments": 1053,
+        "fraudulent_payments": 1,
+        "fraud_rate_percent": 0.09,
+        "total_alerts": 0,
+        "checkout_attempts": 0,
+        "blocked_underage_orders": 0,
+        "blocked_underage_rate_percent": 0.0,
+        "identity_verifications": 60,
+        "orders_total": 1289,
+        "orders_manual_review": 0,
+        "events_total": 71694
+      }
+    }
+  }
+}

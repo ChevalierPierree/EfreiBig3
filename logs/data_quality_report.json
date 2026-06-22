@@ -1,0 +1,119 @@
+{
+  "generated_at": "2026-03-18T14:30:20.471494+00:00",
+  "summary": {
+    "total_checks": 18,
+    "passed": 18,
+    "failed": 0,
+    "success_rate_percent": 100.0
+  },
+  "checks": [
+    {
+      "name": "postgres_non_empty_customers",
+      "status": "PASS",
+      "value": 2500,
+      "expected": "> 0"
+    },
+    {
+      "name": "postgres_non_empty_products",
+      "status": "PASS",
+      "value": 200,
+      "expected": "> 0"
+    },
+    {
+      "name": "postgres_non_empty_sessions",
+      "status": "PASS",
+      "value": 6000,
+      "expected": "> 0"
+    },
+    {
+      "name": "postgres_non_empty_orders",
+      "status": "PASS",
+      "value": 2424,
+      "expected": "> 0"
+    },
+    {
+      "name": "postgres_non_empty_order_items",
+      "status": "PASS",
+      "value": 3786,
+      "expected": "> 0"
+    },
+    {
+      "name": "postgres_non_empty_payments",
+      "status": "PASS",
+      "value": 2428,
+      "expected": "> 0"
+    },
+    {
+      "name": "postgres_fk_orders_to_customers",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "postgres_fk_order_items_to_orders",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "postgres_fk_order_items_to_products",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "postgres_fk_payments_to_orders",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "postgres_not_null_customers.email",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "postgres_not_null_products.price",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "postgres_not_null_orders.total_amount",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "mongo_events_non_empty",
+      "status": "PASS",
+      "value": 71694,
+      "expected": "> 0"
+    },
+    {
+      "name": "mongo_required_customer_id",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "mongo_required_session_id",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "mongo_required_event_type",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    },
+    {
+      "name": "mongo_required_ts",
+      "status": "PASS",
+      "value": 0,
+      "expected": "0"
+    }
+  ]
+}

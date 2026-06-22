@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "recipient_email": "ops@kivendtout.fr",
+  "min_severity": "HIGH",
+  "notify_on_new_alert": true,
+  "notify_on_decision": true,
+  "updated_at": "2026-03-18T13:22:05.538367+00:00",
+  "updated_by": "ops@kivendtout.fr"
+}

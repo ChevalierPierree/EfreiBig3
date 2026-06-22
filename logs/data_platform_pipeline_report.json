@@ -1,0 +1,118 @@
+{
+  "generated_at": "2026-03-18T14:29:28.177418+00:00",
+  "status": "PASS",
+  "summary": {
+    "total_steps": 4,
+    "passed": 4,
+    "failed": 0,
+    "success_rate_percent": 100.0
+  },
+  "lineage": {
+    "snapshot_report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T142911Z.json",
+    "snapshot_utc": "20260318T142911Z",
+    "promotion_report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_promotion_20260318T142926Z.json",
+    "promotion_source_snapshot_utc": "20260318T142911Z",
+    "analytics_report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/analytics_warehouse_report.json",
+    "analytics_refresh_at": "2026-03-18T14:29:27.518916",
+    "quality_report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_quality_report.json",
+    "quality_generated_at": "2026-03-18T14:29:27.666367+00:00"
+  },
+  "steps": [
+    {
+      "step": "snapshot_bronze",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout_tail": [
+        "=== SNAPSHOT RAW DATA -> MINIO ===",
+        "Dataset dir   : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/kivendtout_dataset",
+        "Snapshot UTC  : 20260318T142911Z",
+        "MinIO endpoint: https://localhost:9000",
+        "MinIO user    : bronze-writer",
+        "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T142911Z.json",
+        "Upload termin\u00e9: 77 fichiers",
+        "Manifest       : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T142911Z.json",
+        "Dur\u00e9e          : 14s",
+        "KPI history    : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/transfer_kpi_history.jsonl"
+      ],
+      "stderr_tail": [],
+      "details": {
+        "report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T142911Z.json",
+        "snapshot_utc": "20260318T142911Z",
+        "uploaded_files": 77,
+        "total_bytes": 30602845
+      }
+    },
+    {
+      "step": "lake_promotion",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout_tail": [
+        "=== DATA LAKE PROMOTION ===",
+        "Bronze manifest : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_snapshot_20260318T142911Z.json",
+        "Snapshot UTC    : 20260318T142911Z",
+        "Silver objects  : 2 | 68530 bytes",
+        "Gold objects    : 2 | 4842 bytes",
+        "Report          : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_promotion_20260318T142926Z.json"
+      ],
+      "stderr_tail": [],
+      "details": {
+        "report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_lake_promotion_20260318T142926Z.json",
+        "source_snapshot_utc": "20260318T142911Z",
+        "silver_status": "published",
+        "gold_status": "published"
+      }
+    },
+    {
+      "step": "analytics_warehouse",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout_tail": [
+        "=== ANALYTICS WAREHOUSE BUILD ===",
+        "Schema       : analytics",
+        "Dimensions   : 2762",
+        "Facts        : 10076",
+        "Datamarts    : 2722",
+        "Checks       : 9/9 PASS",
+        "Report       : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/analytics_warehouse_report.json"
+      ],
+      "stderr_tail": [],
+      "details": {
+        "report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/analytics_warehouse_report.json",
+        "status": "PASS",
+        "summary": {
+          "total_checks": 9,
+          "passed": 9,
+          "failed": 0,
+          "success_rate_percent": 100.0
+        },
+        "refresh_log": {
+          "refresh_id": 1,
+          "refreshed_at": "2026-03-18T14:29:27.518916"
+        }
+      }
+    },
+    {
+      "step": "data_quality",
+      "status": "PASS",
+      "returncode": 0,
+      "stdout_tail": [
+        "=== DATA QUALITY CHECKS ===",
+        "Output     : /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_quality_report.json",
+        "Checks     : 18",
+        "Passed     : 18",
+        "Failed     : 0",
+        "Success %  : 100.0"
+      ],
+      "stderr_tail": [],
+      "details": {
+        "report_file": "/Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre/logs/data_quality_report.json",
+        "summary": {
+          "total_checks": 18,
+          "passed": 18,
+          "failed": 0,
+          "success_rate_percent": 100.0
+        }
+      }
+    }
+  ]
+}

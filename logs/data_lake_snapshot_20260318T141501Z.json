@@ -1,0 +1,469 @@
+{
+  "snapshot_utc": "20260318T141501Z",
+  "uploaded_files": 77,
+  "total_bytes": 30602845,
+  "files": [
+    {
+      "relative_path": "kivendtout_dataset/customers.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/customers.csv",
+      "sha256": "4236cde2e7c7ad75649ea2fd723e574adca134c5425336fbf9d1e0156a59df04",
+      "size_bytes": 129503
+    },
+    {
+      "relative_path": "kivendtout_dataset/customers.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/customers.parquet",
+      "sha256": "121aaa99c8baa7db6f4a669ba586f3d135526e0d98abb6aff652cf7c3417ffa2",
+      "size_bytes": 43473
+    },
+    {
+      "relative_path": "kivendtout_dataset/events.jsonl",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/events.jsonl",
+      "sha256": "deba1c34e871cc1868737f57a677c39d5c55d88eb93bd5b6027cd3b0d14212c4",
+      "size_bytes": 23551156
+    },
+    {
+      "relative_path": "kivendtout_dataset/events.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/events.parquet",
+      "sha256": "15532442a5baf4548cf1fa1361b01c41c05cd66b45269fa3bfc175106aff8d95",
+      "size_bytes": 3906506
+    },
+    {
+      "relative_path": "kivendtout_dataset/fraud_alerts.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/fraud_alerts.csv",
+      "sha256": "23348514e75b0c3668489534584932188dfe75cc08a1978ae1e43d2e6c99f064",
+      "size_bytes": 1745
+    },
+    {
+      "relative_path": "kivendtout_dataset/fraud_alerts.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/fraud_alerts.parquet",
+      "sha256": "5fb2a127deb65c4b52c20c6beba823d7364ccb5617aad2ac62e714442edd5ad5",
+      "size_bytes": 2289
+    },
+    {
+      "relative_path": "kivendtout_dataset/order_items.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/order_items.csv",
+      "sha256": "ba0abab2c86227664eda19b38ee8158118494ca005daac9a7c85b73e8ccefbfe",
+      "size_bytes": 45091
+    },
+    {
+      "relative_path": "kivendtout_dataset/order_items.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/order_items.parquet",
+      "sha256": "47f86bffac7e9c0f436c90e0dcfabcf2c6548f2629a8246fa1717d5adb31ce5b",
+      "size_bytes": 11407
+    },
+    {
+      "relative_path": "kivendtout_dataset/orders.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/orders.csv",
+      "sha256": "bf2ac25c45155c9b5c650f3429b582d235547c472285da9ce5064ae269608d61",
+      "size_bytes": 103332
+    },
+    {
+      "relative_path": "kivendtout_dataset/orders.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/orders.parquet",
+      "sha256": "f8b9f8994458bc9331716082a5a022cd7e0d32ede81dd3899d9963be0a801afc",
+      "size_bytes": 39218
+    },
+    {
+      "relative_path": "kivendtout_dataset/payments.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/payments.csv",
+      "sha256": "36a637826f3052368778ec969d16a6e089f95fe903903f84c20898060b58874e",
+      "size_bytes": 180715
+    },
+    {
+      "relative_path": "kivendtout_dataset/payments.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/payments.parquet",
+      "sha256": "dd320295da2042db15f420cd3da420d0a256b2a8642c312a758188ef364bda42",
+      "size_bytes": 90833
+    },
+    {
+      "relative_path": "kivendtout_dataset/products.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/products.csv",
+      "sha256": "c1a23523de0a8855251e8e35701378a18dd41bee13818414b4badc52423c321a",
+      "size_bytes": 10965
+    },
+    {
+      "relative_path": "kivendtout_dataset/products.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/products.parquet",
+      "sha256": "fdab68c2a0b005868f3b724a8b39822735e3254861cdcf400bbc58f5d3283c87",
+      "size_bytes": 5772
+    },
+    {
+      "relative_path": "kivendtout_dataset/sessions.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/sessions.csv",
+      "sha256": "a73d0a8884229bb0c63e49fdf695738633cb77bc652ead866ce937cecfe5bf48",
+      "size_bytes": 592159
+    },
+    {
+      "relative_path": "kivendtout_dataset/sessions.parquet",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/sessions.parquet",
+      "sha256": "d84490d946913ae3e8a2406385b19f2642a4a5bb4d4e3745437cec7b75726fd8",
+      "size_bytes": 247545
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0000.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0000.png",
+      "sha256": "60bc6fd6547bec6fd70693328c7b674827e5e54b821532dc5af74ac70d0a193a",
+      "size_bytes": 27112
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0001.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0001.png",
+      "sha256": "a9de408ba4d264ebdba440e2fd0e4ee25891ef78a1023c5174c36d53255f1907",
+      "size_bytes": 28822
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0002.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0002.png",
+      "sha256": "3edf0030421d95a263d2b1ad4b491067ffcd1b6fd6bfccb8292f83743151cfa6",
+      "size_bytes": 29228
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0003.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0003.png",
+      "sha256": "483c2a4fb83bd80fe09187d5ac19e1275be2502aa238edf6df5c71d79ec21c3f",
+      "size_bytes": 29766
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0004.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0004.png",
+      "sha256": "3e29b8310e414fef9cb77e2b2c495636574fe99f6c745087d72941bbe189f53e",
+      "size_bytes": 26161
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0005.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0005.png",
+      "sha256": "95434f6324ce5246b033a8c2be7f155fba4790c96800ab6464c4d343a46b462e",
+      "size_bytes": 28237
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0006.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0006.png",
+      "sha256": "fc249bf962cf5f34b06838b17c01271d0ab49d9de1d44ccae96572cd8bd39504",
+      "size_bytes": 27902
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0007.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0007.png",
+      "sha256": "d826d716efc08bc13b19e9ad6ce8a9ae05910ed64d6dc0b47f86f74aa4c4608e",
+      "size_bytes": 28021
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0008.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0008.png",
+      "sha256": "1fcf6b80cf4b3007e6b62667f09c3f44b42f10fbc20b2566560c151304f27b61",
+      "size_bytes": 25512
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0009.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0009.png",
+      "sha256": "80843af8dea395eedf97b646c64f2272407cc8a36aaa24c8a8798677269aeb99",
+      "size_bytes": 28230
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0010.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0010.png",
+      "sha256": "220ff5602d2a1b066eedad1ed39511e3653af82358bf152cc6402ed6a5230703",
+      "size_bytes": 26900
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0011.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0011.png",
+      "sha256": "63c79ded72e70c4d985cb931556bf76061186cc6b074bc19c99b99510370d888",
+      "size_bytes": 28294
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0012.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0012.png",
+      "sha256": "f9cd95268fde5130685c2896c76e22c9d0e76b9eea773aab8306631cc6756117",
+      "size_bytes": 28693
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0013.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0013.png",
+      "sha256": "99cce6386686f9013a9af1fc818d6630779fa9e444e0e71bedc1637a3be76533",
+      "size_bytes": 27592
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0014.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0014.png",
+      "sha256": "02d3589ce2980131d896fc9ba6a9c9eb737b8c623ac2f884b6a8001d9515d9b0",
+      "size_bytes": 27107
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0015.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0015.png",
+      "sha256": "6b33a69f0bd7ad88f645961bb8e22a617ee86de2f646ef3196eb85ae11463c57",
+      "size_bytes": 25846
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0016.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0016.png",
+      "sha256": "ffedd96b4af167730f084ed4e393293d868877a2c8798a16cb4353a7f49a57e0",
+      "size_bytes": 26991
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0017.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0017.png",
+      "sha256": "33f677e8ded8e5f1ad43391e1711978b19fc397935e62a4b496205b960df9bc0",
+      "size_bytes": 27360
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0018.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0018.png",
+      "sha256": "476288f963d7c2d50b96168edf68369c33e2b089d77e09f63c17ec6f09c4da90",
+      "size_bytes": 27611
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0019.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0019.png",
+      "sha256": "410f848c05cc71e7711ffff112ed6e737a961779ccfce9cd5dd415688df96ef3",
+      "size_bytes": 27370
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0020.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0020.png",
+      "sha256": "3d0ed3c9921613f7297f4db17394398533c4518db71474d62c57cf602187ce94",
+      "size_bytes": 24930
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0021.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0021.png",
+      "sha256": "4f1986b370b87bf57eee5df5133ac828ff95553bdd6e9d9e8d0266e62ebe6fd5",
+      "size_bytes": 28176
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0022.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0022.png",
+      "sha256": "402258f2207fa23dda9ad3fb09172f2a92c17d119c07f8175c1bc58d78bf8872",
+      "size_bytes": 27002
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0023.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0023.png",
+      "sha256": "3173710696bb19e5ca9492315cab94bce65ac94e85ca88b9ac7681b60924191c",
+      "size_bytes": 27161
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0024.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0024.png",
+      "sha256": "5cf1276c01d8c3b21693b85028d65af597eb6cebe2585fcc446059609e56b3d1",
+      "size_bytes": 27290
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0025.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0025.png",
+      "sha256": "924a0fbea3b90e115154a5df884bfa22b381f2b7fe3798038f08dfa01689438c",
+      "size_bytes": 27113
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0026.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0026.png",
+      "sha256": "6189439c012fe5fd9bc9ff3fe0594712e013105bde0df42f3e81bc2b303f3d3c",
+      "size_bytes": 26808
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0027.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0027.png",
+      "sha256": "61284f2c8ce82b6b986e87ec8e6304202ca688704a82e31e7285f10bd8f63016",
+      "size_bytes": 26959
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0028.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0028.png",
+      "sha256": "0e5afba54fc2ce66d98a84ad7b50f27deb856ddf4d3d4bc2ab095f57956f5d44",
+      "size_bytes": 27303
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0029.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0029.png",
+      "sha256": "e128d8ec068bf97535c3919f07a0533691a6b578841a4dcee8a0810ce74efdb0",
+      "size_bytes": 29071
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0030.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0030.png",
+      "sha256": "026582cf5f30535e98680f3eae8fb2315bd1f03c978fa72444892ecc8daf9f86",
+      "size_bytes": 26835
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0031.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0031.png",
+      "sha256": "580c02ee94add79ffe59a48ece97d12c45a84bd01a46110b8d3a624cdc25c510",
+      "size_bytes": 28950
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0032.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0032.png",
+      "sha256": "aa08a03ed891f09deaaaa0983994efd029e5d152ef576c9d19c50a4a89381098",
+      "size_bytes": 27963
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0033.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0033.png",
+      "sha256": "500c414b5e9afabe8dd0411d234cd83e65b91f07f96430a61d7f4256bc0d3dd7",
+      "size_bytes": 28003
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0034.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0034.png",
+      "sha256": "6dd9217172ac3572f1b371f69f1fa759ec7c47568ef7d50def1f3987d6741968",
+      "size_bytes": 28691
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0035.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0035.png",
+      "sha256": "b0f333443f37b7f0f6813dbce5dbf933247ab31d7daaef103f396175bb748223",
+      "size_bytes": 25185
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0036.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0036.png",
+      "sha256": "45ba5d4dc7c4e6c869bc368167da6203e820e692478a28042bf0047e0283a047",
+      "size_bytes": 26384
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0037.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0037.png",
+      "sha256": "8e2d219e7904b16b97ff518242403bd117eff64abf9c4d4c107e1ef3496f2f9b",
+      "size_bytes": 26463
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0038.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0038.png",
+      "sha256": "e5ba2881e04d9baf7a29209f25963bd4aa627bfb40e63d38f41f73d8e468d06e",
+      "size_bytes": 26299
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0039.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0039.png",
+      "sha256": "23df8e895e0ca7a68a0cf86a74360349c113441f1672b6f3ca3793d1df16fca9",
+      "size_bytes": 28299
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0040.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0040.png",
+      "sha256": "a2062651b96385a4ab7a6c8ea57be2c89784713d314ee922b269036019fd45d2",
+      "size_bytes": 25256
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0041.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0041.png",
+      "sha256": "516612061353210ca7c9ccd867b7e231c0308d5b5a727302dea0c3481dd4a3c5",
+      "size_bytes": 25011
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0042.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0042.png",
+      "sha256": "20c6750f6a48e0b11487d2f5f27b899da8b1dc93ea799cf938c3f04a69c52bc4",
+      "size_bytes": 25286
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0043.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0043.png",
+      "sha256": "6878fefcd7473ca2efad03cba115e371db2b7ba62297a5b1f5a17c7913a4c3d5",
+      "size_bytes": 27698
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0044.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0044.png",
+      "sha256": "ce8b4f1f7b1816c47d1b9be37d4301bd84156e0afee344d76368ff2622f5aeeb",
+      "size_bytes": 28553
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0045.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0045.png",
+      "sha256": "ca26616780925ab625f11112200a97e65b8126504c48b765d487c9b9edd41395",
+      "size_bytes": 27633
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0046.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0046.png",
+      "sha256": "6b85d89cc9399a891c0ae1791d3657cf9e6f3f48198a0b947e4051238ab0ea05",
+      "size_bytes": 27335
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0047.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0047.png",
+      "sha256": "99055530f1d6a2f378cb3761af1dea33c53d42767ee261885e4b2fc5bb24ded2",
+      "size_bytes": 27477
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0048.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0048.png",
+      "sha256": "df7ea3b94c4fd1143fe9ba5b8e90f54443cfd513cf7e7f1478c72d02b760e53f",
+      "size_bytes": 26265
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0049.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0049.png",
+      "sha256": "6e0e53ec6195e8250507a7171ff6044d1a1c74321593c6b00eda1fbee3dce31d",
+      "size_bytes": 27360
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0050.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0050.png",
+      "sha256": "e85d9406723ac507bffbf8040a1cf92e4238c3c892409364d8bfcfa9b2b1bd89",
+      "size_bytes": 27343
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0051.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0051.png",
+      "sha256": "0393f1fc21dc4de06150d8c21eab916b71c961498691cedd476cc5f8aaf7d0ff",
+      "size_bytes": 26273
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0052.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0052.png",
+      "sha256": "165b932328e421e0893e54687c4482705f407d900e146cd2d25a35b86d046e60",
+      "size_bytes": 25923
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0053.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0053.png",
+      "sha256": "b9b52c5704cf60858d675d21ac037217610086b047456dd225df442b70a8ee3d",
+      "size_bytes": 27542
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0054.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0054.png",
+      "sha256": "49ee7bb2d3a6672b2b436436c10c13bba80d759d8ad32a886db3860cd82546fb",
+      "size_bytes": 27916
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0055.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0055.png",
+      "sha256": "67f56dbbb7db5b06ba2f0634420a40df0241367c2ca157b033d8fdb8f9efb7f9",
+      "size_bytes": 28100
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0056.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0056.png",
+      "sha256": "b0369f83ff12a35cdc714610bd33df2cf52e5304cb14804249323adf2975dd6b",
+      "size_bytes": 28175
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0057.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0057.png",
+      "sha256": "32332e283c565311a7fb5b3f5e636100b5e20523f218de0a3ba6d122c2ab3aed",
+      "size_bytes": 26347
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0058.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0058.png",
+      "sha256": "1cce8f0bd572e146402b9fee183c0713c38fc295bf1ce2422149b23470e7bf31",
+      "size_bytes": 26814
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_cards/id_0059.png",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_cards/id_0059.png",
+      "sha256": "83f9c9fb808c5599b4fc2592dd0e35610ed565e2241a57053d4e82a1448499aa",
+      "size_bytes": 27524
+    },
+    {
+      "relative_path": "kivendtout_dataset/synthetic_id_labels.csv",
+      "object_path": "bronze/raw_snapshot/20260318T141501Z/kivendtout_dataset/synthetic_id_labels.csv",
+      "sha256": "156acfcc1a97a8d01847badbd9c63e4d9bfb83d4dd57b103ba4c875698f2a5e3",
+      "size_bytes": 3665
+    }
+  ]
+}

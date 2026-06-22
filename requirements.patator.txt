@@ -1,0 +1,4 @@
+# Dépendances Python pour exécuter PATATOR localement
+# Usage: python3 -m pip install -r requirements.patator.txt
+
+-r requirements.txt

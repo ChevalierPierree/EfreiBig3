@@ -1,0 +1,371 @@
+services:
+  # ============================================================================
+  # BASE DE DONNÉES RELATIONNELLE (OLTP)
+  # ============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: kivendtout-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kivendtout
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # BASE DE DONNÉES NoSQL
+  # ============================================================================
+  mongodb:
+    image: mongo:7
+    container_name: kivendtout-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: kivendtout
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./database/mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # DATA LAKE (S3-compatible)
+  # ============================================================================
+  minio:
+    image: minio/minio:latest
+    container_name: kivendtout-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio123}
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # Console web
+    volumes:
+      - minio_data:/data
+      - ./security/minio/certs:/root/.minio/certs
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -kf https://localhost:9000/minio/health/live || curl -f http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Créer les buckets au démarrage
+  minio-init:
+    image: minio/mc:latest
+    container_name: kivendtout-minio-init
+    depends_on:
+      - minio
+    environment:
+      MINIO_SCHEME: ${MINIO_SCHEME:-http}
+      MINIO_TLS_INSECURE: ${MINIO_TLS_INSECURE:-false}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio123}
+      MINIO_BRONZE_WRITER_ACCESS_KEY: ${MINIO_BRONZE_WRITER_ACCESS_KEY:-bronze-writer}
+      MINIO_BRONZE_WRITER_SECRET_KEY: ${MINIO_BRONZE_WRITER_SECRET_KEY:-bronze-writer-change-me}
+      MINIO_SILVER_READER_ACCESS_KEY: ${MINIO_SILVER_READER_ACCESS_KEY:-silver-reader}
+      MINIO_SILVER_READER_SECRET_KEY: ${MINIO_SILVER_READER_SECRET_KEY:-silver-reader-change-me}
+      MINIO_GOLD_READER_ACCESS_KEY: ${MINIO_GOLD_READER_ACCESS_KEY:-gold-reader}
+      MINIO_GOLD_READER_SECRET_KEY: ${MINIO_GOLD_READER_SECRET_KEY:-gold-reader-change-me}
+    volumes:
+      - ./security/minio/policies:/policies:ro
+    entrypoint: >
+      /bin/sh -c "
+      set -e;
+      sleep 5;
+      scheme=$${MINIO_SCHEME};
+      insecure='';
+      if [ \"$${MINIO_TLS_INSECURE}\" = 'true' ]; then insecure='--insecure'; fi;
+      endpoint=$${scheme}://minio:9000;
+      if ! /usr/bin/mc $$insecure alias set local $$endpoint $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; then
+        if [ \"$$scheme\" = 'https' ]; then
+          endpoint=http://minio:9000;
+          insecure='';
+        else
+          endpoint=https://minio:9000;
+          insecure='--insecure';
+        fi;
+        /usr/bin/mc $$insecure alias set local $$endpoint $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      fi;
+      /usr/bin/mc $$insecure mb local/bronze --ignore-existing;
+      /usr/bin/mc $$insecure mb local/silver --ignore-existing;
+      /usr/bin/mc $$insecure mb local/gold --ignore-existing;
+      /usr/bin/mc $$insecure mb local/models --ignore-existing;
+      /usr/bin/mc $$insecure admin policy create local bronze-writer /policies/bronze-writer.json || true;
+      /usr/bin/mc $$insecure admin policy create local silver-reader /policies/silver-reader.json || true;
+      /usr/bin/mc $$insecure admin policy create local gold-reader /policies/gold-reader.json || true;
+      /usr/bin/mc $$insecure admin user add local $${MINIO_BRONZE_WRITER_ACCESS_KEY} $${MINIO_BRONZE_WRITER_SECRET_KEY} || true;
+      /usr/bin/mc $$insecure admin user add local $${MINIO_SILVER_READER_ACCESS_KEY} $${MINIO_SILVER_READER_SECRET_KEY} || true;
+      /usr/bin/mc $$insecure admin user add local $${MINIO_GOLD_READER_ACCESS_KEY} $${MINIO_GOLD_READER_SECRET_KEY} || true;
+      /usr/bin/mc $$insecure admin policy attach local bronze-writer --user $${MINIO_BRONZE_WRITER_ACCESS_KEY} || true;
+      /usr/bin/mc $$insecure admin policy attach local silver-reader --user $${MINIO_SILVER_READER_ACCESS_KEY} || true;
+      /usr/bin/mc $$insecure admin policy attach local gold-reader --user $${MINIO_GOLD_READER_ACCESS_KEY} || true;
+      exit 0;
+      "
+    networks:
+      - kivendtout-network
+
+  # ============================================================================
+  # STREAMING - KAFKA CLUSTER (HAUTE DISPONIBILITÉ)
+  # ============================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: kivendtout-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo ruok | nc localhost 2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka-1:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kivendtout-kafka-1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:19092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+      - kafka_1_data:/var/lib/kafka/data
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kivendtout-kafka-2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:19093,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+      - kafka_2_data:/var/lib/kafka/data
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9093" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  kafka-3:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kivendtout-kafka-3
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:19094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+      - kafka_3_data:/var/lib/kafka/data
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9094" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # Interface web Kafka
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kivendtout-kafka-ui
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    ports:
+      - "8082:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: kivendtout-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:19092,kafka-2:19093,kafka-3:19094
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - kivendtout-network
+
+  # ============================================================================
+  # MONITORING
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: kivendtout-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - kivendtout-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kivendtout-grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - kivendtout-network
+
+  # ============================================================================
+  # POSTGRES EXPORTER (pour Prometheus)
+  # ============================================================================
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: kivendtout-postgres-exporter
+    depends_on:
+      - postgres
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/kivendtout?sslmode=disable"
+    ports:
+      - "9187:9187"
+    networks:
+      - kivendtout-network
+
+  # ============================================================================
+  # STREAM PROCESSING - APACHE FLINK
+  # ============================================================================
+  flink-jobmanager:
+    image: flink:1.18-scala_2.12-java11
+    container_name: kivendtout-flink-jobmanager
+    command: jobmanager
+    ports:
+      - "8083:8081" # Flink Web UI (mappé sur 8083)
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 2
+        state.backend: filesystem
+        state.checkpoints.dir: file:///tmp/flink-checkpoints
+        state.savepoints.dir: file:///tmp/flink-savepoints
+    volumes:
+      - ./flink/jobs:/opt/flink/jobs
+      - flink_checkpoints:/tmp/flink-checkpoints
+      - flink_savepoints:/tmp/flink-savepoints
+    networks:
+      - kivendtout-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  flink-taskmanager:
+    image: flink:1.18-scala_2.12-java11
+    container_name: kivendtout-flink-taskmanager
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 2
+    volumes:
+      - ./flink/jobs:/opt/flink/jobs
+      - flink_checkpoints:/tmp/flink-checkpoints
+      - flink_savepoints:/tmp/flink-savepoints
+    networks:
+      - kivendtout-network
+
+# ============================================================================
+# VOLUMES PERSISTANTS
+# ============================================================================
+volumes:
+  postgres_data:
+  mongodb_data:
+  minio_data:
+  zookeeper_data:
+  zookeeper_logs:
+  kafka_1_data:
+  kafka_2_data:
+  kafka_3_data:
+  prometheus_data:
+  grafana_data:
+  flink_checkpoints:
+  flink_savepoints:
+
+    # ============================================================================
+    # RÉSEAU
+    # ============================================================================
+networks:
+  kivendtout-network:
+    driver: bridge

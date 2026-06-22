@@ -1,0 +1,39 @@
+# Configuration PATATOR
+# Fichier de configuration pour personnaliser le comportement du script
+
+# === PORTS ===
+export PATATOR_API_PORT=8000
+export PATATOR_DASHBOARD_PORT=7600
+
+# === COMPORTEMENT ===
+# Ouvrir automatiquement le dashboard dans le navigateur (true/false)
+export PATATOR_AUTO_OPEN=true
+
+# Afficher les logs en temps réel pendant l'exécution (true/false)
+export PATATOR_VERBOSE=false
+
+# Timeout pour les healthchecks (en secondes)
+export PATATOR_TIMEOUT=30
+
+# === KAFKA ===
+# Nombre d'événements à streamer (max: 71694)
+export PATATOR_MAX_EVENTS=71694
+
+# === DÉTECTION FRAUDE ===
+# Relancer la détection même si des alertes existent (true/false)
+export PATATOR_FORCE_DETECTION=false
+
+# === DOCKER ===
+# Forcer la recréation des containers (true/false)
+export PATATOR_FORCE_RECREATE=false
+
+# === LOGS ===
+# Conserver les anciens logs (true/false)
+export PATATOR_KEEP_OLD_LOGS=true
+
+# === AVANCÉ ===
+# Délai entre chaque étape (en secondes)
+export PATATOR_STEP_DELAY=2
+
+# Nombre de tentatives pour les healthchecks
+export PATATOR_MAX_RETRIES=3
