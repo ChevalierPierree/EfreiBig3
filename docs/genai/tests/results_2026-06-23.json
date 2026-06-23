@@ -162,13 +162,13 @@
         "code": null
       },
       "got": {
-        "action": "unknown",
-        "view": null,
+        "action": "navigate",
+        "view": "use_cases",
         "field": null,
         "code": null
       },
-      "ok_action": false,
-      "full_ok": false
+      "ok_action": true,
+      "full_ok": true
     },
     {
       "ref": "filtre les fraudes en severite haute",
@@ -180,12 +180,12 @@
         "code": "HIGH"
       },
       "got": {
-        "action": "unknown",
-        "view": "overview",
-        "field": null,
-        "code": null
+        "action": "filter",
+        "view": "fraud",
+        "field": "status",
+        "code": "PENDING_REVIEW"
       },
-      "ok_action": false,
+      "ok_action": true,
       "full_ok": false
     },
     {
@@ -281,65 +281,58 @@
   ],
   "narration": {
     "narrate": {
-      "text": "Voici un résumé des KPIs en français, avec chaque chiffre cité avec le bon libellé :\n\n* Le nombre d'alertes de fraude total est de 3 632.\n* Les alertes de sévérité haute représentent 9% du total, soit 313 cas.\n* Les alertes de sévérité moyenne sont les plus fréquentes, avec 3 319 cas.\n* Le montant total des paiements est de 1 053 euros.\n* Seul un paiement a été identifié comme frauduleux, représentant 0,09% du total.\n* La base de clients totale compte 2 500 personnes.\n* 1 181 clients ont été couverts par au moins une alerte, ce qui représente 47,24% de la base de clients.",
+      "text": "Le tableau de bord indique que 5 764 alertes de fraude ont été déclenchées, dont 244 paiements frauduleux ont été confirmés, ce qui représente un taux de fraude de 12,27 %. Le motif le plus fréquent est la vérification de la première transaction (FIRST_PAYMENT) avec 4 219 cas.",
       "numbers_cited": [
-        "0,09",
-        "053",
-        "1",
-        "181",
-        "2",
-        "3",
-        "313",
-        "319",
-        "47,24",
-        "500",
-        "632",
-        "9"
+        "12,27",
+        "244",
+        "4219",
+        "5764"
       ],
-      "invented": [
-        "053",
-        "181",
-        "2",
-        "3",
-        "319",
-        "500",
-        "632",
-        "9"
-      ]
+      "invented": []
     },
     "ask": {
-      "text": "Selon les KPIs disponibles, il y a 313 alertes de sévérité Haute.\n\nLe taux de fraude est de 0,09 %.",
+      "text": "Il y a 1 869 alertes de fraude au total de sévérité haute. Le taux de fraude est de 12,27 %.",
       "numbers_cited": [
-        "0,09",
-        "313"
+        "12,27",
+        "1869"
       ],
       "invented": []
     }
   },
   "latency": {
-    "stt_ms_avg": 1018,
-    "stt_ms_max": 1387,
-    "intent_ms_avg": 542,
-    "narrate_ask_ms": 1029
+    "stt_ms_avg": 989,
+    "stt_ms_max": 1273,
+    "intent_ms_avg": 556,
+    "narrate_ask_ms": 925
   },
   "meta": {
     "truth": {
-      "total_alerts": 3632,
-      "HIGH": 313,
-      "MEDIUM": 3319,
-      "LOW": null,
-      "total_payments": 1053,
-      "fraudulent_payments": 1,
-      "fraud_rate": 0.09,
+      "total_alerts": 5764,
+      "HIGH": 1869,
+      "MEDIUM": 3576,
+      "LOW": 319,
+      "total_payments": 1989,
+      "fraudulent_payments": 244,
+      "fraud_rate": 12.27,
       "total_customers": 2500,
-      "alerted_customers": 1181,
-      "customer_alert_coverage": 47.24
+      "alerted_customers": 1922,
+      "customer_alert_coverage": 76.88,
+      "reason_FIRST_PAYMENT": 4219,
+      "reason_MOBILE_DEVICE": 3763,
+      "reason_DIRECT_TRAFFIC": 866,
+      "reason_GEO_MISMATCH": 698,
+      "reason_NEW_DEVICE": 677,
+      "reason_PAYMENT_RISK_REVIEW": 546,
+      "reason_ADULT_CATALOG": 449,
+      "reason_AGE_RESTRICTED_ATTEMPT": 327,
+      "reason_IDENTITY_CHECK_REQUIRED": 327,
+      "reason_VELOCITY_HIGH": 238
     },
     "wer_avg": 0.157,
     "wer_exact": 7,
     "n": 12,
-    "intent_action_acc": 0.833,
-    "intent_full_acc": 0.833,
-    "invented_numbers_total": 8
+    "intent_action_acc": 1.0,
+    "intent_full_acc": 0.917,
+    "invented_numbers_total": 0
   }
 }

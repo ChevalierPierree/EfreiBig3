@@ -6,15 +6,20 @@
 > → service `:8100` (Whisper → Ollama) → comparé à la vérité terrain de l'API `:8000`.
 > Déterminisme garanti par `temperature: 0` (re-jouer le harnais redonne les mêmes sorties).
 
-## Synthèse (12 commandes)
+## Synthèse (12 commandes — après durcissement, run 2026-06-23)
 
-| Métrique | Résultat | Lecture |
-|---|---|---|
-| **WER moyen (STT)** | **0,157** (15,7 %) | 7/12 transcriptions exactes ; erreurs concentrées sur les mots métier mal **prononcés par la voix de synthèse** (voir §1). |
-| **Accuracy intention (action)** | **0,833** (10/12) | 1 seule vraie erreur modèle (cas d'usage) ; l'autre échec vient d'une transcription dégradée → rejet en `unknown` (comportement sûr). |
-| **Accuracy intention (full `{action,view,field,value}`)** | **0,833** (10/12) | Quand l'action est juste, le routage de vue/filtre est juste à 100 %. |
-| **Hallucinations (KPI inventé)** | **0** | Aucun chiffre fabriqué sur narration **et** Q&A. Ancrage des KPIs réels efficace. |
-| **Latence (à chaud)** | STT ≈ **1,0 s** · intention ≈ **0,5 s** · narration ≈ **1,0 s** | Question complète ressentie ≈ 2,5 s ; navigation ≈ 1,5 s. |
+| Métrique | Résultat | Avant durcissement | Lecture |
+|---|---|---|---|
+| **WER moyen (STT)** | **0,157** (15,7 %) | 0,157 | 7/12 exactes ; erreurs sur les mots métier mal **prononcés par la voix de synthèse** (§1). |
+| **Accuracy intention (action)** | **1,000** (12/12) | 0,833 | Few-shot `use_cases` + exemples par vue → plus aucune action manquée. |
+| **Accuracy intention (full)** | **0,917** (11/12) | 0,833 | Seul échec restant = transcription corrompue par la TTS (cascade STT, §2). |
+| **Hallucinations (KPI inventé)** | **0** | 0 (mais 1 ratio recalculé « 9 % ») | Ancrage sur `/api/kpis/readable` + interdiction de recalcul → l'imprécision « 9 % » a disparu. |
+| **Latence (à chaud)** | STT ≈ **1,0 s** · intention ≈ **0,5 s** · narration ≈ **0,9 s** | idem | Question ressentie ≈ 2,5 s ; navigation ≈ 1,5 s. |
+
+> Données brutes : [`results_2026-06-23.json`](./results_2026-06-23.json). Les tableaux
+> détaillés ci-dessous (§1–§4) sont le **cas travaillé du 2026-06-22** (méthodologie et
+> matrice de confusion) ; le run du 2026-06-23 les re-valide sur données fraîches après
+> durcissement (voir §6).
 
 ## 1. STT — précision de transcription (WER)
 
@@ -136,6 +141,26 @@ Les réglages qui ont **mesurablement** amélioré la qualité, du plus structur
 **Pistes restantes (mesurées comme nécessaires)** : (a) few-shot `use_cases` dans le prompt
 d'intention → vise une accuracy action ≥ 0,92 ; (b) interdire au modèle de recalculer des
 ratios non fournis → supprime l'imprécision « 9 % ».
+
+## 6. Durcissement de l'assistant (2026-06-23) — avant / après
+
+Trois corrections ciblées à partir de l'analyse §2 et §3 :
+
+| Correctif | Avant | Après (mesuré) |
+|---|---|---|
+| **Few-shot `use_cases` + exemples par vue** (intention) | « montre les cas d'usage » → `unknown` ; accuracy action **0,833** | navigation correcte ; accuracy action **1,000** |
+| **Ancrage sur `/api/kpis/readable` + interdiction de recalcul** (narration) | « 9 % » des alertes hautes (ratio recalculé, faux : 8,6 %) | n'utilise que les chiffres fournis ; **plus aucun ratio inventé** |
+| **Prose forcée + nettoyage markdown** (narration) | sorties en listes à puces, peu fluides | phrases complètes, par vue (fraude / transferts / identité) |
+
+La narration est désormais **par vue** (et non plus figée sur la fraude) et le Q&A est
+routé vers la bonne vue. Exemple de sortie après durcissement (vue fraude, données du
+2026-06-23) : *« 5 764 alertes de fraude ont été déclenchées, dont 244 paiements
+frauduleux confirmés, soit un taux de fraude de 12,27 %. Le motif le plus fréquent est
+FIRST_PAYMENT avec 4 219 cas. »* — tous les chiffres sont des KPIs réels (0 invention).
+
+Échec restant unique (full intention 11/12) : « filtre les fraudes en sévérité haute »
+quand la TTS le transcrit « filtre les fruits en severi taux » → le filtre est mal
+résolu. C'est une **cascade STT** (entrée corrompue), pas une limite du modèle d'intention.
 
 ## Protocole de reproduction
 

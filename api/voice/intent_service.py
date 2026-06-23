@@ -63,13 +63,18 @@ Regles:
 - ask : question sur les chiffres OU demande de resume/explication.
 - unknown : incompris.
 
-Exemples:
+Exemples (couvre TOUTES les vues) :
 "ouvre la vue fraude" -> {{"action":"navigate","view":"fraud","field":null,"value":null}}
+"affiche les transferts" -> {{"action":"navigate","view":"transfer_kpi","field":null,"value":null}}
+"montre l'identite" / "ouvre les cartes d'identite" -> {{"action":"navigate","view":"id_cards","field":null,"value":null}}
+"ouvre les typologies de fraude" / "les motifs" -> {{"action":"navigate","view":"fraud_types","field":null,"value":null}}
+"montre les cas d'usage" / "ouvre les scenarios" / "les demonstrations" -> {{"action":"navigate","view":"use_cases","field":null,"value":null}}
+"reviens a l'accueil" / "vue d'ensemble" -> {{"action":"navigate","view":"overview","field":null,"value":null}}
 "filtre les fraudes en severite haute" -> {{"action":"filter","view":"fraud","field":"severity","value":"haute"}}
 "affiche seulement les alertes moyennes" -> {{"action":"filter","view":"fraud","field":"severity","value":"moyenne"}}
 "montre les alertes en attente" -> {{"action":"filter","view":"fraud","field":"status","value":"en attente"}}
 "combien d'alertes haute severite" -> {{"action":"ask","view":"fraud","field":null,"value":null}}
-"explique-moi le taux de fraude" -> {{"action":"ask","view":"fraud","field":null,"value":null}}
+"explique-moi le taux de fraude" / "resume les chiffres" / "raconte-moi la situation" -> {{"action":"ask","view":"fraud","field":null,"value":null}}
 Reponds en JSON strict."""
 
 

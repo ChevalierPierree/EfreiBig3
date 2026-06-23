@@ -106,8 +106,13 @@ def classify(text):
 
 
 def numbers_in(s):
-    """Entiers (>=2 chiffres pour ignorer '2 a 3 phrases') et decimaux cites."""
-    return set(re.findall(r"\d+(?:[.,]\d+)?", s or ""))
+    """Nombres cites, en recollant les milliers a la francaise (5 764 -> 5764)."""
+    s = s or ""
+    prev = None
+    while prev != s:  # '5 764' / '5 764' -> '5764'
+        prev = s
+        s = re.sub(r"(\d)[   ](\d)", r"\1\2", s)
+    return set(re.findall(r"\d+(?:[.,]\d+)?", s))
 
 
 def main():
@@ -127,6 +132,9 @@ def main():
         "customer_alert_coverage": stats.get("customer_alert_coverage"),
     }
     results["meta"]["truth"] = truth
+    # Les comptes de motifs sont aussi des KPIs reels citables (ex. top_reason).
+    for r in stats.get("top_fraud_reasons", []):
+        truth[f"reason_{r.get('reason')}"] = r.get("count")
     # Toutes les valeurs reelles, en str normalisees, pour la verif anti-hallucination.
     truth_strs = set()
     for v in truth.values():

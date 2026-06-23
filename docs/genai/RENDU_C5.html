@@ -150,10 +150,12 @@ comparées à la vérité terrain de l'API. Déterminisme garanti par <code>temp
 
 <div class="grid">
   <div class="kpi blue"><span class="v">0,157</span><span class="l">WER moyen (STT) · 7/12 exacts</span></div>
-  <div class="kpi blue"><span class="v">83 %</span><span class="l">Accuracy intention (10/12)</span></div>
+  <div class="kpi good"><span class="v">100 %</span><span class="l">Accuracy intention action (12/12)</span></div>
   <div class="kpi good"><span class="v">0</span><span class="l">KPI inventé (hallucination)</span></div>
   <div class="kpi"><span class="v">≈2,5 s</span><span class="l">Latence question (perçue)</span></div>
 </div>
+<p class="muted" style="font-size:9pt;margin-top:-2px">Après durcissement (2026-06-23) : accuracy intention action 0,83 → <strong>1,00</strong> ;
+full 0,83 → 0,92 ; suppression du seul ratio recalculé erroné (« 9 % »). Détail §2–§3.</p>
 
 <h3>1. STT — Word Error Rate</h3>
 <p><strong>WER moyen 0,157</strong> (7/12 transcriptions exactes). Les 3 pires scores (0,50–0,60) ne sont
@@ -163,7 +165,9 @@ pas des faiblesses de Whisper mais des <strong>artefacts de la voix de synthèse
 sans mot piégé sont à WER ≤ 0,33, dont 7 à 0,00).</p>
 
 <h3>2. Intention — accuracy &amp; matrice de confusion</h3>
-<p>Classification effectuée sur la transcription réelle (chaîne bout-en-bout). <strong>10/12 correctes</strong>.</p>
+<p>Classification sur la transcription réelle (chaîne bout-en-bout). <strong>Après durcissement :
+12/12 en action (100 %), 11/12 en complet.</strong> La matrice ci-dessous illustre l'état initial
+(10/12) ; le few-shot <code>use_cases</code> corrige la navigation manquée.</p>
 <table>
   <tr><th>attendu \ obtenu</th><th>navigate</th><th>filter</th><th>ask</th><th>unknown</th></tr>
   <tr><th>navigate (6)</th><td>5</td><td>0</td><td>0</td><td>1</td></tr>
@@ -171,26 +175,24 @@ sans mot piégé sont à WER ≤ 0,33, dont 7 à 0,00).</p>
   <tr><th>ask (2)</th><td>0</td><td>0</td><td>2</td><td>0</td></tr>
   <tr><th>unknown (1)</th><td>0</td><td>0</td><td>0</td><td>1</td></tr>
 </table>
-<p>Deux échecs, de natures opposées : (1) « <em>Montre les cas d'usage</em> » (transcription parfaite)
-classé <code>unknown</code> = <strong>vraie limite du 3B</strong>, corrigeable par un exemple few-shot ;
-(2) « <em>Filtre les fruits en severi taux</em> » (STT corrompu) classé <code>unknown</code> = <strong>rejet sûr</strong> :
-le modèle refuse plutôt que d'inventer un filtre. Aucune confusion vers une mauvaise action,
-et la commande hors-domaine (« météo ») est correctement rejetée.</p>
+<p>Les deux échecs initiaux : (1) « <em>Montre les cas d'usage</em> » classé <code>unknown</code>
+— <strong>corrigé</strong> par un exemple few-shot (accuracy action → 100 %) ; (2) « <em>Filtre les
+fruits en severi taux</em> » (STT corrompu par la voix de synthèse) — <strong>cascade STT</strong>,
+seul échec restant en complet. Aucune confusion vers une mauvaise action, et la commande
+hors-domaine (« météo ») est correctement rejetée.</p>
 
 <h3>3. Narration — exactitude factuelle (anti-hallucination)</h3>
-<p>Vérité terrain : alertes <strong>3632</strong> (HIGH 313, MEDIUM 3319), paiements 1053 (1 frauduleux),
-taux <strong>0,09 %</strong>, clients 2500 (1181 couverts, 47,24 %).</p>
-<table>
-  <tr><th>KPI</th><th>Valeur API</th><th>Cité par le LLM</th><th>Exact ?</th></tr>
-  <tr><td>total_alerts</td><td>3632</td><td>3 632</td><td><span class="tag g">✓</span></td></tr>
-  <tr><td>alerts HIGH / MEDIUM</td><td>313 / 3319</td><td>313 / 3 319</td><td><span class="tag g">✓</span></td></tr>
-  <tr><td>fraud_rate</td><td>0,09 %</td><td>0,09 %</td><td><span class="tag g">✓</span></td></tr>
-  <tr><td>clients / couverts / couverture</td><td>2500 / 1181 / 47,24 %</td><td>2 500 / 1 181 / 47,24 %</td><td><span class="tag g">✓</span></td></tr>
-</table>
-<p><strong>100 % des KPIs cités sont exacts, 0 chiffre inventé</strong> (narration <em>et</em> Q&amp;A). Seule
-imprécision : une part <em>calculée</em> (« 9 % » des alertes hautes, ratio réel 8,6 %) — arrondi
-lâche, pas une hallucination de KPI. C'est l'objectif critique du projet (données réglementaires)
-et il est atteint grâce à l'<strong>ancrage des KPIs réels dans le prompt</strong>.</p>
+<p>La narration s'ancre sur <code>/api/kpis/readable</code> (chiffres <em>et</em> ratios déjà calculés et
+cohérents — voir l'audit de cohérence) : le modèle <strong>reformule sans recalculer</strong>. Exemple de
+sortie après durcissement (vue fraude, 2026-06-23) :</p>
+<div class="callout"><em>« 5 764 alertes de fraude ont été déclenchées, dont 244 paiements frauduleux
+confirmés, soit un taux de fraude de 12,27 %. Le motif le plus fréquent est FIRST_PAYMENT avec
+4 219 cas. »</em></div>
+<p>Tous les chiffres cités (5 764, 244, 12,27 %, 4 219) sont des KPIs réels →
+<strong>100 % exacts, 0 chiffre inventé</strong> (narration <em>et</em> Q&amp;A, re-mesuré 2026-06-23).
+Le durcissement a <strong>supprimé</strong> la seule imprécision antérieure (un ratio recalculé « 9 % »
+pour la part des alertes hautes) en interdisant tout calcul non fourni. C'est l'objectif critique
+du projet (données réglementaires) et il est atteint.</p>
 
 <h3>4. Latence (à chaud)</h3>
 <table>
@@ -217,8 +219,9 @@ et il est atteint grâce à l'<strong>ancrage des KPIs réels dans le prompt</st
     <td>100 % local (RGPD + exigence VP) · intention contrainte en JSON · KPIs réels injectés
         (anti-hallucination) · <code>temperature: 0</code> (déterminisme) · architecture qui autorise une
         bascule API ciblée si besoin B2C.</td>
-    <td>WER 0,157 · intention 83 % · <strong>0 hallucination</strong> · latence ≈ 2,5 s/question.
-        Minimum imposé dépassé (3 axes intégrés).</td>
+    <td>WER 0,157 · intention <strong>100 %</strong> (action) · <strong>0 hallucination</strong> ·
+        latence ≈ 2,5 s/question. Minimum imposé dépassé (3 axes intégrés) ; données vérifiées
+        cohérentes (tous invariants OK).</td>
   </tr>
 </table>
 
@@ -233,8 +236,9 @@ python -m api.voice.voice_app                 # service vocal :8100
 python3 docs/genai/tests/run_eval.py          # rejoue toutes les mesures C5.3 (déterministe)
 # Dans le dashboard : maintenir la touche P pour parler, relâcher pour envoyer.</pre>
 <p class="muted" style="margin-top:18px;font-size:9pt">Sources détaillées dans le dépôt EfreiBig3 — branche <code>genai-voice</code> :
-<code>docs/genai/README.md</code>, <code>ARGUMENTAIRE_LOCAL_VS_API.md</code>, <code>RAPPORT_C5.md</code>,
-<code>tests/scenarios.md</code>, <code>tests/results_2026-06-22.json</code>.</p>
+<code>README.md</code>, <code>ARGUMENTAIRE_LOCAL_VS_API.md</code>, <code>RAPPORT_C5.md</code>,
+<code>DATA_COHERENCE.md</code>, <code>tests/scenarios.md</code>, <code>tests/run_eval.py</code>,
+<code>tests/check_coherence.py</code>, <code>tests/results_2026-06-23.json</code>.</p>
 
 </div>
 </body>
