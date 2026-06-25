@@ -18,6 +18,15 @@
     fraud_types: "les typologies de fraude", id_cards: "la vue identité",
     transfer_kpi: "les transferts", use_cases: "les cas d'usage",
   };
+  // Fichier servi -> vue (pour narrer la PAGE COURANTE : « résume cette page »).
+  const FILE_VIEW = {
+    "index.html": "overview", "fraud_dashboard.html": "fraud",
+    "fraud_types_dashboard.html": "fraud_types", "id_cards_dashboard.html": "id_cards",
+    "transfer_kpi_dashboard.html": "transfer_kpi", "use_cases_dashboard.html": "use_cases",
+  };
+  function currentView() {
+    return FILE_VIEW[(location.pathname.split("/").pop() || "index.html")] || "overview";
+  }
   const LOADING = {
     transcribe: ["Je transcris votre demande…", "J'écoute attentivement…"],
     interpret: ["J'interprète votre intention…", "Je comprends votre demande…"],
@@ -55,6 +64,11 @@
     border-radius:50%; animation:kvxbounce 1.2s infinite; }
   .kvx-dots span:nth-child(2){animation-delay:.2s} .kvx-dots span:nth-child(3){animation-delay:.4s}
   @keyframes kvxbounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-5px);opacity:1} }
+  .kvx-qr { display:flex; gap:8px; margin-top:2px; }
+  .kvx-qr button { font:500 12.5px "Roboto",sans-serif; padding:7px 14px; border-radius:999px; cursor:pointer;
+    border:1px solid #dadce0; background:#fff; color:#1a73e8; }
+  .kvx-qr button.no { color:#5f6368; }
+  .kvx-qr button:hover { background:#f1f3f4; }
   #kvx-status { padding:9px 16px; font-size:12px; color:#5f6368; border-top:1px solid #e8eaed; min-height:18px; }
   #kvx-orb { width:56px; height:56px; border-radius:50%; cursor:pointer; margin-left:auto;
     background:radial-gradient(circle at 32% 30%,#8ab4f8,#1a73e8 60%); color:#fff;
@@ -105,6 +119,17 @@
   function thinkingBubble() {
     const d = document.createElement("div"); d.className = "kvx-b kvx-a kvx-dots";
     d.innerHTML = "<span></span><span></span><span></span>"; $("kvx-msgs").appendChild(d); scroll(); return d;
+  }
+  // Réponses rapides cliquables (ex. Oui/Non d'une confirmation) — parcours souris.
+  function addQuickReplies(options) {
+    const wrap = document.createElement("div"); wrap.className = "kvx-qr";
+    options.forEach((o) => {
+      const b = document.createElement("button");
+      b.textContent = o.label; if (o.kind === "no") b.className = "no";
+      b.addEventListener("click", () => { wrap.remove(); runText(o.value); });
+      wrap.appendChild(b);
+    });
+    $("kvx-msgs").appendChild(wrap); scroll();
   }
   function saveHistory() { try { sessionStorage.setItem("kvxChat", JSON.stringify(history.slice(-20))); } catch (e) {} }
   function rehydrate() {
@@ -196,6 +221,7 @@
       if (!text) { dots.remove(); setState("idle"); setStatus("Je n'ai rien entendu."); return; }
       dots.remove();
       if (await confirmIfPending(text)) { setState("idle"); setStatus("Maintenez P ou cliquez le micro."); return; }
+      if (await narrateCurrentIfAsked(text)) { setState("idle"); setStatus("Maintenez P ou cliquez le micro."); return; }
       addMsg("user", text);
       const dots2 = thinkingBubble(); setStatus(pick(LOADING.interpret));
       const intent = await postJson("/intent", { text }); dots2.remove();
@@ -210,6 +236,7 @@
     $("kvx-panel").classList.add("show");
     setState("thinking");
     if (await confirmIfPending(text)) { setState("idle"); setStatus("Maintenez P ou cliquez le micro."); return; }
+    if (await narrateCurrentIfAsked(text)) { setState("idle"); setStatus("Maintenez P ou cliquez le micro."); return; }
     addMsg("user", text);
     const dots = thinkingBubble(); setStatus(pick(LOADING.interpret));
     try { const intent = await postJson("/intent", { text }); dots.remove(); await dispatch(intent, text); }
@@ -277,6 +304,23 @@
       label: verb + " l'alerte numéro " + al.n + " (client " + al.customer + ", sévérité " + al.severityLabel.toLowerCase() + ")",
     };
     await respond("Vous voulez " + pendingAction.label + ". Je confirme ? Dites oui ou non.");
+    addQuickReplies([{ label: "✅ Oui, confirmer", value: "oui" }, { label: "✕ Non", value: "non", kind: "no" }]);
+  }
+
+  // « Résume / explique cette page » -> narration de la VUE COURANTE (par-vue).
+  // Géré localement (sans LLM) pour fiabilité. Renvoie true si consommé.
+  async function narrateCurrentIfAsked(text) {
+    const t = " " + (text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
+    const verb = /(resume|resumer|explique|expliquer|raconte|presente|presenter|decris|parle[ -]?moi|c est quoi|de quoi)/.test(t);
+    const here = /(cette page|cette vue|ce tableau|cet ecran|cette section|page courante| ici |ce dashboard|cette interface)/.test(t);
+    if (!verb || !here) return false;
+    addMsg("user", text);
+    const dots = thinkingBubble(); setStatus(pick(LOADING.answer));
+    try {
+      const r = await postJson("/narrate", { view: currentView() }); dots.remove();
+      await respond(r.narration || "Je n'ai pas de résumé pour cette page.");
+    } catch (e) { dots.remove(); await respond("Résumé indisponible pour cette page."); }
+    return true;
   }
 
   // Intercepte la réponse oui/non quand une action est en attente. Renvoie true si consommé.

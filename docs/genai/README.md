@@ -68,6 +68,10 @@ L'assistant repond dans un panneau type chatbot et a voix haute.
   d'abord la vue fraude puis applique le filtre.
 - **Questions / resume** : « combien d'alertes de severite haute », « quel est le
   taux de fraude », « explique-moi les chiffres ». Reponse basee sur les KPIs reels.
+- **Resume de la page courante** : « resume cette page » / « explique cette vue »
+  -> narration de la vue affichee (fraude, transferts, identite...). Geree
+  localement (sans LLM de routage) pour fiabilite. Chaque page propose des
+  **chips de suggestion specifiques** (souris = equivalent voix).
 - **Actions** (page Fraude) : « approuve l'alerte numero 3 », « bloque la 2 »,
   « investigue l'alerte selectionnee ». Chaque alerte porte un **numero court #N**
   visible (repere partage oeil + voix ; l'identifiant long type `FRD_PAY_...` reste
