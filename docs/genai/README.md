@@ -68,6 +68,13 @@ L'assistant repond dans un panneau type chatbot et a voix haute.
   d'abord la vue fraude puis applique le filtre.
 - **Questions / resume** : « combien d'alertes de severite haute », « quel est le
   taux de fraude », « explique-moi les chiffres ». Reponse basee sur les KPIs reels.
+- **Actions** (page Fraude) : « approuve l'alerte numero 3 », « bloque la 2 »,
+  « investigue l'alerte selectionnee ». Chaque alerte porte un **numero court #N**
+  visible (repere partage oeil + voix ; l'identifiant long type `FRD_PAY_...` reste
+  affiche pour la tracabilite). **Confirmation obligatoire** : l'assistant decrit la
+  cible (client, severite) et attend « oui » / « non » avant d'appeler
+  `POST /api/alerts/{id}/decide`. Souris et voix pilotent la meme chose
+  (contrat `window.KVFraud`).
 
 ## Endpoints du service vocal
 

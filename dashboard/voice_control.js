@@ -24,9 +24,11 @@
     answer: ["J'analyse les indicateurs de fraude…", "Je consulte les chiffres en temps réel…", "Je prépare votre réponse…"],
   };
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const DECISION_VERB = { APPROVE: "approuver", BLOCK: "bloquer", INVESTIGATE: "investiguer" };
 
   let stream, audioCtx, analyser, dataBuf, recorder, chunks = [], recStart = 0;
   let recording = false, state = "idle", history = [];
+  let pendingAction = null; // { id, decision, label } — action en attente de confirmation orale
 
   // --- Styles (panneau de conversation) -------------------------------------
   const css = `
@@ -192,7 +194,9 @@
       const stt = await postAudio("/transcribe", blob);
       const text = (stt.text || "").trim();
       if (!text) { dots.remove(); setState("idle"); setStatus("Je n'ai rien entendu."); return; }
-      dots.remove(); addMsg("user", text);
+      dots.remove();
+      if (await confirmIfPending(text)) { setState("idle"); setStatus("Maintenez P ou cliquez le micro."); return; }
+      addMsg("user", text);
       const dots2 = thinkingBubble(); setStatus(pick(LOADING.interpret));
       const intent = await postJson("/intent", { text }); dots2.remove();
       await dispatch(intent, text);
@@ -203,8 +207,11 @@
   // Commande texte (barre de commande / suggestion cliquée) = même pipeline, sans audio.
   async function runText(text) {
     text = (text || "").trim(); if (!text) return;
-    $("kvx-panel").classList.add("show"); addMsg("user", text);
-    setState("thinking"); const dots = thinkingBubble(); setStatus(pick(LOADING.interpret));
+    $("kvx-panel").classList.add("show");
+    setState("thinking");
+    if (await confirmIfPending(text)) { setState("idle"); setStatus("Maintenez P ou cliquez le micro."); return; }
+    addMsg("user", text);
+    const dots = thinkingBubble(); setStatus(pick(LOADING.interpret));
     try { const intent = await postJson("/intent", { text }); dots.remove(); await dispatch(intent, text); }
     catch (e) { dots.remove(); addMsg("asst", "❌ Service vocal injoignable (port 8100 ?)"); }
     setState("idle"); setStatus("Maintenez P ou cliquez le micro.");
@@ -216,6 +223,8 @@
       navigate(intent.view_file);
     } else if (intent.action === "filter") {
       await applyFilter(intent);
+    } else if (intent.action === "act") {
+      await handleAction(intent);
     } else if (intent.action === "ask") {
       const dots = thinkingBubble(); setStatus(pick(LOADING.answer));
       const a = await postJson("/ask", { text }); dots.remove();
@@ -246,6 +255,55 @@
       navigate("fraud_dashboard.html");
     }
   }
+  // ===== Actions sur les alertes (avec confirmation humaine obligatoire) =====
+  async function handleAction(intent) {
+    // Les actions n'existent que sur la page Fraude (qui expose window.KVFraud).
+    if (!window.KVFraud) {
+      await respond("J'ouvre la vue fraude : redites votre action une fois la page affichée.");
+      return navigate("fraud_dashboard.html");
+    }
+    const al = window.KVFraud.resolveRef(intent.target);
+    if (!al) {
+      await respond("Je ne trouve pas cette alerte. Dites par exemple : « approuve l'alerte numéro 2 ».");
+      return;
+    }
+    if (!al.pending) {
+      await respond("L'alerte numéro " + al.n + " est déjà traitée (" + al.statusLabel + "). Aucune action possible.");
+      return;
+    }
+    const verb = DECISION_VERB[intent.decision] || (intent.decision_label || "").toLowerCase() || "traiter";
+    pendingAction = {
+      id: al.id, decision: intent.decision,
+      label: verb + " l'alerte numéro " + al.n + " (client " + al.customer + ", sévérité " + al.severityLabel.toLowerCase() + ")",
+    };
+    await respond("Vous voulez " + pendingAction.label + ". Je confirme ? Dites oui ou non.");
+  }
+
+  // Intercepte la réponse oui/non quand une action est en attente. Renvoie true si consommé.
+  async function confirmIfPending(text) {
+    if (!pendingAction) return false;
+    const t = " " + (text || "").toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") + " ";
+    const yes = /\b(oui|ouais|ok|okay|confirme|confirmer|valide|valider|vas[- ]?y|d ?accord|c ?est bon|go|parfait)\b/.test(t);
+    const no = /\b(non|annule|annuler|laisse|laisser|stop|abandonne|negatif|surtout pas|pas ca)\b/.test(t);
+    addMsg("user", text);
+    if (!yes && !no) {
+      await respond("Je n'ai pas compris. Confirmez-vous : " + pendingAction.label + " ? Dites oui ou non.");
+      return true;
+    }
+    const act = pendingAction; pendingAction = null;
+    if (no) { await respond("Très bien, j'annule. Rien n'a été modifié."); return true; }
+    const dots = thinkingBubble();
+    try {
+      const res = await window.KVFraud.decide(act.id, act.decision);
+      dots.remove();
+      await respond(res && res.ok
+        ? "C'est fait : " + act.label + "."
+        : "Échec de la décision (" + ((res && res.reason) || "refusée") + "). Rien n'a été modifié.");
+    } catch (e) { dots.remove(); await respond("La décision n'a pas pu être enregistrée. Rien n'a été modifié."); }
+    return true;
+  }
+
   function applyPendingFilter() {
     let pf; try { pf = JSON.parse(sessionStorage.getItem("kvxPendingFilter") || "null"); } catch (e) {}
     if (!pf || !document.getElementById("filter-" + pf.field)) return;

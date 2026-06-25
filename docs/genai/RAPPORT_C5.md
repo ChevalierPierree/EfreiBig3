@@ -7,11 +7,26 @@
 
 ### Les 3 axes envisagés (B2B + B2C)
 
-1. **Navigation vocale (STT)** — piloter le dashboard à la voix. *Minimum imposé*
-   (accessibilité du VP). B2C : mains-libres, inclusion.
+1. **Navigation & action vocales (STT)** — piloter ET agir sur le dashboard à la voix.
+   *Minimum imposé* (accessibilité du VP). B2C : mains-libres, inclusion. Au-delà de la
+   navigation/filtrage, l'assistant **exécute des décisions** sur les alertes de fraude
+   (approuver / bloquer / investiguer) avec **confirmation humaine obligatoire** avant
+   chaque action.
 2. **Narration générative des KPIs** — résumé en langage naturel des chiffres de
    fraude. B2B : rapports exécutifs. B2C : vulgarisation.
 3. **Q&A en langage naturel** — questions libres sur les données. B2B : self-service.
+
+### Adapter le front à la voix (accessibilité universelle + concertation IT/UX)
+
+Un enseignement clé : **une UI pensée pour la souris n'est pas pilotable à la voix**.
+Les identifiants techniques d'alerte (`FRD_PAY_2229_50D1BD`) sont imprononçables et
+inaudibles. On a donc introduit un **identifiant court `#N`** (numéro de position dans la
+file), **visible à l'écran** : il sert de repère commun à l'œil et à la voix
+(« approuve l'alerte numéro 3 »), l'identifiant long restant affiché pour la traçabilité.
+C'est l'illustration concrète de l'« accessibilité universelle » et de la « concertation
+IT » du référentiel : le design de l'interface est revu pour que **souris et voix pilotent
+exactement les mêmes objets** (contrat `window.KVFraud`), avec un **garde-fou de
+confirmation** (le bot décrit la cible — client, sévérité — et attend « oui »/« non »).
 
 ### Convergence
 

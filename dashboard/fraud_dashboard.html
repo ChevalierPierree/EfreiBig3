@@ -8,6 +8,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="theme_v2.css">
+  <style>
+    /* Repère court partagé œil + voix : « dites le numéro 3 » */
+    .kv-num { flex:none; font-weight:700; font-size:13px; color:var(--blue, #1a73e8);
+      background:var(--blue-50, #e8f0fe); border-radius:8px; padding:3px 8px; line-height:1.2;
+      min-width:34px; text-align:center; }
+  </style>
 </head>
 <body>
 <!-- Top app bar : marque + barre de commande (voix + texte) + actions -->
@@ -227,12 +233,15 @@
     $("queue-pill").textContent = high > 0 ? `${KV.fmtNumber(high)} haute(s)` : "mix stable";
     $("queue-pill").className = "badge " + (high > 0 ? "badge--danger" : "badge--info");
 
-    list.innerHTML = visible.map((a) => `
+    list.innerHTML = visible.map((a, i) => `
       <div class="row" role="button" tabindex="0" data-alert-id="${KV.escapeHtml(a.alert_id)}"
            style="cursor:pointer;${a.alert_id === selectedAlertId ? "background:var(--surface-2);border-radius:var(--radius-xs);" : ""}">
-        <div>
-          <div class="row__title">${KV.escapeHtml(a.alert_id)}</div>
-          <div class="row__meta">${statusLabel(a.status)} · client ${KV.escapeHtml(a.customer_id || "—")} · score ${KV.fmtNumber(a.risk_score)} · ${KV.fmtDate(a.alert_timestamp)}</div>
+        <div style="display:flex;align-items:baseline;gap:10px;min-width:0">
+          <span class="kv-num" title="Repère vocal : dites « ${i + 1} »">#${i + 1}</span>
+          <div style="min-width:0">
+            <div class="row__title">Client ${KV.escapeHtml(a.customer_id || "—")} · ${statusLabel(a.status)}</div>
+            <div class="row__meta">score ${KV.fmtNumber(a.risk_score)} · ${KV.fmtDate(a.alert_timestamp)} · ${KV.escapeHtml(a.alert_id)}</div>
+          </div>
         </div>
         <span class="badge badge--${severityVariant(a.severity)}">${severityLabel(a.severity)}</span>
       </div>
@@ -252,12 +261,13 @@
     selectedAlertId = a.alert_id;
     const reasons = Array.isArray(a.fraud_reasons) ? a.fraud_reasons : [];
     const isPending = a.status === "PENDING_REVIEW";
+    const pos = currentAlerts.slice(0, 18).findIndex((x) => x.alert_id === a.alert_id) + 1;
 
     el.innerHTML = `
       <div class="card__head">
         <div>
-          <h2>${KV.escapeHtml(a.alert_id)}</h2>
-          <p>${statusLabel(a.status)} · ${KV.fmtDate(a.alert_timestamp)}</p>
+          <h2>${pos ? `<span class="kv-num">#${pos}</span> ` : ""}Client ${KV.escapeHtml(a.customer_id || "—")}</h2>
+          <p>${statusLabel(a.status)} · ${KV.fmtDate(a.alert_timestamp)} · <span class="muted">${KV.escapeHtml(a.alert_id)}</span></p>
         </div>
         <span class="badge badge--${severityVariant(a.severity)}">${severityLabel(a.severity)}</span>
       </div>
@@ -371,6 +381,44 @@
   };
   // — Repli V1 attendu par voice_control.js si applyVoiceFilter absent —
   window.loadAlerts = loadAlerts;
+
+  // — Contrat voix pour AGIR sur les alertes (avec #N comme repère partagé) —
+  window.KVFraud = {
+    // Liste adressable : numéro visible -> alerte (mêmes #N que la liste à l'écran).
+    listAlerts() {
+      return currentAlerts.slice(0, 18).map((a, i) => ({
+        n: i + 1, id: a.alert_id, customer: a.customer_id || "—",
+        severity: a.severity, severityLabel: severityLabel(a.severity),
+        status: a.status, statusLabel: statusLabel(a.status),
+        pending: a.status === "PENDING_REVIEW",
+      }));
+    },
+    // Résout une référence parlée : numéro, "selected" (affichée), "first", "last".
+    resolveRef(ref) {
+      const list = this.listAlerts();
+      if (!list.length || ref == null) return null;
+      const s = String(ref).toLowerCase().trim();
+      if (s === "selected" || s === "current") return list.find((x) => x.id === selectedAlertId) || list[0];
+      if (s === "first") return list[0];
+      if (s === "last") return list[list.length - 1];
+      const n = parseInt(s, 10);
+      return Number.isNaN(n) ? null : (list.find((x) => x.n === n) || null);
+    },
+    // Exécute la décision (après confirmation humaine côté assistant).
+    async decide(id, decision) {
+      try {
+        const r = await fetch(`${KV.API_URL}/api/alerts/${encodeURIComponent(id)}/decide`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ decision, decided_by: "assistant-vocal",
+            notes: "Décision via assistant vocal (confirmée à voix)" }),
+        });
+        if (!r.ok) return { ok: false, reason: "HTTP " + r.status };
+        selectedAlertId = id;
+        await Promise.allSettled([loadAlerts(), loadKpis()]);
+        return { ok: true };
+      } catch (e) { return { ok: false, reason: e.message || "réseau" }; }
+    },
+  };
 
   // ======================== Chargement global ========================
   async function load() {
