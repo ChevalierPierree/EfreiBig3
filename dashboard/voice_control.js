@@ -40,6 +40,9 @@
   #kvx-head { padding:13px 16px; font-weight:500; font-size:14px; display:flex; align-items:center; gap:9px;
     border-bottom:1px solid #e8eaed; }
   #kvx-head .glow { width:8px; height:8px; border-radius:50%; background:#1a73e8; box-shadow:0 0 8px #1a73e8; }
+  #kvx-close { margin-left:auto; background:none; border:none; color:#5f6368; font-size:16px; line-height:1;
+    cursor:pointer; padding:3px 6px; border-radius:8px; }
+  #kvx-close:hover { background:#f1f3f4; color:#1f1f1f; }
   #kvx-msgs { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:9px; }
   .kvx-b { padding:9px 13px; border-radius:14px; max-width:84%; font-size:13.5px; line-height:1.45;
     white-space:pre-wrap; animation:kvxin .28s ease both; }
@@ -59,7 +62,8 @@
   const root = document.createElement("div");
   root.id = "kvx";
   root.innerHTML =
-    '<div id="kvx-panel"><div id="kvx-head"><span class="glow"></span>Assistant KiVendTout</div>' +
+    '<div id="kvx-panel"><div id="kvx-head"><span class="glow"></span>Assistant KiVendTout' +
+    '<button id="kvx-close" title="Fermer" aria-label="Fermer">✕</button></div>' +
     '<div id="kvx-msgs"></div><div id="kvx-status">Maintenez P ou cliquez le micro.</div></div>' +
     '<button id="kvx-orb" data-voice-trigger title="Parler (ou maintenir P)">🎙️</button>';
 
@@ -72,6 +76,10 @@
     rehydrate();
     // Si l'app a déjà un micro intégré (barre de commande), on masque l'orbe flottante.
     if (document.querySelector(".appbar [data-voice-trigger]")) $("kvx-orb").style.display = "none";
+    // Fermer le panneau (il se rouvre automatiquement à la prochaine commande vocale).
+    $("kvx-close").addEventListener("click", (e) => {
+      e.stopPropagation(); $("kvx-panel").classList.remove("show");
+    });
     // Liaisons souris : micro(s) + suggestions cliquables
     document.addEventListener("click", (e) => {
       const trig = e.target.closest("[data-voice-trigger]");

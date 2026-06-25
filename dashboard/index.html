@@ -126,7 +126,7 @@
     $("err").classList.remove("show");
     const [health, stats, checkout, readable, analytics] = await Promise.allSettled([
       KV.getJSON("/health"), KV.getJSON("/api/stats"),
-      KV.getJSON("/api/checkout/stats?window_hours=24"),
+      KV.getJSON("/api/checkout/stats?window_hours=720"),
       KV.getJSON("/api/kpis/readable?limit=100&micro_batch_window_hours=24"),
       KV.getJSON("/api/analytics/status"),
     ]).then((r) => r.map((x) => (x.status === "fulfilled" ? x.value : {})));
@@ -144,7 +144,7 @@
     setKpi("k-alerts-sub", `${KV.fmtNumber(stats.alerts_by_severity?.HIGH ?? 0)} haute sévérité · ≈ ${KV.fmtNumber(ratio)} alerte(s) par fraude`);
 
     setKpi("k-underage", KV.fmtNumber(checkout.blocked_underage_orders ?? 0));
-    setKpi("k-underage-sub", `${KV.fmtNumber(checkout.accepted_orders ?? 0)} acceptées · fenêtre 24 h`);
+    setKpi("k-underage-sub", `${KV.fmtNumber(checkout.accepted_orders ?? 0)} acceptées · 30 j`);
 
     const tev = readable?.transfer?.kpis?.micro_batch_total_events_window ?? 0;
     setKpi("k-transfer", KV.fmtNumber(tev));
@@ -159,7 +159,7 @@
 
     setBadge("m-fraud", `${readable?.fraud?.risk_level || "risque"} · ${KV.fmtNumber(alerts)} alertes`, "info");
     setBadge("m-types", readable?.fraud?.kpis?.top_reason || "—");
-    setBadge("m-identity", `${KV.fmtNumber(checkout.blocked_underage_orders ?? 0)} blocages 24 h`);
+    setBadge("m-identity", `${KV.fmtNumber(checkout.blocked_underage_orders ?? 0)} blocages · 30 j`);
     setBadge("m-transfer", tStatus === "present" ? "Pipeline actif" : "Pipeline inactif");
 
     $("freshness").innerHTML = '<span class="badge__dot"></span>MAJ ' + new Date().toLocaleTimeString("fr-FR");

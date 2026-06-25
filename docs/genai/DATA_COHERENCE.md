@@ -56,6 +56,16 @@ du rapport, plus `schema_exists`).
 que les **dernières 24 h** (où le dernier batch est `NO_EVENTS`). → V2 page Transferts
 distingue déjà « historique » et « 24 h ».
 
+### d) Vues « 24 h » vides quand l'horloge dépasse le jeu de démo
+**Cause.** Plusieurs endpoints filtrent sur `alert_timestamp >= NOW() - 24h`
+(`/api/fraud/reasons/stats`, `/api/checkout/stats`, `/api/payments/stats`…). Le jeu
+de démo étant **figé** (22-23/06), dès que la date système dépasse +24 h, la fenêtre
+24 h ne capte **plus rien** → motifs/blocages affichés à 0, alors que les données
+existent (visibles en fenêtre large ou via `/api/stats`, non fenêtré).
+**Correctif (frontend, juin 2025).** Les pages Typologies, Vue d'ensemble et Identité
+demandent désormais `window_hours=720` (30 j, le maximum) et libellent « 30 j » au lieu
+de « 24 h ». La page Transferts reste en l'état (micro-batch réellement vide, même en 720 h).
+
 ## 3. Verdict
 
 - **Aucune donnée corrompue ni invariant violé.** Les chiffres sont fiables.

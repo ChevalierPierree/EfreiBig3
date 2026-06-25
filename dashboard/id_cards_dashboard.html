@@ -81,7 +81,7 @@
   <!-- ===================== KPIs (1 héros + 3) ===================== -->
   <section class="kpi-grid">
     <article class="kpi kpi--hero">
-      <span class="kpi__label">Taux de rejet · 24 h</span>
+      <span class="kpi__label">Taux de rejet · 30 j</span>
       <span class="kpi__value skeleton" id="k-reject">00,0 %</span>
       <span class="kpi__support skeleton" id="k-reject-sub">contexte</span>
     </article>
@@ -96,7 +96,7 @@
       <span class="kpi__support skeleton" id="k-minors-sub">contexte</span>
     </article>
     <article class="kpi">
-      <span class="kpi__label">Blocages 18+ · 24 h</span>
+      <span class="kpi__label">Blocages 18+ · 30 j</span>
       <span class="kpi__value skeleton" id="k-blocked">000</span>
       <span class="kpi__support skeleton" id="k-blocked-sub">contexte</span>
     </article>
@@ -221,7 +221,7 @@
     const rejectRate = checkoutStats.adult_rejection_rate;
 
     setKpi("k-reject", rejectRate != null ? KV.fmtPercent(rejectRate) : "—");
-    setKpi("k-reject-sub", `${KV.fmtNumber(checkoutStats.adult_product_attempts ?? 0)} tentative(s) 18+ · fenêtre 24 h`);
+    setKpi("k-reject-sub", `${KV.fmtNumber(checkoutStats.adult_product_attempts ?? 0)} tentative(s) 18+ · 30 j`);
 
     setKpi("k-verifs", KV.fmtNumber(totalVerifs));
     const rejected = verifications.filter((v) => ["rejected", "rejected_underage"].includes(v.verification_status)).length;
@@ -232,7 +232,7 @@
     setKpi("k-minors-sub", `${KV.fmtPercent(ratio, 1)} du lot de ${KV.fmtNumber(totalCards)} cartes`);
 
     setKpi("k-blocked", KV.fmtNumber(blockedCount));
-    setKpi("k-blocked-sub", `${KV.fmtNumber(checkoutStats.accepted_orders ?? 0)} acceptée(s) · fenêtre 24 h`);
+    setKpi("k-blocked-sub", `${KV.fmtNumber(checkoutStats.accepted_orders ?? 0)} acceptée(s) · 30 j`);
   }
 
   // ======================= Liste fusionnée : alertes identité =======================
@@ -499,7 +499,7 @@
     const [allC, minorC, chk, idStats, verifs, blk] = await Promise.allSettled([
       KV.getJSON(`/api/id-cards?limit=${CARD_LIMIT}`),
       KV.getJSON(`/api/id-cards?adult=false&limit=${CARD_LIMIT}`),
-      KV.getJSON("/api/checkout/stats?window_hours=24"),
+      KV.getJSON("/api/checkout/stats?window_hours=720"),
       KV.getJSON("/api/identity/stats"),
       KV.getJSON(`/api/identity/verifications?limit=${VERIF_LIMIT}`),
       KV.getJSON(`/api/checkout/attempts?blocked_underage=true&limit=${ATTEMPT_LIMIT}`),

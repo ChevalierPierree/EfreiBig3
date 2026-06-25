@@ -373,7 +373,9 @@
   }
 
   async function loadStats() {
-    const rows = await KV.getJSON("/api/fraud/reasons/stats");
+    // window_hours large : l'endpoint filtre sur les N dernieres heures, or le jeu
+    // de demo est fige dans le passe. 720 h (max) couvre l'historique disponible.
+    const rows = await KV.getJSON("/api/fraud/reasons/stats?window_hours=720");
     reasonRows = Array.isArray(rows) ? rows : [];
     if (reasonRows.length && !reasonRows.some((r) => r.reason === selectedReason)) {
       selectedReason = reasonRows[0].reason;
