@@ -102,13 +102,42 @@
     history.forEach((m) => addMsg(m.role, m.text, false));
     if (history.length) $("kvx-panel").classList.add("show");
   }
-  function speak(text) {
+  // Voix : on privilegie le TTS NEURONAL local (Piper, /api/voice/tts) ; si le
+  // service est indisponible, on retombe sur la voix de synthese du navigateur.
+  let ttsMode = null; // null = inconnu, true = Piper OK, false = repli navigateur
+
+  async function piperSpeak(text) {
+    const r = await fetch(BASE + "/tts", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!r.ok) throw new Error("tts " + r.status);
+    const blob = await r.blob();
+    if (!blob || blob.size < 1000) throw new Error("tts vide");
+    const url = URL.createObjectURL(blob);
+    setState("speaking");
+    await new Promise((res) => {
+      const a = new Audio(url);
+      a.onended = res; a.onerror = res;
+      a.play().catch(res);
+    });
+    URL.revokeObjectURL(url);
+  }
+
+  function browserSpeak(text) {
     return new Promise((res) => {
       if (!("speechSynthesis" in window) || !text) return res();
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text); u.lang = "fr-FR"; u.rate = 1.04;
       u.onend = res; u.onerror = res; setState("speaking"); window.speechSynthesis.speak(u);
     });
+  }
+
+  async function speak(text) {
+    if (!text) return;
+    if (ttsMode === false) return browserSpeak(text);   // repli definitif si service KO
+    try { await piperSpeak(text); ttsMode = true; }       // voix neuronale
+    catch (e) { if (ttsMode === null) ttsMode = false; await browserSpeak(text); }
   }
   async function respond(text) { addMsg("asst", text); await speak(text); }
 

@@ -9,7 +9,7 @@
 |---|---|---|
 | STT (transcription) | **faster-whisper (local)** | Cloud STT (Google/Whisper API) |
 | LLM (intention + narration) | **Ollama / llama3.2 (local)** | Claude API (Haiku 4.5 / Opus 4.8) |
-| TTS (synthèse vocale) | **SpeechSynthesis navigateur (voix macOS, local)** | Cloud TTS (ElevenLabs, etc.) |
+| TTS (restitution vocale) | **Piper, voix NEURONALE locale** (repli SpeechSynthesis navigateur) | Cloud TTS (ElevenLabs, OpenAI, Azure) |
 
 ## Pourquoi le local l'emporte ici
 
@@ -37,6 +37,29 @@ besoin évoluait vers des narrations grand public (B2C) sans données sensibles,
 une bascule vers l'API (Claude Haiku, très bon marché) serait défendable — d'où
 l'architecture découplée qui permettrait de remplacer la brique LLM sans toucher
 au reste.
+
+## Focus voix (TTS) : synthèse classique vs neuronale
+
+La restitution vocale a son propre arbitrage, sur deux dimensions : **classique vs
+neuronale** (qualité) et **local vs API** (confidentialité/coût).
+
+| Famille | Principe | Rendu | Local ? | Coût |
+|---|---|---|---|---|
+| Synthèse **classique** (SpeechSynthesis navigateur, voix macOS) | assemble des sons pré-enregistrés / règles | robotique, intonation plate | ✅ | gratuit |
+| TTS **neuronal local** — **Piper** *(notre choix)* | un réseau de neurones génère la voix | naturel | ✅ | gratuit |
+| TTS **neuronal API** (ElevenLabs, OpenAI, Azure) | idem, hébergé | le plus naturel | ❌ | payant + envoi cloud |
+
+**Décision : Piper (neuronal, local).** Il offre une voix **bien plus naturelle** que la
+synthèse classique du navigateur **tout en restant 100 % local, gratuit et hors-ligne** —
+donc sans renier la contrainte RGPD/local du projet. C'est le meilleur compromis : on évite
+à la fois le rendu robotique du classique **et** l'envoi de texte au cloud d'une API.
+Le navigateur (`SpeechSynthesis`) reste branché en **repli automatique** si le service de
+voix neuronale est indisponible (robustesse). Une voix **API** ne se justifierait que pour
+un usage **B2C non sensible** (meilleure expressivité, sans données réglementaires en jeu).
+
+Mesures (voix `fr_FR-siwis-medium`, CPU local) : synthèse d'une phrase courte ≈ **70 ms**,
+d'une narration complète ≈ **510 ms** (16× plus rapide que le temps réel) → imperceptible
+à l'usage.
 
 ## Opportunité B2C (demandée par le sujet)
 

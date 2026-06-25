@@ -22,7 +22,7 @@ respecter la sensibilite RGPD des donnees de fraude.
    └─ explain  → narration des KPIs
                  🗣️ Ollama lit les chiffres reels de l'API :8000
                                           (api/voice/narrate_service.py)
-                 🔊 TTS : SpeechSynthesis (voix macOS, local)
+                 🔊 TTS : Piper, voix NEURONALE locale (repli SpeechSynthesis)
 ```
 
 Service vocal autonome sur le port **8100** (decouple du data API :8000 et du
@@ -76,6 +76,17 @@ L'assistant repond dans un panneau type chatbot et a voix haute.
 - `POST /api/voice/intent` `{text}` → `{action, view, ...}`
 - `POST /api/voice/narrate` `{view}` → `{kpis, narration}`
 - `POST /api/voice/command` (fichier audio) → pipeline complet
+- `POST /api/voice/tts` `{text}` → audio WAV (voix neuronale locale Piper)
+- `GET  /api/voice/tts/health` → `{available}` (le front retombe sur la voix
+  navigateur si `false`)
+
+### Voix neuronale (Piper) — modèle à télécharger une fois (~60 Mo, non versionné)
+```bash
+BASE=https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium
+mkdir -p api/voice/tts_models
+curl -L -o api/voice/tts_models/fr_FR-siwis-medium.onnx      "$BASE/fr_FR-siwis-medium.onnx"
+curl -L -o api/voice/tts_models/fr_FR-siwis-medium.onnx.json "$BASE/fr_FR-siwis-medium.onnx.json"
+```
 
 ## Configuration (variables d'env)
 

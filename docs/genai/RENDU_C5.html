@@ -106,7 +106,7 @@ point de jonction des trois axes, et la raison pour laquelle un seul investissem
 
 <h2>C5.2 — Solution développée &amp; argumentaire Local vs API</h2>
 <p>Foundation model / LLM utilisé : <strong>llama3.2 (3B) via Ollama</strong>, en local. STT :
-<strong>faster-whisper</strong>. TTS : <strong>SpeechSynthesis</strong> du navigateur (voix macOS). Architecture
+<strong>faster-whisper</strong>. TTS : <strong>Piper</strong> (voix <strong>neuronale</strong> locale, repli SpeechSynthesis navigateur). Architecture
 <strong>découplée</strong> : un service vocal FastAPI autonome sur le port <code>8100</code>, qui n'altère pas le
 cœur data (port <code>8000</code>) ni le dashboard (port <code>7600</code>).</p>
 
@@ -115,8 +115,14 @@ cœur data (port <code>8000</code>) ni le dashboard (port <code>7600</code>).</p
   <tr><th>Brique</th><th>Choix local</th><th>Alternative API écartée</th></tr>
   <tr><td>STT</td><td><strong>faster-whisper</strong></td><td>Cloud STT (Google, Whisper API)</td></tr>
   <tr><td>LLM (intention + narration)</td><td><strong>Ollama / llama3.2</strong></td><td>Claude API (Haiku 4.5 / Opus 4.8)</td></tr>
-  <tr><td>TTS</td><td><strong>SpeechSynthesis navigateur</strong></td><td>Cloud TTS (ElevenLabs…)</td></tr>
+  <tr><td>TTS (voix)</td><td><strong>Piper — voix neuronale locale</strong> (repli navigateur)</td><td>Cloud TTS (ElevenLabs, OpenAI, Azure)</td></tr>
 </table>
+<p style="font-size:9.5pt"><strong>Choix de la voix (point clé).</strong> On distingue la synthèse
+<em>classique</em> (voix navigateur/macOS, rendu robotique) de la voix <em>neuronale</em> générée par
+réseau de neurones (rendu naturel). On retient <strong>Piper, neuronal ET local</strong> : voix
+naturelle <strong>sans</strong> envoyer de texte au cloud (contrairement à une API type ElevenLabs) — le
+meilleur compromis qualité / RGPD. Synthèse ≈ 70 ms (phrase courte) à 510 ms (narration), soit
+16× plus rapide que le temps réel. Une voix API ne se justifierait qu'en B2C non sensible.</p>
 <ul>
   <li><strong>Exigence métier explicite</strong> — le VP doit naviguer « pour un usage au moins local » :
       le local est le cahier des charges, pas une option.</li>
@@ -230,7 +236,7 @@ du projet (données réglementaires) et il est atteint.</p>
    ├─ STT local        : faster-whisper            (stt_service.py)
    ├─ Intention (JSON) : Ollama / llama3.2, temp 0 (intent_service.py)  → navigate | filter | ask | unknown
    └─ Narration / Q&A  : Ollama lit les KPIs réels de l'API :8000 (narrate_service.py)
-                         🔊 TTS : SpeechSynthesis (voix macOS, local)</pre>
+                         🔊 TTS : Piper (voix neuronale locale, repli SpeechSynthesis)</pre>
 <pre># Pré-requis : stack data (./patator), Ollama ≥ 0.30 (ollama serve), service vocal.
 python -m api.voice.voice_app                 # service vocal :8100
 python3 docs/genai/tests/run_eval.py          # rejoue toutes les mesures C5.3 (déterministe)

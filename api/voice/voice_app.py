@@ -17,11 +17,11 @@ from __future__ import annotations
 import os
 import tempfile
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import intent_service, narrate_service, stt_service
+from . import intent_service, narrate_service, stt_service, tts_service
 
 app = FastAPI(title="KiVendTout Voice Layer", version="0.1.0")
 
@@ -72,6 +72,22 @@ def intent(body: TextIn):
 @app.post("/api/voice/narrate")
 def narrate(body: NarrateIn):
     return narrate_service.narrate(body.view)
+
+
+@app.get("/api/voice/tts/health")
+def tts_health():
+    """Le front interroge ceci : voix neuronale dispo ? sinon il retombe sur la voix navigateur."""
+    return {"available": tts_service.available()}
+
+
+@app.post("/api/voice/tts")
+def tts(body: TextIn):
+    """Texte -> audio WAV (voix neuronale locale Piper)."""
+    try:
+        audio = tts_service.synthesize(body.text)
+    except FileNotFoundError:
+        return Response(status_code=503, content=b"", media_type="audio/wav")
+    return Response(content=audio, media_type="audio/wav")
 
 
 @app.post("/api/voice/ask")

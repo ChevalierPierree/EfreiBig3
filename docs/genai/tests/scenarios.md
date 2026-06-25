@@ -119,6 +119,7 @@ de ne pas recalculer de ratios non fournis (§5).
 | STT (transcription) | ≈ 1018 ms (max 1387) |
 | Intention (Ollama) | ≈ 542 ms |
 | Narration / Q&A (Ollama) | ≈ 1029 ms |
+| TTS neuronal (Piper, phrase courte → narration) | ≈ 70 → 510 ms |
 | **Navigation perçue** (STT + intention) | **≈ 1,5 s** |
 | **Question perçue** (STT + intention + narration) | **≈ 2,5 s** |
 

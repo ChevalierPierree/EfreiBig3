@@ -48,3 +48,7 @@ markdowns/
 
 # Local generated data
 data/external/
+
+# Modeles TTS Piper (telecharges, non versionnes)
+api/voice/tts_models/*.onnx
+api/voice/tts_models/*.onnx.json
