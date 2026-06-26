@@ -63,8 +63,16 @@
   .miniflow{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:700;margin-top:8px}
   .miniflow .b{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 18px}
   .miniflow .a{color:var(--blue);font-size:24px}
-  .demo{background:var(--ink);color:#fff;border-radius:18px;padding:30px 34px;font-size:26px;font-weight:500}
+  .demo{background:var(--ink);color:#fff;border-radius:18px;padding:26px 32px;font-size:24px;font-weight:500}
   .demo .k{display:inline-block;background:#fff;color:var(--ink);border-radius:8px;padding:2px 12px;font-weight:900;font-family:'Roboto Mono',monospace}
+  .cmp{border-collapse:collapse;width:100%;font-size:19px;margin-top:4px}
+  .cmp th,.cmp td{border:1px solid var(--line);padding:11px 16px;text-align:left}
+  .cmp th{background:var(--surface);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .cmp tr.win td{background:var(--blue-50);font-weight:700}
+  .cmp .ok{color:var(--green)} .cmp .mut{color:var(--muted)}
+  .note{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:16px 22px;font-size:19px;margin-top:18px}
+  .note b{color:var(--blue)}
   @page{size:1280px 720px;margin:0}
   @media print{ body{background:#fff} .slide{margin:0;box-shadow:none;page-break-after:always} }
 </style>
@@ -79,7 +87,7 @@
   <div class="icons">🎧 🧠 🔊</div>
   <div class="authors">Pierre Chevalier &nbsp;·&nbsp; Jean Macario</div>
   <span class="brandtag">KiVendTout — M1 Data Engineering</span>
-  <span class="pagenum">1 / 6</span>
+  <span class="pagenum">1 / 7</span>
 </section>
 
 <!-- ===== SLIDE 2 — LE CONTEXTE ===== -->
@@ -112,7 +120,7 @@
     </div>
   </div>
   <span class="brandtag">KiVendTout — sans IA</span>
-  <span class="pagenum">2 / 6</span>
+  <span class="pagenum">2 / 7</span>
 </section>
 
 <!-- ===== SLIDE 3 — L'IDÉE ===== -->
@@ -132,7 +140,7 @@
     <div style="margin-top:30px"><span class="pill">🔒 100 % local — aucune donnée ne quitte la machine</span></div>
   </div>
   <span class="brandtag">L'intégration d'IA générative</span>
-  <span class="pagenum">3 / 6</span>
+  <span class="pagenum">3 / 7</span>
 </section>
 
 <!-- ===== SLIDE 4 — TECHNIQUE (léger) ===== -->
@@ -155,17 +163,73 @@
     </div>
   </div>
   <span class="brandtag">Comment ça marche</span>
-  <span class="pagenum">4 / 6</span>
+  <span class="pagenum">4 / 7</span>
 </section>
 
-<!-- ===== SLIDE 5 — BÉNÉFICES & RÉSULTATS ===== -->
+<!-- ===== SLIDE 5 — TESTÉ & MESURÉ ===== -->
 <section class="slide">
-  <div class="kicker">05 · Ce que ça apporte</div>
-  <h1>Accessible, fiable, immédiat</h1>
+  <div class="kicker">05 · Tester pour valider</div>
+  <h1>On l'a testé pour de vrai</h1>
+  <div class="grow">
+    <div class="row">
+      <div class="card" style="flex:1.15">
+        <h3>Le protocole (rejouable)</h3>
+        <ul class="bul" style="font-size:18px">
+          <li><b>Dataset de test</b> : 39 commandes étiquetées (navigation, filtre, action, question, hors-domaine)</li>
+          <li><b>Harnais</b> : voix → STT → LLM, comparé à la <b>vérité terrain</b> de l'API</li>
+          <li>Déterministe (<code style="font-size:15px">température 0</code>) : rejouable à l'identique</li>
+        </ul>
+        <div style="margin-top:14px;font-size:16px;color:var(--muted)">4 mesures :
+          <b style="color:var(--ink)">WER</b> · <b style="color:var(--ink)">intention</b> ·
+          <b style="color:var(--ink)">factualité</b> · <b style="color:var(--ink)">latence</b></div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:16px">
+        <div class="row">
+          <div class="kpi g"><div class="v">100 %</div><div class="l">intention (dataset 32 cas)</div></div>
+          <div class="kpi g"><div class="v">0</div><div class="l">chiffre inventé</div></div>
+        </div>
+        <div class="row">
+          <div class="kpi"><div class="v">0,157</div><div class="l">WER (transcription)</div></div>
+          <div class="kpi"><div class="v">≈2,5 s</div><div class="l">temps de réponse</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="note">🔁 <span>La boucle : <b>tester → trouver les défauts → corriger → re-mesurer</b> &nbsp;(intention 78 % → <b class="ok" style="color:var(--green)">100 %</b>)</span></div>
+  </div>
+  <span class="brandtag">Tests &amp; validation</span>
+  <span class="pagenum">5 / 7</span>
+</section>
+
+<!-- ===== SLIDE 6 — CHOIX DU MODÈLE ===== -->
+<section class="slide">
+  <div class="kicker">06 · Le choix du modèle</div>
+  <h1>Le bon modèle, choisi par la mesure</h1>
+  <div class="grow">
+    <table class="cmp">
+      <tr><th>Modèle (local)</th><th>Justesse (dataset)</th><th>Vitesse</th><th>Verdict</th></tr>
+      <tr class="win"><td>Llama 3.2 (3 Md)</td><td class="ok">32/32 — 100 %</td><td>la + rapide (~0,8 s)</td><td>✅ retenu</td></tr>
+      <tr><td>Mistral 7B</td><td class="mut">24/32 — 75 %</td><td>~9 s (narration)</td><td>écarté</td></tr>
+      <tr><td>Gemma 1 (7 Md)</td><td class="mut">78 %</td><td>lent</td><td>écarté</td></tr>
+    </table>
+    <div class="row" style="margin-top:22px">
+      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">🎯 100 % sur le dataset</div></div>
+      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">⚡ le plus rapide</div></div>
+      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">🔒 100 % local &amp; gratuit</div></div>
+    </div>
+    <div class="note">💡 <span><b>« Plus gros » ≠ « meilleur »</b> : un modèle 3 Md récent bat des 7 Md plus anciens. Choix par la mesure, pas au feeling.</span></div>
+  </div>
+  <span class="brandtag">Justification du modèle</span>
+  <span class="pagenum">6 / 7</span>
+</section>
+
+<!-- ===== SLIDE 7 — BÉNÉFICES + DÉMO ===== -->
+<section class="slide">
+  <div class="kicker">07 · Bénéfices &amp; démo</div>
+  <h1>Accessible — à vous de parler</h1>
   <div class="grow">
     <div class="row">
       <div class="card" style="flex:1">
-        <h3>Bénéfices</h3>
+        <h3>Ce que ça apporte</h3>
         <ul class="bul" style="font-size:19px">
           <li><b>Accessibilité</b> : mains-libres, pour le VP et au-delà</li>
           <li>Pilotable à la <b>souris ET à la voix</b></li>
@@ -173,47 +237,17 @@
           <li>Les chiffres se <b>lisent tout seuls</b></li>
         </ul>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:18px">
-        <div class="row">
-          <div class="kpi g"><div class="v">100 %</div><div class="l">commandes comprises (dataset)</div></div>
-          <div class="kpi g"><div class="v">0</div><div class="l">chiffre inventé</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:16px">
+        <div class="demo">🎙️ Maintenez <span class="k">P</span> et dites :<br>
+          <span style="color:#8ab4f8">« approuve l'alerte numéro 1 »</span> → confirmation demandée.</div>
+        <div class="card" style="background:var(--blue-50);border-color:#bcd3fb;padding:18px 22px">
+          <b style="font-size:17px">Et après ?</b> scénarios à la voix · rapport généré · voix premium (API) pour le B2C
         </div>
-        <div class="row">
-          <div class="kpi"><div class="v">≈2,5 s</div><div class="l">temps de réponse</div></div>
-          <div class="kpi"><div class="v">100 %</div><div class="l">local &amp; gratuit</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <span class="brandtag">Les bénéfices</span>
-  <span class="pagenum">5 / 6</span>
-</section>
-
-<!-- ===== SLIDE 6 — DÉMO + SUITE ===== -->
-<section class="slide">
-  <div class="kicker">06 · La suite</div>
-  <h1>À vous de parler</h1>
-  <div class="grow">
-    <div class="demo">🎙️ Maintenez la touche <span class="k">P</span> et dites :
-      <br><span style="color:#8ab4f8">« approuve l'alerte numéro 1 »</span> → l'assistant demande confirmation.</div>
-    <div class="row" style="margin-top:28px">
-      <div class="card" style="flex:1">
-        <h3>Perspectives</h3>
-        <ul class="bul" style="font-size:18px">
-          <li>Lancer des scénarios à la voix</li>
-          <li>Rapport exécutif généré automatiquement</li>
-          <li>Voix premium (API) pour le B2C</li>
-        </ul>
-      </div>
-      <div class="card" style="flex:1;background:var(--blue-50);border-color:#bcd3fb">
-        <h3>En une phrase</h3>
-        <p style="font-size:21px;line-height:1.45">On a rendu une plateforme de fraude
-        <b>écoutable, racontable et actionnable à la voix</b> — sans rien envoyer dans le cloud.</p>
       </div>
     </div>
   </div>
   <span class="brandtag">Merci · Pierre Chevalier &amp; Jean Macario</span>
-  <span class="pagenum">6 / 6</span>
+  <span class="pagenum">7 / 7</span>
 </section>
 
 </body>
