@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>KiVendTout — Assistant vocal IA · Rapport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1a73e8; --blue-50:#e8f0fe; --green:#1e8e3e; --yellow:#f9ab00; --red:#d93025;
+    --ink:#202124; --muted:#5f6368; --line:#dadce0; --surface:#f8f9fa;
+  }
+  *{box-sizing:border-box}
+  html{font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--ink);line-height:1.55;font-size:11pt}
+  body{margin:0}
+  .page{max-width:840px;margin:0 auto;padding:30px 42px}
+  h1{font-size:27pt;font-weight:700;margin:0 0 6px;letter-spacing:-.5px}
+  h2{font-size:15pt;font-weight:700;margin:30px 0 4px;display:flex;align-items:center;gap:11px}
+  h2 .step{flex:none;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;
+    font-size:14pt;display:inline-flex;align-items:center;justify-content:center}
+  h2 .bar{height:2px;background:var(--line);flex:1}
+  h3{font-size:11.5pt;font-weight:500;margin:16px 0 5px;color:var(--blue)}
+  p{margin:7px 0}
+  .lede{font-size:12.5pt;color:var(--muted);margin:0 0 6px}
+  .overline{text-transform:uppercase;letter-spacing:1.2px;font-size:9pt;font-weight:700;color:var(--blue)}
+  table{border-collapse:collapse;width:100%;margin:11px 0;font-size:10pt}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:var(--surface);font-weight:500}
+  code{font-family:'Roboto Mono',monospace;font-size:9.5pt;background:var(--surface);padding:1px 5px;border-radius:4px}
+  .grid{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+  .kpi{flex:1;min-width:140px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;background:#fff}
+  .kpi .v{font-size:20pt;font-weight:700;display:block;line-height:1.1}
+  .kpi .l{font-size:8.5pt;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .kpi.good .v{color:var(--green)} .kpi.blue .v{color:var(--blue)}
+  .card{border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin:9px 0;background:#fff}
+  .card h3{margin-top:0}
+  .tag{display:inline-block;font-size:8.5pt;font-weight:700;padding:2px 9px;border-radius:999px}
+  .tag.b{background:var(--blue-50);color:var(--blue)} .tag.g{background:#e6f4ea;color:var(--green)}
+  .callout{border-left:4px solid var(--blue);background:var(--surface);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+  .muted{color:var(--muted)} .ok{color:var(--green);font-weight:700}
+  ul{margin:6px 0 6px 0;padding-left:19px} li{margin:3px 0}
+  .cover{padding:54px 42px 22px;border-bottom:3px solid var(--blue)}
+  .meta-row{display:flex;gap:26px;flex-wrap:wrap;font-size:10pt;color:var(--muted);margin-top:13px}
+  .steps{counter-reset:s;margin:10px 0}
+  .pill{display:inline-block;font-size:9pt;background:var(--blue-50);color:var(--blue);border-radius:999px;padding:2px 9px;margin:1px 2px}
+  @page{size:A4;margin:13mm}
+  @media print{ h2{page-break-after:avoid} table,.callout,.kpi,.card{page-break-inside:avoid} .page{padding:0} }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="cover">
+  <div class="overline">Atelier IA générative · Bloc C5 · KiVendTout</div>
+  <h1>Un assistant vocal IA pour piloter le dashboard</h1>
+  <p class="lede">Naviguer, interroger les données et <strong>agir sur les alertes de fraude à la
+  voix</strong> — 100 % en local, avec confirmation humaine. Rapport : étapes, choix, résultats, perspectives.</p>
+  <div class="meta-row">
+    <span><strong>Stack IA</strong> · faster-whisper · Mistral 7B (Ollama) · Piper</span>
+    <span><strong>Cible</strong> · accessibilité (VP sans usage des bras) + B2C</span>
+    <span><strong>Date</strong> · juin 2026</span>
+  </div>
+</div>
+
+<p style="margin-top:18px">En une phrase : on greffe une <strong>couche d'IA générative vocale</strong> sur la
+plateforme de détection de fraude KiVendTout, pour qu'elle s'<strong>écoute, se raconte et s'actionne</strong>
+à la voix — sans qu'aucune donnée ne quitte la machine. Trois briques d'IA travaillent en chaîne :
+<span class="pill">🎧 STT — écouter</span><span class="pill">🧠 LLM — comprendre & raconter</span><span class="pill">🔊 TTS — parler</span></p>
+
+<!-- ============ 1 ============ -->
+<h2><span class="step">1</span> Étapes réalisées <span class="bar"></span></h2>
+
+<div class="card">
+  <h3>① Architecture découplée</h3>
+  Un <strong>service vocal autonome</strong> (FastAPI, port 8100) est ajouté <em>sans toucher</em> au cœur
+  data (API 8000) ni au dashboard (7600). On peut le démarrer, l'arrêter ou changer ses modèles sans risque
+  pour la plateforme existante.
+</div>
+<div class="card">
+  <h3>② Les trois briques d'IA</h3>
+  <strong>STT</strong> (faster-whisper) transcrit la voix → <strong>LLM</strong> (Mistral 7B via Ollama)
+  comprend l'intention en JSON et rédige les réponses à partir des <strong>vrais KPIs</strong> →
+  <strong>TTS</strong> (Piper) répond avec une <strong>voix neuronale</strong>.
+</div>
+<div class="card">
+  <h3>③ Intégration dans l'interface (souris + voix)</h3>
+  Micro dans la barre de commande, <strong>push-to-talk</strong> (touche <code>P</code>), panneau de
+  conversation, et sur chaque page des <strong>chips de suggestion spécifiques</strong> (cliquables = équivalent
+  des commandes vocales). Tout ce qui se fait à la voix se fait aussi à la souris, et inversement.
+</div>
+<div class="card">
+  <h3>④ Passage à l'action, avec garde-fou</h3>
+  L'assistant <strong>agit</strong> sur les alertes (approuver / bloquer / investiguer). Comme un identifiant
+  technique (<code>FRD_PAY_2229_50D1BD</code>) est imprononçable, chaque alerte reçoit un <strong>numéro court
+  <code>#N</code></strong> visible — repère commun à l'œil et à la voix. <strong>Confirmation humaine
+  obligatoire</strong> avant toute décision (le bot décrit la cible et attend « oui »/« non »).
+</div>
+<div class="card">
+  <h3>⑤ Voix neuronale &amp; fiabilité des chiffres</h3>
+  Remplacement de la voix de synthèse classique du navigateur par <strong>Piper</strong> (voix générée par
+  réseau de neurones, locale). Côté chiffres, la narration s'<strong>ancre sur les KPIs réels</strong> de l'API
+  pour ne jamais en inventer.
+</div>
+<div class="card">
+  <h3>⑥ Audit de cohérence des données &amp; évaluation</h3>
+  Vérification automatique des invariants (sommes, ratios, recoupements) et <strong>mesures chiffrées</strong>
+  de la qualité (transcription, intention, factualité, latence), rejouables via un harnais.
+</div>
+
+<!-- ============ 2 ============ -->
+<h2><span class="step">2</span> Choix méthodologiques <span class="bar"></span></h2>
+
+<table>
+  <tr><th>Choix</th><th>Pourquoi</th></tr>
+  <tr><td><strong>100 % local</strong> (STT, LLM, TTS)</td>
+      <td>Exigence métier (le VP doit pouvoir l'utiliser en local) + données sensibles (paiements, fraude,
+      CNI) : <strong>rien ne part au cloud</strong>, zéro coût par requête, fonctionne hors-ligne.</td></tr>
+  <tr><td><strong>Architecture découplée</strong> (service séparé)</td>
+      <td>N'altère pas la plateforme ; permet de <strong>remplacer une brique</strong> (ex. basculer le LLM
+      vers une API pour un usage B2C non sensible) sans toucher au reste.</td></tr>
+  <tr><td><strong>Intention contrainte en JSON</strong> + <code>température 0</code></td>
+      <td>Parsing fiable et résultats <strong>déterministes</strong> → l'évaluation est reproductible.</td></tr>
+  <tr><td><strong>Ancrage sur les KPIs réels</strong> (anti-hallucination)</td>
+      <td>Le LLM <strong>reformule</strong> des chiffres déjà calculés (via <code>/api/kpis/readable</code>),
+      il ne recalcule rien → aucun chiffre inventé sur des données réglementaires.</td></tr>
+  <tr><td><strong>Front adapté à la voix</strong> (IDs courts <code>#N</code>)</td>
+      <td>Une UI pensée souris n'est pas pilotable à la voix : on crée un repère <strong>prononçable et
+      visible</strong>, partagé œil + voix.</td></tr>
+  <tr><td><strong>Confirmation humaine avant action</strong></td>
+      <td>Une décision de fraude est sensible : le bot décrit la cible et attend une validation explicite
+      (vocale ou par bouton <span class="tag g">Oui</span> / <span class="tag b">Non</span>).</td></tr>
+  <tr><td><strong>Voix neuronale locale</strong> (Piper) plutôt que classique ou API</td>
+      <td>Voix naturelle <strong>sans</strong> envoyer le texte au cloud (≠ ElevenLabs) et sans le rendu
+      robotique de la synthèse classique : le meilleur compromis qualité / RGPD.</td></tr>
+  <tr><td><strong>Choix du modèle LLM par la mesure</strong></td>
+      <td>Comparaison objective de plusieurs modèles (voir §3) plutôt qu'un choix « au feeling » :
+      « plus gros » ne veut pas dire « meilleur ».</td></tr>
+</table>
+
+<!-- ============ 3 ============ -->
+<h2><span class="step">3</span> Résultats obtenus <span class="bar"></span></h2>
+
+<div class="grid">
+  <div class="kpi blue"><span class="v">0,157</span><span class="l">WER moyen (transcription)</span></div>
+  <div class="kpi good"><span class="v">7/7</span><span class="l">Intention (commandes claires)</span></div>
+  <div class="kpi good"><span class="v">0</span><span class="l">Chiffre inventé (hallucination)</span></div>
+  <div class="kpi blue"><span class="v">≈2,5 s</span><span class="l">Réponse vocale ressentie</span></div>
+</div>
+
+<h3>Qualité &amp; fiabilité</h3>
+<ul>
+  <li><strong>Transcription</strong> : WER moyen <strong>0,157</strong> (7/12 commandes exactes). Les écarts
+  viennent surtout de la <em>voix de synthèse de test</em> qui écorche les mots métier — une voix humaine fait mieux.</li>
+  <li><strong>Compréhension</strong> : <strong>100 %</strong> sur les commandes claires (navigation, filtre,
+  action, question) ; <strong>0,92</strong> en bout-en-bout, l'unique échec venant d'une transcription corrompue
+  (le modèle <strong>refuse</strong> plutôt que d'inventer — comportement sûr).</li>
+  <li><strong>Factualité</strong> : <strong class="ok">0 chiffre inventé</strong> sur la narration et le Q&amp;A —
+  tous les nombres cités correspondent aux KPIs réels.</li>
+  <li><strong>Données</strong> : tous les invariants de cohérence sont <span class="ok">OK</span> ; les
+  divergences apparentes étaient des <em>juxtapositions temporelles</em> (sources à des dates différentes), corrigées par l'affichage.</li>
+</ul>
+
+<h3>Latences (sur Apple M5, à chaud)</h3>
+<table>
+  <tr><th>Étape</th><th>Temps</th></tr>
+  <tr><td>Transcription (STT)</td><td>≈ 1 s</td></tr>
+  <tr><td>Compréhension (LLM, intention)</td><td>≈ 1 s</td></tr>
+  <tr><td>Voix neuronale (TTS Piper)</td><td>≈ 0,07 s (phrase courte) → 0,5 s (narration)</td></tr>
+  <tr><td>Narration générée (LLM)</td><td>≈ 1 à 9 s selon le modèle</td></tr>
+</table>
+
+<h3>Choix du modèle, par la mesure</h3>
+<p>Trois modèles open-source testés en local sur le même jeu d'intentions. Enseignement : un modèle plus gros
+mais plus ancien (Gemma 1 7B) fait <strong>moins bien</strong> qu'un petit modèle récent.</p>
+<table>
+  <tr><th>Modèle</th><th>Intention</th><th>Latence intention</th><th>Narration</th></tr>
+  <tr><td>llama3.2 (3 Md)</td><td>7/7</td><td>~0,5 s</td><td>bonne, ~1 s</td></tr>
+  <tr><td>gemma:7b (Gemma 1)</td><td>5/7</td><td>~2,3 s</td><td>bonne, ~5 s</td></tr>
+  <tr><td><strong>mistral:7b</strong> <span class="tag b">retenu</span></td><td><strong>7/7</strong></td><td>~1,0 s</td><td>très complète &amp; exacte, ~9 s</td></tr>
+</table>
+<div class="callout"><strong>Bilan.</strong> L'objectif imposé (un STT local pour naviguer à la voix) est
+<strong>largement dépassé</strong> : l'assistant navigue, filtre, répond, <strong>agit avec confirmation</strong>,
+et parle d'une voix neuronale — le tout 100 % local et avec 0 hallucination de chiffre.</div>
+
+<!-- ============ 4 ============ -->
+<h2><span class="step">4</span> Perspectives d'évolution <span class="bar"></span></h2>
+
+<h3>Assistant — aller plus loin dans l'action</h3>
+<ul>
+  <li><strong>Narration plus concise</strong> (2 phrases) pour des réponses plus rapides ; corriger « urgence » → « sévérité ».</li>
+  <li><strong>Lancer des scénarios à la voix</strong> sur la page Cas d'usage (« lance le scénario 2 »).</li>
+  <li><strong>Actions multi-cibles</strong> (« bloque les alertes 2 et 5 ») et sur n'importe quelle page.</li>
+  <li><strong>Confort</strong> : mot-déclencheur (« wake-word »), palette de commandes <code>Ctrl+K</code>,
+  <strong>rapport exécutif généré</strong> et téléchargeable en PDF.</li>
+</ul>
+
+<h3>Modèles &amp; voix</h3>
+<ul>
+  <li>Tester <strong>qwen2.5</strong> ou <strong>gemma2:9b</strong> (souvent meilleurs en français) ; voix Piper alternatives.</li>
+  <li>Pour un usage <strong>B2C non sensible</strong>, brancher une voix/un LLM <strong>API</strong> (qualité supérieure) — l'architecture découplée le permet déjà.</li>
+</ul>
+
+<h3>Données &amp; produit</h3>
+<ul>
+  <li><strong>Fenêtrage relatif à la dernière donnée</strong> (plutôt qu'à l'heure courante) pour que les vues « récentes » restent vivantes même sur un jeu figé.</li>
+  <li><strong>Dater les sources</strong> de fraude (live vs entrepôt) à l'écran pour lever toute ambiguïté.</li>
+  <li>Finitions produit : mode sombre, passe d'accessibilité (contraste, lecteurs d'écran), tests automatisés des parcours.</li>
+</ul>
+
+<p class="muted" style="margin-top:20px;font-size:9pt">Dépôt EfreiBig3 — branches <code>genai-voice</code>
+(plateforme + couche vocale) et <code>V2</code> (interface refondue). Détails techniques, argumentaire
+Local vs API et harnais d'évaluation dans <code>docs/genai/</code>.</p>
+
+</div>
+</body>
+</html>
