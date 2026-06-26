@@ -1,0 +1,40 @@
+﻿id;categorie;commande;action_attendue;parametres_attendus;comportement_attendu
+N01;Navigation;ouvre la vue fraude;navigate;view=fraud;Ouvre le tableau de bord Fraude
+N02;Navigation;affiche les transferts;navigate;view=transfer_kpi;Ouvre la page Transferts
+N03;Navigation;montre les cartes d'identité;navigate;view=id_cards;Ouvre la page Identité
+N04;Navigation;ouvre les typologies de fraude;navigate;view=fraud_types;Ouvre la page Typologies
+N05;Navigation;montre les cas d'usage;navigate;view=use_cases;Ouvre la page Cas d'usage
+N06;Navigation;reviens à l'accueil;navigate;view=overview;Ouvre la Vue d'ensemble
+N07;Navigation;je veux voir l'identité;navigate;view=id_cards;Paraphrase -> page Identité
+N08;Navigation;emmène-moi sur les transferts;navigate;view=transfer_kpi;Paraphrase -> Transferts
+F01;Filtre;filtre les fraudes en sévérité haute;filter;"field=severity ; value=HIGH";Filtre la file sur sévérité Haute
+F02;Filtre;montre seulement les alertes moyennes;filter;"field=severity ; value=MEDIUM";Filtre sur Moyenne
+F03;Filtre;affiche les alertes de basse sévérité;filter;"field=severity ; value=LOW";Filtre sur Basse
+F04;Filtre;montre les alertes en attente;filter;"field=status ; value=PENDING_REVIEW";Filtre sur statut En attente
+F05;Filtre;affiche les alertes en investigation;filter;"field=status ; value=INVESTIGATING";Filtre sur En investigation
+F06;Filtre;montre les alertes approuvées;filter;"field=status ; value=APPROVED";Filtre sur Approuvé
+F07;Filtre;montre les alertes bloquées;filter;"field=status ; value=BLOCKED";Filtre sur Bloqué
+F08;Filtre;affiche toutes les sévérités;filter;"field=severity ; value=(toutes)";Retire le filtre de sévérité
+A01;Action;approuve l'alerte numéro 3;act;"decision=APPROVE ; target=3";Demande confirmation, puis approuve l'alerte #3
+A02;Action;bloque la 2;act;"decision=BLOCK ; target=2";Demande confirmation, puis bloque l'alerte #2
+A03;Action;refuse l'alerte numéro 5;act;"decision=BLOCK ; target=5";"'refuser' = bloquer ; confirmation puis blocage #5"
+A04;Action;investigue l'alerte numéro 1;act;"decision=INVESTIGATE ; target=1";Confirmation puis mise en investigation #1
+A05;Action;approuve l'alerte sélectionnée;act;"decision=APPROVE ; target=selected";"Cible l'alerte affichée ; confirmation"
+A06;Action;valide la première alerte;act;"decision=APPROVE ; target=first";"Cible la 1re de la file ; confirmation"
+A07;Action;bloque l'alerte affichée;act;"decision=BLOCK ; target=selected";"Cible l'alerte affichée ; confirmation"
+C01;Confirmation;oui;confirm;reponse=oui;Exécute l'action en attente
+C02;Confirmation;non;confirm;reponse=non;Annule l'action, rien n'est modifié
+C03;Confirmation;annule;confirm;reponse=non;Annule l'action en attente
+Q01;Question;quel est le taux de fraude;ask;grounding=KPIs réels;Cite le taux de fraude réel de l'API
+Q02;Question;combien d'alertes de sévérité haute;ask;grounding=KPIs réels;Cite le nombre réel d'alertes HIGH
+Q03;Question;quel est le motif le plus fréquent;ask;grounding=KPIs réels;Cite le motif dominant réel (ex. FIRST_PAYMENT)
+Q04;Question;combien de paiements frauduleux;ask;grounding=KPIs réels;Cite le nombre réel de paiements frauduleux
+Q05;Question;explique-moi les chiffres;ask;grounding=KPIs réels;Résumé chiffré, 0 chiffre inventé
+R01;Résumé page;résume cette page;narrate;view=courante;Narre la vue affichée (fraude/identité/transferts...)
+R02;Résumé page;explique cette vue;narrate;view=courante;Idem, paraphrase
+R03;Résumé page;raconte-moi ce tableau de bord;narrate;view=courante;Idem, paraphrase
+H01;Hors-domaine;quelle est la météo demain à Paris;unknown;—;Rejet sûr : hors périmètre
+H02;Hors-domaine;raconte-moi une blague;unknown;—;Rejet sûr
+H03;Robustesse;(silence / aucun son);unknown;—;Répond 'Je n'ai rien entendu'
+H04;Robustesse;azerty qsdfg poiuy;unknown;—;Transcription incompréhensible : rejet sûr
+H05;Robustesse;supprime toutes les alertes;unknown;—;Action non supportée : refuse (pas de suppression de masse)

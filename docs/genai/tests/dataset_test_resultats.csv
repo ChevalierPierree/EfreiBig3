@@ -1,0 +1,40 @@
+﻿id;categorie;commande;action_attendue;action_obtenue;details_obtenus;verdict
+N01;Navigation;ouvre la vue fraude;navigate;navigate;view=fraud;OK
+N02;Navigation;affiche les transferts;navigate;navigate;view=transfer_kpi;OK
+N03;Navigation;montre les cartes d'identité;navigate;navigate;view=id_cards;OK
+N04;Navigation;ouvre les typologies de fraude;navigate;navigate;view=fraud_types;OK
+N05;Navigation;montre les cas d'usage;navigate;navigate;view=use_cases;OK
+N06;Navigation;reviens à l'accueil;navigate;navigate;view=overview;OK
+N07;Navigation;je veux voir l'identité;navigate;navigate;view=id_cards;OK
+N08;Navigation;emmène-moi sur les transferts;navigate;navigate;view=transfer_kpi;OK
+F01;Filtre;filtre les fraudes en sévérité haute;filter;filter;field=severity value=HIGH;OK
+F02;Filtre;montre seulement les alertes moyennes;filter;navigate;view=fraud;KO
+F03;Filtre;affiche les alertes de basse sévérité;filter;filter;field=severity value=LOW;OK
+F04;Filtre;montre les alertes en attente;filter;filter;field=status value=PENDING_REVIEW;OK
+F05;Filtre;affiche les alertes en investigation;filter;navigate;view=fraud;KO
+F06;Filtre;montre les alertes approuvées;filter;navigate;view=fraud;KO
+F07;Filtre;montre les alertes bloquées;filter;filter;field=status value=BLOCKED;OK
+F08;Filtre;affiche toutes les sévérités;filter;navigate;view=overview;KO
+A01;Action;approuve l'alerte numéro 3;act;act;decision=APPROVE target=3;OK
+A02;Action;bloque la 2;act;act;decision=BLOCK target=2;OK
+A03;Action;refuse l'alerte numéro 5;act;act;decision=BLOCK target=5;OK
+A04;Action;investigue l'alerte numéro 1;act;act;decision=INVESTIGATE target=1;OK
+A05;Action;approuve l'alerte sélectionnée;act;act;decision=APPROVE target=selected;OK
+A06;Action;valide la première alerte;act;act;decision=APPROVE target=first;OK
+A07;Action;bloque l'alerte affichée;act;act;decision=BLOCK target=selected;OK
+C01;Confirmation;oui;confirm;(traité côté interface);;N/A (front)
+C02;Confirmation;non;confirm;(traité côté interface);;N/A (front)
+C03;Confirmation;annule;confirm;(traité côté interface);;N/A (front)
+Q01;Question;quel est le taux de fraude;ask;ask;;OK
+Q02;Question;combien d'alertes de sévérité haute;ask;ask;;OK
+Q03;Question;quel est le motif le plus fréquent;ask;ask;;OK
+Q04;Question;combien de paiements frauduleux;ask;ask;;OK
+Q05;Question;explique-moi les chiffres;ask;ask;;OK
+R01;Résumé page;résume cette page;narrate;(traité côté interface);;N/A (front)
+R02;Résumé page;explique cette vue;narrate;(traité côté interface);;N/A (front)
+R03;Résumé page;raconte-moi ce tableau de bord;narrate;(traité côté interface);;N/A (front)
+H01;Hors-domaine;quelle est la météo demain à Paris;unknown;ask;;KO
+H02;Hors-domaine;raconte-moi une blague;unknown;ask;;KO
+H03;Robustesse;(silence / aucun son);unknown;(traité côté interface);;N/A (front)
+H04;Robustesse;azerty qsdfg poiuy;unknown;navigate;view=overview;KO
+H05;Robustesse;supprime toutes les alertes;unknown;unknown;;OK

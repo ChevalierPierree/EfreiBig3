@@ -1,0 +1,318 @@
+{
+  "description": "Dataset de test de l'assistant vocal KiVendTout",
+  "total": 39,
+  "cas": [
+    {
+      "id": "N01",
+      "categorie": "Navigation",
+      "commande": "ouvre la vue fraude",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=fraud",
+      "comportement_attendu": "Ouvre le tableau de bord Fraude"
+    },
+    {
+      "id": "N02",
+      "categorie": "Navigation",
+      "commande": "affiche les transferts",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=transfer_kpi",
+      "comportement_attendu": "Ouvre la page Transferts"
+    },
+    {
+      "id": "N03",
+      "categorie": "Navigation",
+      "commande": "montre les cartes d'identité",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=id_cards",
+      "comportement_attendu": "Ouvre la page Identité"
+    },
+    {
+      "id": "N04",
+      "categorie": "Navigation",
+      "commande": "ouvre les typologies de fraude",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=fraud_types",
+      "comportement_attendu": "Ouvre la page Typologies"
+    },
+    {
+      "id": "N05",
+      "categorie": "Navigation",
+      "commande": "montre les cas d'usage",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=use_cases",
+      "comportement_attendu": "Ouvre la page Cas d'usage"
+    },
+    {
+      "id": "N06",
+      "categorie": "Navigation",
+      "commande": "reviens à l'accueil",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=overview",
+      "comportement_attendu": "Ouvre la Vue d'ensemble"
+    },
+    {
+      "id": "N07",
+      "categorie": "Navigation",
+      "commande": "je veux voir l'identité",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=id_cards",
+      "comportement_attendu": "Paraphrase -> page Identité"
+    },
+    {
+      "id": "N08",
+      "categorie": "Navigation",
+      "commande": "emmène-moi sur les transferts",
+      "action_attendue": "navigate",
+      "parametres_attendus": "view=transfer_kpi",
+      "comportement_attendu": "Paraphrase -> Transferts"
+    },
+    {
+      "id": "F01",
+      "categorie": "Filtre",
+      "commande": "filtre les fraudes en sévérité haute",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=severity ; value=HIGH",
+      "comportement_attendu": "Filtre la file sur sévérité Haute"
+    },
+    {
+      "id": "F02",
+      "categorie": "Filtre",
+      "commande": "montre seulement les alertes moyennes",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=severity ; value=MEDIUM",
+      "comportement_attendu": "Filtre sur Moyenne"
+    },
+    {
+      "id": "F03",
+      "categorie": "Filtre",
+      "commande": "affiche les alertes de basse sévérité",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=severity ; value=LOW",
+      "comportement_attendu": "Filtre sur Basse"
+    },
+    {
+      "id": "F04",
+      "categorie": "Filtre",
+      "commande": "montre les alertes en attente",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=status ; value=PENDING_REVIEW",
+      "comportement_attendu": "Filtre sur statut En attente"
+    },
+    {
+      "id": "F05",
+      "categorie": "Filtre",
+      "commande": "affiche les alertes en investigation",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=status ; value=INVESTIGATING",
+      "comportement_attendu": "Filtre sur En investigation"
+    },
+    {
+      "id": "F06",
+      "categorie": "Filtre",
+      "commande": "montre les alertes approuvées",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=status ; value=APPROVED",
+      "comportement_attendu": "Filtre sur Approuvé"
+    },
+    {
+      "id": "F07",
+      "categorie": "Filtre",
+      "commande": "montre les alertes bloquées",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=status ; value=BLOCKED",
+      "comportement_attendu": "Filtre sur Bloqué"
+    },
+    {
+      "id": "F08",
+      "categorie": "Filtre",
+      "commande": "affiche toutes les sévérités",
+      "action_attendue": "filter",
+      "parametres_attendus": "field=severity ; value=(toutes)",
+      "comportement_attendu": "Retire le filtre de sévérité"
+    },
+    {
+      "id": "A01",
+      "categorie": "Action",
+      "commande": "approuve l'alerte numéro 3",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=APPROVE ; target=3",
+      "comportement_attendu": "Demande confirmation, puis approuve l'alerte #3"
+    },
+    {
+      "id": "A02",
+      "categorie": "Action",
+      "commande": "bloque la 2",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=BLOCK ; target=2",
+      "comportement_attendu": "Demande confirmation, puis bloque l'alerte #2"
+    },
+    {
+      "id": "A03",
+      "categorie": "Action",
+      "commande": "refuse l'alerte numéro 5",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=BLOCK ; target=5",
+      "comportement_attendu": "'refuser' = bloquer ; confirmation puis blocage #5"
+    },
+    {
+      "id": "A04",
+      "categorie": "Action",
+      "commande": "investigue l'alerte numéro 1",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=INVESTIGATE ; target=1",
+      "comportement_attendu": "Confirmation puis mise en investigation #1"
+    },
+    {
+      "id": "A05",
+      "categorie": "Action",
+      "commande": "approuve l'alerte sélectionnée",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=APPROVE ; target=selected",
+      "comportement_attendu": "Cible l'alerte affichée ; confirmation"
+    },
+    {
+      "id": "A06",
+      "categorie": "Action",
+      "commande": "valide la première alerte",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=APPROVE ; target=first",
+      "comportement_attendu": "Cible la 1re de la file ; confirmation"
+    },
+    {
+      "id": "A07",
+      "categorie": "Action",
+      "commande": "bloque l'alerte affichée",
+      "action_attendue": "act",
+      "parametres_attendus": "decision=BLOCK ; target=selected",
+      "comportement_attendu": "Cible l'alerte affichée ; confirmation"
+    },
+    {
+      "id": "C01",
+      "categorie": "Confirmation",
+      "commande": "oui",
+      "action_attendue": "confirm",
+      "parametres_attendus": "reponse=oui",
+      "comportement_attendu": "Exécute l'action en attente"
+    },
+    {
+      "id": "C02",
+      "categorie": "Confirmation",
+      "commande": "non",
+      "action_attendue": "confirm",
+      "parametres_attendus": "reponse=non",
+      "comportement_attendu": "Annule l'action, rien n'est modifié"
+    },
+    {
+      "id": "C03",
+      "categorie": "Confirmation",
+      "commande": "annule",
+      "action_attendue": "confirm",
+      "parametres_attendus": "reponse=non",
+      "comportement_attendu": "Annule l'action en attente"
+    },
+    {
+      "id": "Q01",
+      "categorie": "Question",
+      "commande": "quel est le taux de fraude",
+      "action_attendue": "ask",
+      "parametres_attendus": "grounding=KPIs réels",
+      "comportement_attendu": "Cite le taux de fraude réel de l'API"
+    },
+    {
+      "id": "Q02",
+      "categorie": "Question",
+      "commande": "combien d'alertes de sévérité haute",
+      "action_attendue": "ask",
+      "parametres_attendus": "grounding=KPIs réels",
+      "comportement_attendu": "Cite le nombre réel d'alertes HIGH"
+    },
+    {
+      "id": "Q03",
+      "categorie": "Question",
+      "commande": "quel est le motif le plus fréquent",
+      "action_attendue": "ask",
+      "parametres_attendus": "grounding=KPIs réels",
+      "comportement_attendu": "Cite le motif dominant réel (ex. FIRST_PAYMENT)"
+    },
+    {
+      "id": "Q04",
+      "categorie": "Question",
+      "commande": "combien de paiements frauduleux",
+      "action_attendue": "ask",
+      "parametres_attendus": "grounding=KPIs réels",
+      "comportement_attendu": "Cite le nombre réel de paiements frauduleux"
+    },
+    {
+      "id": "Q05",
+      "categorie": "Question",
+      "commande": "explique-moi les chiffres",
+      "action_attendue": "ask",
+      "parametres_attendus": "grounding=KPIs réels",
+      "comportement_attendu": "Résumé chiffré, 0 chiffre inventé"
+    },
+    {
+      "id": "R01",
+      "categorie": "Résumé page",
+      "commande": "résume cette page",
+      "action_attendue": "narrate",
+      "parametres_attendus": "view=courante",
+      "comportement_attendu": "Narre la vue affichée (fraude/identité/transferts...)"
+    },
+    {
+      "id": "R02",
+      "categorie": "Résumé page",
+      "commande": "explique cette vue",
+      "action_attendue": "narrate",
+      "parametres_attendus": "view=courante",
+      "comportement_attendu": "Idem, paraphrase"
+    },
+    {
+      "id": "R03",
+      "categorie": "Résumé page",
+      "commande": "raconte-moi ce tableau de bord",
+      "action_attendue": "narrate",
+      "parametres_attendus": "view=courante",
+      "comportement_attendu": "Idem, paraphrase"
+    },
+    {
+      "id": "H01",
+      "categorie": "Hors-domaine",
+      "commande": "quelle est la météo demain à Paris",
+      "action_attendue": "unknown",
+      "parametres_attendus": "—",
+      "comportement_attendu": "Rejet sûr : hors périmètre"
+    },
+    {
+      "id": "H02",
+      "categorie": "Hors-domaine",
+      "commande": "raconte-moi une blague",
+      "action_attendue": "unknown",
+      "parametres_attendus": "—",
+      "comportement_attendu": "Rejet sûr"
+    },
+    {
+      "id": "H03",
+      "categorie": "Robustesse",
+      "commande": "(silence / aucun son)",
+      "action_attendue": "unknown",
+      "parametres_attendus": "—",
+      "comportement_attendu": "Répond 'Je n'ai rien entendu'"
+    },
+    {
+      "id": "H04",
+      "categorie": "Robustesse",
+      "commande": "azerty qsdfg poiuy",
+      "action_attendue": "unknown",
+      "parametres_attendus": "—",
+      "comportement_attendu": "Transcription incompréhensible : rejet sûr"
+    },
+    {
+      "id": "H05",
+      "categorie": "Robustesse",
+      "commande": "supprime toutes les alertes",
+      "action_attendue": "unknown",
+      "parametres_attendus": "—",
+      "comportement_attendu": "Action non supportée : refuse (pas de suppression de masse)"
+    }
+  ]
+}
