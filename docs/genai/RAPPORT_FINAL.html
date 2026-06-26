@@ -69,7 +69,43 @@ plateforme de détection de fraude KiVendTout, pour qu'elle s'<strong>écoute, s
 <span class="pill">🎧 STT — écouter</span><span class="pill">🧠 LLM — comprendre & raconter</span><span class="pill">🔊 TTS — parler</span></p>
 
 <!-- ============ 1 ============ -->
-<h2><span class="step">1</span> Étapes réalisées <span class="bar"></span></h2>
+<h2><span class="step">1</span> Cas d'usage pertinents de l'IA générative <span class="bar"></span></h2>
+
+<p>La question de départ : <em>où l'IA générative apporte-t-elle une vraie valeur à une plateforme de
+statistiques de fraude ?</em> Le cas d'usage retenu est un <strong>assistant vocal</strong> qui
+<strong>complète la solution existante</strong> — il ne la remplace pas, il la rend accessible et plus rapide
+à exploiter. Il répond d'abord à un besoin concret : permettre au vice-président, <strong>privé de l'usage de
+ses bras</strong>, de piloter le dashboard à la voix.</p>
+
+<h3>Les cas d'usage pertinents (qui convergent vers un seul assistant)</h3>
+<table>
+  <tr><th>Cas d'usage</th><th>Valeur</th><th>B2B / B2C</th></tr>
+  <tr><td><strong>Navigation &amp; action vocales</strong> <span class="tag b">minimum imposé, dépassé</span></td>
+      <td>Piloter <em>et</em> agir (approuver / bloquer une alerte) sans les mains.</td>
+      <td>B2B : accessibilité analyste, mains-libres · B2C : inclusion (handicap moteur/visuel).</td></tr>
+  <tr><td><strong>Narration générative des KPIs</strong></td>
+      <td>Transformer des chiffres bruts en résumé clair en langage naturel.</td>
+      <td>B2B : rapports exécutifs · B2C : vulgarisation des statistiques.</td></tr>
+  <tr><td><strong>Questions-réponses en langage naturel</strong></td>
+      <td>Interroger librement les données sans connaître l'interface.</td>
+      <td>B2B : self-service analytique · B2C : exploration guidée.</td></tr>
+</table>
+<p><strong>Pourquoi ils se rejoignent :</strong> les trois reposent sur la <strong>même couche de
+compréhension d'intention</strong> (<code>audio → texte → intention → action | génération</code>). Un seul
+investissement technique sert donc l'accessibilité (B2C) <em>et</em> l'efficacité opérationnelle (B2B) — ce qui
+en fait <strong>le</strong> cas d'usage le plus pertinent pour compléter la solution.</p>
+
+<h3>Cas d'usage écartés (moins pertinents, et pourquoi)</h3>
+<ul>
+  <li><strong>Génération d'images / de données synthétiques</strong> — aucune valeur ici : le jeu de données
+  est déjà fourni, l'enjeu est de <em>lire</em> les données, pas d'en créer.</li>
+  <li><strong>Chatbot généraliste non ancré</strong> — risque d'<strong>hallucination</strong> sur des chiffres
+  réglementaires (fraude, identité). Écarté au profit d'un assistant <em>ancré sur les KPIs réels</em>, qui
+  reformule sans inventer.</li>
+</ul>
+
+<!-- ============ 2 ============ -->
+<h2><span class="step">2</span> Étapes réalisées <span class="bar"></span></h2>
 
 <div class="card">
   <h3>① Architecture découplée</h3>
@@ -109,7 +145,7 @@ plateforme de détection de fraude KiVendTout, pour qu'elle s'<strong>écoute, s
 </div>
 
 <!-- ============ 2 ============ -->
-<h2><span class="step">2</span> Choix méthodologiques <span class="bar"></span></h2>
+<h2><span class="step">3</span> Choix méthodologiques <span class="bar"></span></h2>
 
 <table>
   <tr><th>Choix</th><th>Pourquoi</th></tr>
@@ -139,7 +175,7 @@ plateforme de détection de fraude KiVendTout, pour qu'elle s'<strong>écoute, s
 </table>
 
 <!-- ============ 3 ============ -->
-<h2><span class="step">3</span> Résultats obtenus <span class="bar"></span></h2>
+<h2><span class="step">4</span> Résultats obtenus <span class="bar"></span></h2>
 
 <div class="grid">
   <div class="kpi blue"><span class="v">0,157</span><span class="l">WER moyen (transcription)</span></div>
@@ -147,6 +183,36 @@ plateforme de détection de fraude KiVendTout, pour qu'elle s'<strong>écoute, s
   <div class="kpi good"><span class="v">0</span><span class="l">Chiffre inventé (hallucination)</span></div>
   <div class="kpi blue"><span class="v">≈2,5 s</span><span class="l">Réponse vocale ressentie</span></div>
 </div>
+
+<h3>Protocole &amp; tests effectués</h3>
+<p>L'évaluation s'appuie sur un <strong>harnais automatique et rejouable</strong> : 12 commandes vocales
+françaises sont <strong>synthétisées</strong> (voix système), passées dans toute la chaîne
+(<code>STT → LLM</code>), puis comparées à la <strong>vérité terrain</strong> lue dans l'API. Grâce à la
+<code>température 0</code>, rejouer les tests donne <strong>exactement</strong> les mêmes résultats.</p>
+<table>
+  <tr><th>Test</th><th>Ce qu'on mesure</th><th>Méthode</th></tr>
+  <tr><td><strong>Transcription (STT)</strong></td><td>Taux d'erreur de mots (WER)</td>
+      <td>Distance de Levenshtein entre la commande dite et transcrite.</td></tr>
+  <tr><td><strong>Intention (LLM)</strong></td><td>Bonne action &amp; bonne cible</td>
+      <td>Matrice de confusion (attendu × obtenu) sur navigation / filtre / action / question.</td></tr>
+  <tr><td><strong>Factualité (narration)</strong></td><td>Aucun chiffre inventé</td>
+      <td>Chaque nombre cité doit exister dans les KPIs réels de l'API. Objectif : <strong>0</strong>.</td></tr>
+  <tr><td><strong>Latence</strong></td><td>Temps de réponse par étape</td>
+      <td>Chronométrage STT / intention / narration / voix.</td></tr>
+</table>
+<p>En complément, un second harnais vérifie la <strong>cohérence des données</strong> (sommes de sévérités,
+ratios, recoupements identité/paiements) : <strong class="ok">tous les invariants passent</strong>.
+Enfin, le <strong>choix du modèle</strong> (ci-dessous) résulte d'un test comparatif, pas d'une intuition.</p>
+
+<p class="muted" style="font-size:9.5pt"><strong>Matrice de confusion des intentions</strong> (bout-en-bout) —
+la diagonale = correct ; le seul hors-diagonale vient d'une transcription corrompue par la voix de test :</p>
+<table style="max-width:560px">
+  <tr><th>attendu \ obtenu</th><th>naviguer</th><th>filtrer</th><th>agir</th><th>question</th><th>rejet sûr</th></tr>
+  <tr><th>naviguer (6)</th><td>6</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+  <tr><th>filtrer (3)</th><td>·</td><td>2</td><td>·</td><td>·</td><td>1</td></tr>
+  <tr><th>agir / question (2)</th><td>·</td><td>·</td><td>1</td><td>1</td><td>·</td></tr>
+  <tr><th>hors-domaine (1)</th><td>·</td><td>·</td><td>·</td><td>·</td><td>1</td></tr>
+</table>
 
 <h3>Qualité &amp; fiabilité</h3>
 <ul>
@@ -184,7 +250,7 @@ mais plus ancien (Gemma 1 7B) fait <strong>moins bien</strong> qu'un petit modè
 et parle d'une voix neuronale — le tout 100 % local et avec 0 hallucination de chiffre.</div>
 
 <!-- ============ 4 ============ -->
-<h2><span class="step">4</span> Perspectives d'évolution <span class="bar"></span></h2>
+<h2><span class="step">5</span> Perspectives d'évolution <span class="bar"></span></h2>
 
 <h3>Assistant — aller plus loin dans l'action</h3>
 <ul>
