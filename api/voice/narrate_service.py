@@ -13,7 +13,7 @@ import requests
 
 DATA_API = os.environ.get("DATA_API_URL", "http://localhost:8000")
 OLLAMA_URL = os.environ.get("OLLAMA_GEN_URL", "http://localhost:11434/api/chat")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral:7b")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2")
 
 import re
 

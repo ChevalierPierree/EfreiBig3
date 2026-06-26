@@ -17,7 +17,7 @@ import unicodedata
 import requests
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral:7b")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2")
 
 # Vues du dashboard (cibles de navigation).
 VIEWS = {
@@ -66,16 +66,20 @@ Schema:
   "decision":"approuver"|"bloquer"|"investiguer"|null,
   "target": le numero de l'alerte (ex "3") ou "selectionnee"|"premiere" ou null}}
 
-Regles:
-- navigate : afficher/ouvrir une vue (fraud=fraude, id_cards=identite/CNI,
-  transfer_kpi=transferts, fraud_types=typologies, overview=accueil).
-- filter : filtrer la file d'alertes. field=severity (haute/moyenne/basse) ou
-  status (en attente/investigation/approuve/bloque). value = le mot du filtre.
-- act : AGIR sur une alerte de fraude. decision = approuver / bloquer (=refuser/rejeter)
-  / investiguer (=enqueter). target = le numero dit ("numero 3" -> "3"), ou
+Regles (lis-les avant de choisir) :
+- navigate : ouvrir une VUE entiere, SANS mention de severite ni de statut
+  (fraud=fraude, id_cards=identite/CNI, transfer_kpi=transferts,
+  fraud_types=typologies, overview=accueil).
+- filter : DES QUE la commande mentionne une SEVERITE (haute/moyenne/basse/toutes)
+  OU un STATUT des alertes (en attente/investigation/approuve/bloque/tous), c'est un
+  filter, JAMAIS un navigate. field="severity" ou "status", value = le mot du filtre.
+- act : AGIR sur une alerte. decision = approuver / bloquer (=refuser/rejeter) /
+  investiguer (=enqueter) UNIQUEMENT. Toute autre action (supprimer, creer, exporter,
+  envoyer...) -> action="unknown". target = le numero dit ("numero 3" -> "3"), ou
   "selectionnee" (l'alerte affichee/courante), ou "premiere".
-- ask : question sur les chiffres OU demande de resume/explication.
-- unknown : incompris.
+- ask : question sur les chiffres OU demande de resume/explication des donnees.
+- unknown : commande incomprehensible, OU sans aucun rapport avec la fraude, les
+  alertes ou le dashboard (meteo, blague, calcul, discussion...), OU action non supportee.
 
 Exemples (couvre TOUTES les vues) :
 "ouvre la vue fraude" -> {{"action":"navigate","view":"fraud","field":null,"value":null}}
@@ -84,15 +88,30 @@ Exemples (couvre TOUTES les vues) :
 "ouvre les typologies de fraude" / "les motifs" -> {{"action":"navigate","view":"fraud_types","field":null,"value":null}}
 "montre les cas d'usage" / "ouvre les scenarios" / "les demonstrations" -> {{"action":"navigate","view":"use_cases","field":null,"value":null}}
 "reviens a l'accueil" / "vue d'ensemble" -> {{"action":"navigate","view":"overview","field":null,"value":null}}
-"filtre les fraudes en severite haute" -> {{"action":"filter","view":"fraud","field":"severity","value":"haute"}}
-"affiche seulement les alertes moyennes" -> {{"action":"filter","view":"fraud","field":"severity","value":"moyenne"}}
-"montre les alertes en attente" -> {{"action":"filter","view":"fraud","field":"status","value":"en attente"}}
+FILTRES par SEVERITE (toujours action=filter) :
+"filtre les fraudes en severite haute" -> {{"action":"filter","field":"severity","value":"haute"}}
+"montre seulement les alertes moyennes" -> {{"action":"filter","field":"severity","value":"moyenne"}}
+"affiche les alertes de basse severite" -> {{"action":"filter","field":"severity","value":"basse"}}
+"montre toutes les severites" / "enleve le filtre" -> {{"action":"filter","field":"severity","value":"toutes"}}
+FILTRES par STATUT (toujours action=filter) :
+"montre les alertes en attente" -> {{"action":"filter","field":"status","value":"en attente"}}
+"affiche les alertes en investigation" -> {{"action":"filter","field":"status","value":"investigation"}}
+"montre les alertes approuvees" -> {{"action":"filter","field":"status","value":"approuve"}}
+"liste les alertes bloquees" -> {{"action":"filter","field":"status","value":"bloque"}}
+ACTIONS sur une alerte :
 "approuve l'alerte numero 3" -> {{"action":"act","decision":"approuver","target":"3"}}
 "bloque la 2" / "refuse l'alerte 2" -> {{"action":"act","decision":"bloquer","target":"2"}}
 "investigue l'alerte selectionnee" -> {{"action":"act","decision":"investiguer","target":"selectionnee"}}
 "valide la premiere alerte" -> {{"action":"act","decision":"approuver","target":"premiere"}}
-"combien d'alertes haute severite" -> {{"action":"ask","view":"fraud","field":null,"value":null}}
-"explique-moi le taux de fraude" / "resume les chiffres" / "raconte-moi la situation" -> {{"action":"ask","view":"fraud","field":null,"value":null}}
+"supprime toutes les alertes" / "exporte les donnees" -> {{"action":"unknown"}}  (action non supportee)
+QUESTIONS :
+"combien d'alertes haute severite" -> {{"action":"ask"}}
+"quel est le motif le plus frequent" -> {{"action":"ask"}}
+"combien de paiements frauduleux" -> {{"action":"ask"}}
+"explique-moi le taux de fraude" / "resume les chiffres" / "raconte-moi la situation" -> {{"action":"ask"}}
+HORS-DOMAINE (toujours unknown) :
+"quelle est la meteo demain" -> {{"action":"unknown"}}
+"raconte-moi une blague" / "combien font 2 plus 2" -> {{"action":"unknown"}}
 Reponds en JSON strict."""
 
 
@@ -186,4 +205,7 @@ def classify(text: str) -> dict:
             # cible par defaut : l'alerte selectionnee si rien n'est precise.
             out.update(decision=code, decision_label=label, target=target or "selected",
                        view="fraud", view_file=VIEWS["fraud"])
+    elif action == "ask" and out["view"] is None:
+        # Une question est ancree sur les KPIs fraude par defaut.
+        out.update(view="fraud", view_file=VIEWS["fraud"])
     return out

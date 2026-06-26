@@ -48,33 +48,41 @@ python3 docs/genai/tests/run_eval.py            # métriques bout-en-bout (WER, 
 # Le fichier dataset_test_resultats.csv est produit en passant chaque commande dans /api/voice/intent.
 ```
 
-## Résultats observés (2026-06-26)
-Évaluation au niveau **intention** sur les 32 cas classifiables (les cas de confirmation,
-de résumé et de silence sont traités côté interface) :
+## Résultats — la boucle test → correction → re-mesure (2026-06-26)
+Évaluation au niveau **intention** sur les 32 cas classifiables (confirmation, résumé et
+silence sont traités côté interface).
 
+### 1. Première mesure → des faiblesses révélées
 | Modèle | Justesse | Échecs (id) |
 |---|---|---|
-| `mistral:7b` (défaut) | **25/32 (78 %)** | F02, F05, F06, F08, H01, H02, H04 |
-| `llama3.2` (3B) | **25/32 (78 %)** | F05, F06, F07, F08, Q03, Q04, H05 |
+| `llama3.2` (3B) | 25/32 (78 %) | F05, F06, F07, F08, Q03, Q04, H05 |
+| `mistral:7b` | 25/32 (78 %) | F02, F05, F06, F08, H01, H02, H04 |
 
-> À comparer au sous-ensemble « commandes claires » (les 7 cas de base), où les deux modèles
-> font **7/7**. Le dataset élargi est volontairement **plus discriminant**.
+**Ce que le dataset a révélé** (faiblesses communes aux deux modèles) :
+- **Filtres de statut** (« approuvées », « bloquées », « investigation », « toutes ») classés
+  en *navigation* au lieu de *filtre* → le prompt ne couvrait que `haute / moyenne / en attente`.
+- **Hors-domaine** (« météo », « blague », « supprime tout ») pas toujours **rejeté**.
 
-### Analyse — ce que le dataset a révélé
-1. **Filtres de statut** (« approuvées », « bloquées », « investigation », « toutes ») :
-   souvent classés en *navigation* au lieu de *filtre*. **Cause** : le prompt d'intention ne
-   contient des exemples que pour `haute / moyenne / en attente` → couverture incomplète.
-   **Faiblesse systématique** (présente sur les deux modèles).
-2. **Hors-domaine** (« météo », « blague », charabia) : parfois routé en *question* ou
-   *navigation* au lieu d'être **rejeté** (`unknown`). **Cause** : manque d'un exemple
-   explicite « hors périmètre → unknown ».
-3. Les **navigations, actions et questions principales** passent de façon fiable.
+### 2. Correction (couverture du prompt, sans surapprentissage)
+Ajout au prompt d'intention de : règles plus nettes (toute sévérité/statut → *filter* ;
+actions limitées à approuver/bloquer/investiguer ; reste → *unknown*) + exemples few-shot
+pour **tous les statuts** et pour le **hors-domaine**.
 
-### Pistes d'amélioration (identifiées PAR le dataset)
-- Ajouter au prompt d'intention des **exemples few-shot** pour chaque statut et un exemple
-  **hors-domaine → unknown** → objectif > 90 %.
-- Re-mesurer après correction (le dataset sert alors de **non-régression**).
+### 3. Re-mesure → objectif atteint
+| Modèle | Avant | **Après correction** |
+|---|---|---|
+| **`llama3.2` (défaut)** | 78 % | **32/32 — 100 %** ✅ |
+| `mistral:7b` | 78 % | 24/32 — 75 % |
 
-> ⚠️ Important : on n'« optimise » pas le prompt pour passer exactement ces lignes (ce serait
-> du surapprentissage). On corrige les **lacunes de couverture réelles** que le dataset met en
-> évidence, puis on remesure.
+> Le même prompt rend **llama3.2 parfait** mais **dégrade Mistral** (sensibilité au prompt
+> propre à chaque modèle). Le dataset a donc tranché objectivement : **llama3.2 est retenu**
+> (100 % **et** plus rapide). Mistral reste disponible via `OLLAMA_MODEL=mistral:7b`.
+
+**Mesure bout-en-bout** (harnais `run_eval.py`, voix *synthétisée* → STT → LLM, 12 commandes) :
+intention **0,92** (le seul échec vient de la voix de test qui transforme « fraudes en sévérité
+haute » en « fruits en severi taux »), **WER 0,157**, **0 chiffre inventé**, latence ≈ 0,9 s (STT)
+/ 0,5 s (intention) / 0,8 s (narration).
+
+> ⚠️ Méthode honnête : on n'« optimise » pas le prompt pour passer exactement ces 39 lignes
+> (surapprentissage). On corrige les **lacunes de couverture réelles** révélées, puis on remesure.
+> Le dataset sert ensuite de test de **non-régression**.

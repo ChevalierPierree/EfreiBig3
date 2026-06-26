@@ -180,12 +180,12 @@
         "code": "HIGH"
       },
       "got": {
-        "action": "filter",
-        "view": "fraud",
-        "field": "status",
-        "code": "PENDING_REVIEW"
+        "action": "unknown",
+        "view": null,
+        "field": null,
+        "code": null
       },
-      "ok_action": true,
+      "ok_action": false,
       "full_ok": false
     },
     {
@@ -300,10 +300,10 @@
     }
   },
   "latency": {
-    "stt_ms_avg": 989,
-    "stt_ms_max": 1273,
-    "intent_ms_avg": 556,
-    "narrate_ask_ms": 925
+    "stt_ms_avg": 928,
+    "stt_ms_max": 970,
+    "intent_ms_avg": 487,
+    "narrate_ask_ms": 816
   },
   "meta": {
     "truth": {
@@ -331,7 +331,7 @@
     "wer_avg": 0.157,
     "wer_exact": 7,
     "n": 12,
-    "intent_action_acc": 1.0,
+    "intent_action_acc": 0.917,
     "intent_full_acc": 0.917,
     "invented_numbers_total": 0
   }

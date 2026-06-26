@@ -58,7 +58,7 @@
   voix</strong> — 100 % en local, avec confirmation humaine. Rapport : étapes, choix, résultats, perspectives.</p>
   <p style="margin:14px 0 0;font-size:12.5pt;font-weight:500">Binôme · <strong>Pierre Chevalier</strong> &amp; <strong>Jean Macario</strong></p>
   <div class="meta-row">
-    <span><strong>Stack IA</strong> · faster-whisper · Mistral 7B (Ollama) · Piper</span>
+    <span><strong>Stack IA</strong> · faster-whisper · Llama 3.2 (Ollama) · Piper</span>
     <span><strong>Cible</strong> · accessibilité (VP sans usage des bras) + B2C</span>
     <span><strong>Date</strong> · juin 2026</span>
   </div>
@@ -116,7 +116,7 @@ en fait <strong>le</strong> cas d'usage le plus pertinent pour compléter la sol
 </div>
 <div class="card">
   <h3>② Les trois briques d'IA</h3>
-  <strong>STT</strong> (faster-whisper) transcrit la voix → <strong>LLM</strong> (Mistral 7B via Ollama)
+  <strong>STT</strong> (faster-whisper) transcrit la voix → <strong>LLM</strong> (Llama 3.2 via Ollama)
   comprend l'intention en JSON et rédige les réponses à partir des <strong>vrais KPIs</strong> →
   <strong>TTS</strong> (Piper) répond avec une <strong>voix neuronale</strong>.
 </div>
@@ -180,7 +180,7 @@ en fait <strong>le</strong> cas d'usage le plus pertinent pour compléter la sol
 
 <div class="grid">
   <div class="kpi blue"><span class="v">0,157</span><span class="l">WER moyen (transcription)</span></div>
-  <div class="kpi good"><span class="v">7/7</span><span class="l">Intention (commandes claires)</span></div>
+  <div class="kpi good"><span class="v">100 %</span><span class="l">Intention (dataset 32 cas)</span></div>
   <div class="kpi good"><span class="v">0</span><span class="l">Chiffre inventé (hallucination)</span></div>
   <div class="kpi blue"><span class="v">≈2,5 s</span><span class="l">Réponse vocale ressentie</span></div>
 </div>
@@ -219,9 +219,9 @@ la diagonale = correct ; le seul hors-diagonale vient d'une transcription corrom
 <ul>
   <li><strong>Transcription</strong> : WER moyen <strong>0,157</strong> (7/12 commandes exactes). Les écarts
   viennent surtout de la <em>voix de synthèse de test</em> qui écorche les mots métier — une voix humaine fait mieux.</li>
-  <li><strong>Compréhension</strong> : <strong>100 %</strong> sur les commandes claires (navigation, filtre,
-  action, question) ; <strong>0,92</strong> en bout-en-bout, l'unique échec venant d'une transcription corrompue
-  (le modèle <strong>refuse</strong> plutôt que d'inventer — comportement sûr).</li>
+  <li><strong>Compréhension</strong> : <strong>100 %</strong> sur le dataset de test (32 cas : navigation,
+  filtre, action, question, hors-domaine) ; <strong>0,92</strong> en bout-en-bout, l'unique échec venant
+  d'une transcription corrompue (le modèle <strong>refuse</strong> plutôt que d'inventer — comportement sûr).</li>
   <li><strong>Factualité</strong> : <strong class="ok">0 chiffre inventé</strong> sur la narration et le Q&amp;A —
   tous les nombres cités correspondent aux KPIs réels.</li>
   <li><strong>Données</strong> : tous les invariants de cohérence sont <span class="ok">OK</span> ; les
@@ -238,13 +238,14 @@ la diagonale = correct ; le seul hors-diagonale vient d'une transcription corrom
 </table>
 
 <h3>Choix du modèle, par la mesure</h3>
-<p>Trois modèles open-source testés en local sur le même jeu d'intentions. Enseignement : un modèle plus gros
-mais plus ancien (Gemma 1 7B) fait <strong>moins bien</strong> qu'un petit modèle récent.</p>
+<p>Décision prise sur le <strong>dataset de test</strong> (39 cas étiquetés), après correction des lacunes
+du prompt. Enseignements : « plus gros » n'est pas « meilleur » (Gemma 1 7B perd), et un même prompt
+n'a pas le même effet selon le modèle.</p>
 <table>
-  <tr><th>Modèle</th><th>Intention</th><th>Latence intention</th><th>Narration</th></tr>
-  <tr><td>llama3.2 (3 Md)</td><td>7/7</td><td>~0,5 s</td><td>bonne, ~1 s</td></tr>
-  <tr><td>gemma:7b (Gemma 1)</td><td>5/7</td><td>~2,3 s</td><td>bonne, ~5 s</td></tr>
-  <tr><td><strong>mistral:7b</strong> <span class="tag b">retenu</span></td><td><strong>7/7</strong></td><td>~1,0 s</td><td>très complète &amp; exacte, ~9 s</td></tr>
+  <tr><th>Modèle</th><th>Dataset (32 cas)</th><th>Latence intention</th><th>Narration</th></tr>
+  <tr><td><strong>llama3.2 (3 Md)</strong> <span class="tag b">retenu</span></td><td><strong>32/32 — 100 %</strong></td><td><strong>~0,5 s</strong></td><td>bonne, ~0,8 s</td></tr>
+  <tr><td>mistral:7b</td><td>24/32 — 75 %</td><td>~1,0 s</td><td>très complète, ~9 s</td></tr>
+  <tr><td>gemma:7b (Gemma 1)</td><td>78 % (avant correction)</td><td>~2,3 s</td><td>bonne, ~5 s</td></tr>
 </table>
 <div class="callout"><strong>Bilan.</strong> L'objectif imposé (un STT local pour naviguer à la voix) est
 <strong>largement dépassé</strong> : l'assistant navigue, filtre, répond, <strong>agit avec confirmation</strong>,

@@ -16,7 +16,7 @@
 | **Hallucinations (KPI inventé)** | **0** | 0 (mais 1 ratio recalculé « 9 % ») | Ancrage sur `/api/kpis/readable` + interdiction de recalcul → l'imprécision « 9 % » a disparu. |
 | **Latence (à chaud)** | STT ≈ **1,0 s** · intention ≈ **0,5 s** · narration ≈ **0,9 s** | idem | Question ressentie ≈ 2,5 s ; navigation ≈ 1,5 s. |
 
-> Données brutes : [`results_2026-06-23.json`](./results_2026-06-23.json). Les tableaux
+> Données brutes : [`results_2026-06-26.json`](./results_2026-06-26.json). Les tableaux
 > détaillés ci-dessous (§1–§4) sont le **cas travaillé du 2026-06-22** (méthodologie et
 > matrice de confusion) ; le run du 2026-06-23 les re-valide sur données fraîches après
 > durcissement (voir §6).
