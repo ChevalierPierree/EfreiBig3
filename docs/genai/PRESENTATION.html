@@ -2,252 +2,256 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>KiVendTout prend la parole — Présentation</title>
+<title>KiVendTout — Assistant vocal · Présentation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono&display=swap" rel="stylesheet">
 <style>
   :root{
-    --blue:#1a73e8; --blue-d:#1456b8; --blue-50:#e8f0fe; --green:#1e8e3e; --yellow:#f9ab00;
-    --red:#d93025; --ink:#202124; --muted:#5f6368; --line:#dadce0; --surface:#f8f9fa;
+    --navy:#0c2340; --ink:#0f1c2e; --accent:#2563eb; --accent-soft:#eaf0fe;
+    --muted:#5a6878; --line:#e3e8ee; --surface:#f6f8fb; --good:#1e8e3e;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{font-family:'Roboto',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink)}
-  body{background:#5f6368}
+  html{font-family:'Roboto',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{background:#cdd3da}
   .slide{
     width:1280px;height:720px;background:#fff;position:relative;overflow:hidden;
-    margin:18px auto;padding:64px 72px;display:flex;flex-direction:column;
-    box-shadow:0 6px 24px rgba(0,0,0,.25);
+    margin:20px auto;padding:62px 76px;display:flex;flex-direction:column;
+    box-shadow:0 8px 30px rgba(12,35,64,.18);
   }
-  .kicker{text-transform:uppercase;letter-spacing:2px;font-size:15px;font-weight:700;color:var(--blue)}
-  h1{font-size:52px;font-weight:900;letter-spacing:-1.5px;line-height:1.05;margin:8px 0 0}
-  h2{font-size:30px;font-weight:700;margin:0}
-  .sub{font-size:23px;color:var(--muted);font-weight:400;margin-top:14px;line-height:1.4}
-  .pagenum{position:absolute;bottom:34px;right:48px;font-size:15px;color:var(--muted);font-weight:500}
-  .brandtag{position:absolute;bottom:34px;left:72px;font-size:15px;color:var(--muted);font-weight:500}
+  .eyebrow{display:flex;align-items:center;gap:14px;font-size:14px;font-weight:700;letter-spacing:2px;
+    text-transform:uppercase;color:var(--accent)}
+  .eyebrow::before{content:"";width:34px;height:3px;background:var(--accent);border-radius:2px}
+  h1{font-size:46px;font-weight:900;letter-spacing:-1px;line-height:1.08;margin:18px 0 0;max-width:18em}
+  .lead{font-size:22px;color:var(--muted);line-height:1.45;margin-top:16px;max-width:40em}
   .grow{flex:1;display:flex;flex-direction:column;justify-content:center}
-  .row{display:flex;gap:22px}
-  .tiles{display:flex;gap:20px;margin-top:8px}
-  .tile{flex:1;border:1px solid var(--line);border-radius:18px;padding:26px;background:#fff}
-  .tile .ic{font-size:40px;line-height:1}
-  .tile .t{font-size:22px;font-weight:700;margin-top:14px}
-  .tile .d{font-size:17px;color:var(--muted);margin-top:6px;line-height:1.35}
-  .kpi{flex:1;border-radius:18px;padding:24px 20px;text-align:center;background:var(--blue-50)}
-  .kpi .v{font-size:44px;font-weight:900;color:var(--blue);line-height:1}
-  .kpi.g{background:#e6f4ea}.kpi.g .v{color:var(--green)}
-  .kpi .l{font-size:15px;color:var(--muted);margin-top:8px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
-  .card{border:1px solid var(--line);border-radius:18px;padding:26px 28px;background:var(--surface)}
-  .card.warn{background:#fef7e0;border-color:#f9d77e}
-  .card h3{font-size:21px;font-weight:700;margin-bottom:10px}
-  .bul{font-size:20px;line-height:1.7;list-style:none}
-  .bul li{padding-left:30px;position:relative;margin:4px 0}
-  .bul li::before{content:"●";color:var(--blue);position:absolute;left:0;font-size:14px;top:5px}
-  .pill{display:inline-flex;align-items:center;gap:8px;font-size:18px;font-weight:700;color:var(--blue);
-    background:var(--blue-50);border-radius:999px;padding:9px 20px}
+  .row{display:flex;gap:24px}
+  .pagenum{position:absolute;bottom:32px;right:60px;font-size:13px;color:var(--muted);font-weight:500;letter-spacing:1px}
+  .foot{position:absolute;bottom:32px;left:76px;font-size:13px;color:var(--muted);font-weight:500;letter-spacing:1px}
+  .card{flex:1;border:1px solid var(--line);border-radius:14px;padding:26px 28px;background:#fff}
+  .card.fill{background:var(--surface)}
+  .card.accent{background:var(--accent-soft);border-color:#c7d7fb}
+  .card h3{font-size:16px;font-weight:700;letter-spacing:.3px;color:var(--accent);margin-bottom:12px;text-transform:uppercase}
+  .card p{font-size:18px;line-height:1.5;color:#2a3a4d}
+  .lst{list-style:none;font-size:18.5px;line-height:1.7;color:#2a3a4d}
+  .lst li{padding-left:26px;position:relative;margin:5px 0}
+  .lst li::before{content:"";position:absolute;left:0;top:11px;width:9px;height:9px;border:2px solid var(--accent);border-radius:50%}
+  .lst.tight li{margin:2px 0}
+  b{color:var(--ink)}
+  /* metrics */
+  .kpis{display:flex;gap:22px}
+  .kpi{flex:1;border:1px solid var(--line);border-radius:14px;padding:24px 22px}
+  .kpi .v{font-size:46px;font-weight:900;color:var(--ink);line-height:1;letter-spacing:-1px}
+  .kpi .v.a{color:var(--accent)} .kpi .v.g{color:var(--good)}
+  .kpi .l{font-size:13.5px;color:var(--muted);margin-top:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:500;line-height:1.35}
+  .kpi .bar{width:30px;height:3px;background:var(--accent);border-radius:2px;margin-top:14px}
   /* pipeline */
-  .pipe{display:flex;align-items:stretch;gap:0;margin:6px 0}
-  .pbox{flex:1;border:2px solid var(--blue);border-radius:18px;padding:22px 18px;text-align:center;background:#fff}
-  .pbox .ic{font-size:38px}.pbox .t{font-size:21px;font-weight:700;margin-top:8px}
-  .pbox .s{font-size:15px;color:var(--muted);margin-top:4px}
-  .arrow{display:flex;align-items:center;font-size:34px;color:var(--blue);padding:0 12px;font-weight:900}
-  .flow{display:flex;align-items:center;gap:14px;font-size:18px;color:var(--muted);margin-top:18px;justify-content:center}
-  .flow b{color:var(--ink)}
+  .pipe{display:flex;align-items:stretch;gap:0;margin-top:6px}
+  .pbox{flex:1;border:1px solid var(--line);border-radius:14px;padding:24px 22px;background:#fff}
+  .pbox .n{font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+  .pbox .t{font-size:23px;font-weight:700;margin-top:8px;color:var(--ink)}
+  .pbox .s{font-size:15px;color:var(--muted);margin-top:6px}
+  .arrow{display:flex;align-items:center;color:var(--accent);font-size:26px;padding:0 16px;font-weight:300}
+  .flow{margin-top:20px;font-size:18px;color:var(--muted);text-align:center;letter-spacing:.3px}
+  .flow b{color:var(--ink);font-weight:700}
+  .note{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:10px;padding:16px 20px;font-size:17px;color:#2a3a4d;margin-top:20px;line-height:1.45}
+  .tag{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:3px 9px;vertical-align:middle}
+  /* demo */
+  .demo{background:var(--navy);color:#fff;border-radius:14px;padding:28px 32px}
+  .demo .q{font-size:24px;font-weight:500;line-height:1.4}
+  .demo .key{display:inline-block;background:#fff;color:var(--navy);border-radius:7px;padding:1px 11px;font-weight:900;font-family:'Roboto Mono',monospace}
+  .demo .said{color:#9db8f0}
   /* cover */
-  .cover{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-d) 100%);color:#fff;justify-content:center}
-  .cover .kicker{color:#bcd3fb}
-  .cover h1{font-size:66px}
-  .cover .sub{color:#e8f0fe}
-  .cover .authors{margin-top:30px;font-size:24px;font-weight:500}
-  .cover .icons{font-size:46px;margin-top:30px;letter-spacing:14px}
-  .cover .pagenum,.cover .brandtag{color:#bcd3fb}
-  .miniflow{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:700;margin-top:8px}
-  .miniflow .b{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 18px}
-  .miniflow .a{color:var(--blue);font-size:24px}
-  .demo{background:var(--ink);color:#fff;border-radius:18px;padding:26px 32px;font-size:24px;font-weight:500}
-  .demo .k{display:inline-block;background:#fff;color:var(--ink);border-radius:8px;padding:2px 12px;font-weight:900;font-family:'Roboto Mono',monospace}
-  .cmp{border-collapse:collapse;width:100%;font-size:19px;margin-top:4px}
-  .cmp th,.cmp td{border:1px solid var(--line);padding:11px 16px;text-align:left}
-  .cmp th{background:var(--surface);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
-  .cmp tr.win td{background:var(--blue-50);font-weight:700}
-  .cmp .ok{color:var(--green)} .cmp .mut{color:var(--muted)}
-  .note{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
-    border-radius:14px;padding:16px 22px;font-size:19px;margin-top:18px}
-  .note b{color:var(--blue)}
+  .cover{background:linear-gradient(135deg,#0a1f3c 0%,#0f2c52 100%);color:#fff;justify-content:center;padding-left:76px}
+  .cover .eyebrow{color:#8fb2f5}
+  .cover .eyebrow::before{background:#8fb2f5}
+  .cover h1{font-size:62px;max-width:16em}
+  .cover .lead{color:#c9d8f2;max-width:34em}
+  .cover .auth{margin-top:40px;font-size:22px;font-weight:700;letter-spacing:.3px}
+  .cover .auth span{color:#8fb2f5;font-weight:400}
+  .cover .foot,.cover .pagenum{color:#7f9cc8}
   @page{size:1280px 720px;margin:0}
   @media print{ body{background:#fff} .slide{margin:0;box-shadow:none;page-break-after:always} }
 </style>
 </head>
 <body>
 
-<!-- ===== SLIDE 1 — COUVERTURE ===== -->
+<!-- ===== 1 · COUVERTURE ===== -->
 <section class="slide cover">
-  <div class="kicker">Atelier IA générative · Bloc C5</div>
-  <h1>KiVendTout<br>prend la parole</h1>
-  <p class="sub">Un assistant vocal IA pour piloter la détection de fraude — 100 % en local.</p>
-  <div class="icons">🎧 🧠 🔊</div>
-  <div class="authors">Pierre Chevalier &nbsp;·&nbsp; Jean Macario</div>
-  <span class="brandtag">KiVendTout — M1 Data Engineering</span>
-  <span class="pagenum">1 / 7</span>
+  <div class="eyebrow">KiVendTout · Atelier IA générative (C5)</div>
+  <h1>Piloter la détection de fraude à la voix</h1>
+  <p class="lead">Un assistant vocal intégré au dashboard, qui fonctionne entièrement en local.</p>
+  <div class="auth">Pierre Chevalier <span>·</span> Jean Macario</div>
+  <span class="foot">M1 DATA ENGINEERING</span>
+  <span class="pagenum">JUIN 2026</span>
 </section>
 
-<!-- ===== SLIDE 2 — LE CONTEXTE ===== -->
+<!-- ===== 2 · PROBLÈME MÉTIER ===== -->
 <section class="slide">
-  <div class="kicker">02 · Le point de départ</div>
-  <h1>Une plateforme qui détecte<br>la fraude… à la souris</h1>
+  <div class="eyebrow">01 — Problème métier</div>
+  <h1>Un dashboard complet, mais qui se pilote uniquement à la souris</h1>
   <div class="grow">
-    <div class="row">
-      <div class="card" style="flex:1.1">
-        <h3>Ce que fait déjà KiVendTout</h3>
-        <div class="miniflow">
-          <span class="b">💳 Paiements</span><span class="a">→</span>
-          <span class="b">🔎 Détection fraude</span><span class="a">→</span>
-          <span class="b">📊 Dashboards</span>
-        </div>
-        <ul class="bul" style="margin-top:18px;font-size:18px">
-          <li>Ingère les paiements en temps réel</li>
-          <li>Lève des alertes de fraude</li>
-          <li>Affiche tout dans des tableaux de bord</li>
+    <p class="lead" style="margin-top:0">KiVendTout détecte la fraude en temps réel et l'affiche dans des
+      tableaux de bord. Toute la consultation et les décisions passent par la souris et le clavier.</p>
+    <div class="row" style="margin-top:26px">
+      <div class="card fill">
+        <h3>Ce qui coince</h3>
+        <ul class="lst">
+          <li>Pilotage entièrement souris et clavier</li>
+          <li>Des chiffres affichés, mais lents à interpréter</li>
+          <li>Aucune alternative pour qui ne peut pas cliquer</li>
         </ul>
       </div>
-      <div class="card warn" style="flex:.9">
-        <h3>⚠️ La limite</h3>
-        <ul class="bul" style="font-size:19px">
-          <li>Tout se pilote <b>à la souris</b></li>
-          <li>Un dirigeant privé de l'usage de ses bras <b>ne peut pas l'utiliser</b></li>
-          <li>Les chiffres restent <b>bruts</b>, peu parlants</li>
-        </ul>
+      <div class="card accent">
+        <h3>Le déclencheur</h3>
+        <p>À la suite d'un accident, notre vice-président a perdu l'usage de ses bras.
+        Il ne peut plus consulter le dashboard ni valider une alerte.</p>
       </div>
     </div>
+    <div class="note"><span><b>L'enjeu :</b> rendre la plateforme utilisable autrement, sans la réécrire.</span></div>
   </div>
-  <span class="brandtag">KiVendTout — sans IA</span>
-  <span class="pagenum">2 / 7</span>
+  <span class="foot">PROBLÈME MÉTIER</span>
+  <span class="pagenum">02 / 07</span>
 </section>
 
-<!-- ===== SLIDE 3 — L'IDÉE ===== -->
+<!-- ===== 3 · SOLUTION ===== -->
 <section class="slide">
-  <div class="kicker">03 · Notre réponse</div>
-  <h1>On lui donne la voix</h1>
-  <p class="sub">Un assistant vocal qui <b>complète</b> la plateforme : on parle, il comprend, il agit, il répond — à voix haute.</p>
+  <div class="eyebrow">02 — Solution</div>
+  <h1>On ajoute la voix, sans toucher au reste</h1>
   <div class="grow">
-    <div class="tiles">
-      <div class="tile"><div class="ic">🗣️</div><div class="t">Naviguer &amp; agir</div>
-        <div class="d">« approuve l'alerte numéro 3 » — avec confirmation</div></div>
-      <div class="tile"><div class="ic">📊</div><div class="t">Raconter les chiffres</div>
-        <div class="d">un résumé clair des KPIs, en français</div></div>
-      <div class="tile"><div class="ic">❓</div><div class="t">Répondre aux questions</div>
-        <div class="d">« quel est le taux de fraude ? »</div></div>
+    <p class="lead" style="margin-top:0">L'utilisateur parle. L'assistant comprend, exécute, puis répond
+      à voix haute. C'est un complément du dashboard, pas un remplacement.</p>
+    <div class="row" style="margin-top:26px">
+      <div class="card">
+        <h3>Naviguer &amp; filtrer</h3>
+        <p>Ouvrir une vue, filtrer les alertes par sévérité ou par statut.</p>
+      </div>
+      <div class="card">
+        <h3>Agir, avec garde-fou</h3>
+        <p>Approuver, bloquer ou investiguer une alerte. Une confirmation est demandée avant chaque décision.</p>
+      </div>
+      <div class="card">
+        <h3>Interroger &amp; résumer</h3>
+        <p>Poser une question sur les chiffres, obtenir un résumé clair en français.</p>
+      </div>
     </div>
-    <div style="margin-top:30px"><span class="pill">🔒 100 % local — aucune donnée ne quitte la machine</span></div>
+    <div class="note"><span>Souris et voix pilotent <b>exactement les mêmes objets</b> : aucune fonction réservée à l'une ou à l'autre.</span></div>
   </div>
-  <span class="brandtag">L'intégration d'IA générative</span>
-  <span class="pagenum">3 / 7</span>
+  <span class="foot">SOLUTION VOCALE</span>
+  <span class="pagenum">03 / 07</span>
 </section>
 
-<!-- ===== SLIDE 4 — TECHNIQUE (léger) ===== -->
+<!-- ===== 4 · ARCHITECTURE ===== -->
 <section class="slide">
-  <div class="kicker">04 · Sous le capot <span style="color:var(--muted);font-weight:500">(la partie technique)</span></div>
-  <h1>Trois IA en chaîne</h1>
+  <div class="eyebrow">03 — Architecture</div>
+  <h1>Trois briques d'IA, en chaîne</h1>
   <div class="grow">
     <div class="pipe">
-      <div class="pbox"><div class="ic">🎧</div><div class="t">STT — écouter</div><div class="s">faster-whisper</div></div>
+      <div class="pbox"><div class="n">STT</div><div class="t">Transcription</div><div class="s">faster-whisper</div></div>
       <div class="arrow">→</div>
-      <div class="pbox"><div class="ic">🧠</div><div class="t">LLM — comprendre &amp; rédiger</div><div class="s">Llama 3.2 · Ollama</div></div>
+      <div class="pbox"><div class="n">LLM</div><div class="t">Compréhension &amp; rédaction</div><div class="s">Llama 3.2 · Ollama</div></div>
       <div class="arrow">→</div>
-      <div class="pbox"><div class="ic">🔊</div><div class="t">TTS — parler</div><div class="s">Piper (voix neuronale)</div></div>
+      <div class="pbox"><div class="n">TTS</div><div class="t">Voix de synthèse</div><div class="s">Piper (réseau de neurones)</div></div>
     </div>
-    <div class="flow">🎙️ audio <b>→</b> texte <b>→</b> intention <b>→</b> action / réponse <b>→</b> 🔊 voix</div>
-    <div class="tiles" style="margin-top:30px">
-      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">🔒 100 % local</div></div>
-      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">🎯 chiffres réels = 0 invention</div></div>
-      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">✋ confirmation avant d'agir</div></div>
+    <p class="flow">Voix &nbsp;<b>→</b>&nbsp; texte &nbsp;<b>→</b>&nbsp; intention &nbsp;<b>→</b>&nbsp; action ou réponse &nbsp;<b>→</b>&nbsp; voix</p>
+    <div class="row" style="margin-top:26px">
+      <div class="card fill"><p>L'intention est renvoyée en <b>JSON</b>, pour une exécution fiable.</p></div>
+      <div class="card fill"><p>Les réponses sont rédigées à partir des <b>chiffres réels</b> de l'API.</p></div>
+      <div class="card fill"><p>Service <b>séparé</b> (port 8100) : il n'altère pas la plateforme existante.</p></div>
     </div>
   </div>
-  <span class="brandtag">Comment ça marche</span>
-  <span class="pagenum">4 / 7</span>
+  <span class="foot">ARCHITECTURE</span>
+  <span class="pagenum">04 / 07</span>
 </section>
 
-<!-- ===== SLIDE 5 — TESTÉ & MESURÉ ===== -->
+<!-- ===== 5 · SÉCURITÉ & LOCAL-FIRST ===== -->
 <section class="slide">
-  <div class="kicker">05 · Tester pour valider</div>
-  <h1>On l'a testé pour de vrai</h1>
+  <div class="eyebrow">04 — Sécurité &amp; local-first</div>
+  <h1>Aucune donnée ne quitte la machine</h1>
   <div class="grow">
     <div class="row">
-      <div class="card" style="flex:1.15">
-        <h3>Le protocole (rejouable)</h3>
-        <ul class="bul" style="font-size:18px">
-          <li><b>Dataset de test</b> : 39 commandes étiquetées (navigation, filtre, action, question, hors-domaine)</li>
-          <li><b>Harnais</b> : voix → STT → LLM, comparé à la <b>vérité terrain</b> de l'API</li>
-          <li>Déterministe (<code style="font-size:15px">température 0</code>) : rejouable à l'identique</li>
-        </ul>
-        <div style="margin-top:14px;font-size:16px;color:var(--muted)">4 mesures :
-          <b style="color:var(--ink)">WER</b> · <b style="color:var(--ink)">intention</b> ·
-          <b style="color:var(--ink)">factualité</b> · <b style="color:var(--ink)">latence</b></div>
+      <div class="card">
+        <h3>100 % local</h3>
+        <p>Transcription, modèle de langage et voix tournent sur la machine. On manipule des paiements,
+        des fraudes et des pièces d'identité : ces données ne sont jamais envoyées à un tiers.
+        En prime : coût nul par requête et fonctionnement hors-ligne.</p>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:16px">
-        <div class="row">
-          <div class="kpi g"><div class="v">100 %</div><div class="l">intention (dataset 32 cas)</div></div>
-          <div class="kpi g"><div class="v">0</div><div class="l">chiffre inventé</div></div>
-        </div>
-        <div class="row">
-          <div class="kpi"><div class="v">0,157</div><div class="l">WER (transcription)</div></div>
-          <div class="kpi"><div class="v">≈2,5 s</div><div class="l">temps de réponse</div></div>
-        </div>
+      <div class="card">
+        <h3>Décision sous contrôle</h3>
+        <p>Avant d'approuver ou de bloquer une alerte, l'assistant décrit la cible (client, sévérité)
+        et attend une validation explicite. Aucune action n'est automatique. Côté chiffres, la narration
+        s'appuie sur les valeurs réelles : pas d'invention.</p>
       </div>
     </div>
-    <div class="note">🔁 <span>La boucle : <b>tester → trouver les défauts → corriger → re-mesurer</b> &nbsp;(intention 78 % → <b class="ok" style="color:var(--green)">100 %</b>)</span></div>
+    <div class="note"><span><b>Local vs API.</b> Le traitement local s'impose pour des données sensibles.
+    Une API resterait envisageable pour un usage grand public non sensible : l'architecture découplée le permet déjà.</span></div>
   </div>
-  <span class="brandtag">Tests &amp; validation</span>
-  <span class="pagenum">5 / 7</span>
+  <span class="foot">SÉCURITÉ &amp; LOCAL-FIRST</span>
+  <span class="pagenum">05 / 07</span>
 </section>
 
-<!-- ===== SLIDE 6 — CHOIX DU MODÈLE ===== -->
+<!-- ===== 6 · RÉSULTATS ===== -->
 <section class="slide">
-  <div class="kicker">06 · Le choix du modèle</div>
-  <h1>Le bon modèle, choisi par la mesure</h1>
+  <div class="eyebrow">05 — Résultats mesurés</div>
+  <h1>Mesuré, pas affirmé</h1>
   <div class="grow">
-    <table class="cmp">
-      <tr><th>Modèle (local)</th><th>Justesse (dataset)</th><th>Vitesse</th><th>Verdict</th></tr>
-      <tr class="win"><td>Llama 3.2 (3 Md)</td><td class="ok">32/32 — 100 %</td><td>la + rapide (~0,8 s)</td><td>✅ retenu</td></tr>
-      <tr><td>Mistral 7B</td><td class="mut">24/32 — 75 %</td><td>~9 s (narration)</td><td>écarté</td></tr>
-      <tr><td>Gemma 1 (7 Md)</td><td class="mut">78 %</td><td>lent</td><td>écarté</td></tr>
-    </table>
-    <div class="row" style="margin-top:22px">
-      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">🎯 100 % sur le dataset</div></div>
-      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">⚡ le plus rapide</div></div>
-      <div class="tile" style="padding:18px 22px"><div class="t" style="margin:0;font-size:19px">🔒 100 % local &amp; gratuit</div></div>
+    <div class="kpis">
+      <div class="kpi"><div class="v g">100 %</div><div class="bar"></div><div class="l">Commandes comprises<br>(32 testées)</div></div>
+      <div class="kpi"><div class="v g">0</div><div class="bar"></div><div class="l">Chiffre inventé<br>(narration &amp; Q&amp;R)</div></div>
+      <div class="kpi"><div class="v a">≈ 2,5 s</div><div class="bar"></div><div class="l">Réponse vocale<br>ressentie</div></div>
+      <div class="kpi"><div class="v a">100 %</div><div class="bar"></div><div class="l">Traitement<br>local</div></div>
     </div>
-    <div class="note">💡 <span><b>« Plus gros » ≠ « meilleur »</b> : un modèle 3 Md récent bat des 7 Md plus anciens. Choix par la mesure, pas au feeling.</span></div>
-  </div>
-  <span class="brandtag">Justification du modèle</span>
-  <span class="pagenum">6 / 7</span>
-</section>
-
-<!-- ===== SLIDE 7 — BÉNÉFICES + DÉMO ===== -->
-<section class="slide">
-  <div class="kicker">07 · Bénéfices &amp; démo</div>
-  <h1>Accessible — à vous de parler</h1>
-  <div class="grow">
-    <div class="row">
-      <div class="card" style="flex:1">
-        <h3>Ce que ça apporte</h3>
-        <ul class="bul" style="font-size:19px">
-          <li><b>Accessibilité</b> : mains-libres, pour le VP et au-delà</li>
-          <li>Pilotable à la <b>souris ET à la voix</b></li>
-          <li><b>Inclusion B2C</b> (handicap, mobilité)</li>
-          <li>Les chiffres se <b>lisent tout seuls</b></li>
+    <div class="row" style="margin-top:24px">
+      <div class="card fill" style="flex:1.3">
+        <h3>Protocole</h3>
+        <p>Un jeu de 39 commandes étiquetées, rejoué automatiquement dans l'assistant et comparé aux données
+        réelles. Quatre mesures : transcription, intention, exactitude des chiffres, latence. Tests déterministes,
+        donc reproductibles.</p>
+      </div>
+      <div class="card fill">
+        <h3>À retenir</h3>
+        <ul class="lst tight" style="font-size:16.5px">
+          <li>Transcription : WER 0,157</li>
+          <li>En conditions réelles : 0,92 (1 mot mal prononcé)</li>
+          <li>Modèle choisi par comparaison chiffrée</li>
         </ul>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:16px">
-        <div class="demo">🎙️ Maintenez <span class="k">P</span> et dites :<br>
-          <span style="color:#8ab4f8">« approuve l'alerte numéro 1 »</span> → confirmation demandée.</div>
-        <div class="card" style="background:var(--blue-50);border-color:#bcd3fb;padding:18px 22px">
-          <b style="font-size:17px">Et après ?</b> scénarios à la voix · rapport généré · voix premium (API) pour le B2C
-        </div>
+    </div>
+  </div>
+  <span class="foot">RÉSULTATS</span>
+  <span class="pagenum">06 / 07</span>
+</section>
+
+<!-- ===== 7 · DÉMO & SUITE ===== -->
+<section class="slide">
+  <div class="eyebrow">06 — Démo &amp; suite produit</div>
+  <h1>À montrer en direct</h1>
+  <div class="grow">
+    <div class="demo">
+      <div class="q">Maintenir la touche <span class="key">P</span>, dire
+      <span class="said">« approuve l'alerte numéro 1 »</span>.<br>
+      L'assistant décrit l'alerte et demande confirmation avant d'agir.</div>
+    </div>
+    <div class="row" style="margin-top:26px">
+      <div class="card">
+        <h3>Suite produit</h3>
+        <ul class="lst tight">
+          <li>Scénarios déclenchés à la voix</li>
+          <li>Rapport exécutif généré automatiquement</li>
+          <li>Voix premium (API) pour un usage grand public</li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <h3>En une phrase</h3>
+        <p>Une plateforme de fraude devenue <b>consultable, racontable et actionnable à la voix</b>,
+        sans rien envoyer dans le cloud.</p>
       </div>
     </div>
   </div>
-  <span class="brandtag">Merci · Pierre Chevalier &amp; Jean Macario</span>
-  <span class="pagenum">7 / 7</span>
+  <span class="foot">PIERRE CHEVALIER · JEAN MACARIO</span>
+  <span class="pagenum">07 / 07</span>
 </section>
 
 </body>
