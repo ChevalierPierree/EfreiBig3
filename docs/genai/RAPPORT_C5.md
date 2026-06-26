@@ -43,7 +43,8 @@ alimente la narration et le Q&A : `audio → texte → intention → action | g�
 
 Voir [ARGUMENTAIRE_LOCAL_VS_API.md](./ARGUMENTAIRE_LOCAL_VS_API.md).
 
-- **Foundation model / LLM** : llama3.2 via Ollama (local).
+- **Foundation model / LLM** : Mistral 7B via Ollama (local ; modèle interchangeable
+  via `OLLAMA_MODEL`, repli `llama3.2` 3B plus rapide).
 - **Accessibilité universelle** : navigation et narration vocales (VP sans bras).
 - **Architecture** : voir [README.md](./README.md). Service découplé sur :8100.
 

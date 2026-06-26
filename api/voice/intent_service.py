@@ -17,7 +17,7 @@ import unicodedata
 import requests
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.2")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral:7b")
 
 # Vues du dashboard (cibles de navigation).
 VIEWS = {

@@ -17,7 +17,7 @@ respecter la sensibilite RGPD des donnees de fraude.
    ▼
 🧠 STT local : faster-whisper            (api/voice/stt_service.py)
    ▼
-🎯 Intention : Ollama / llama3.2 (JSON)  (api/voice/intent_service.py)
+🎯 Intention : Ollama / mistral:7b (JSON) (api/voice/intent_service.py)
    ├─ navigate → le dashboard change de vue (voice_control.js)
    └─ explain  → narration des KPIs
                  🗣️ Ollama lit les chiffres reels de l'API :8000
@@ -31,10 +31,10 @@ dashboard :7600).
 ## Pre-requis
 
 - La stack data KiVendTout lancee (`./patator`) — fournit l'API :8000 et le dashboard :7600.
-- **Ollama** avec le modele `llama3.2` :
+- **Ollama** avec le modele `mistral:7b` (defaut ; LLM ~7B local) :
   ```bash
   ollama serve            # demarre le serveur (port 11434)
-  ollama pull llama3.2    # si pas deja present
+  ollama pull mistral:7b  # si pas deja present
   ```
 - Python 3.9+ et les dependances vocales.
 
@@ -104,7 +104,7 @@ curl -L -o api/voice/tts_models/fr_FR-siwis-medium.onnx.json "$BASE/fr_FR-siwis-
 | Variable | Defaut | Role |
 |---|---|---|
 | `WHISPER_MODEL` | `small` | Taille du modele STT |
-| `OLLAMA_MODEL` | `llama3.2` | Modele LLM local |
+| `OLLAMA_MODEL` | `mistral:7b` | Modele LLM local (Ollama) |
 | `OLLAMA_URL` | `http://localhost:11434/api/chat` | Endpoint Ollama |
 | `DATA_API_URL` | `http://localhost:8000` | API data KiVendTout |
 
@@ -125,6 +125,16 @@ Sur macOS recent (Darwin 25.x), Ollama 0.22 plante a l'init Metal
 (`static_assert half/bfloat` -> `panic: unable to create llama context`) sans
 fallback CPU. **Mettre a jour** : `brew upgrade ollama` (>= 0.30.10 OK).
 
-### Pistes d'amelioration
-- Narration : le 3B est parfois verbeux/format libre. Affiner le prompt (prose,
-  2-3 phrases) ou tester `ollama pull qwen2.5:3b` pour un FR plus soigne.
+### Choix du modele LLM (mesure comparative, 2026-06-26)
+Le LLM est interchangeable (`OLLAMA_MODEL`). Comparaison sur notre jeu d'intentions
+(machine Apple M5, a chaud) :
+
+| Modele | Intention | Latence intention | Narration |
+|---|---|---|---|
+| `llama3.2` (3B) | 7/7 | ~0,5 s | bonne, ~1 s |
+| `gemma:7b` (Gemma 1) | 5/7 (rate vues rares) | ~2,3 s | bonne, ~5 s |
+| **`mistral:7b` (defaut)** | **7/7** | **~1,0 s** | tres complete, exacte, ~9 s |
+
+`mistral:7b` est retenu par defaut : meme justesse d'intention que le 3B, narration
+plus riche et 100 % factuelle, au prix d'une latence superieure (acceptable sur M5).
+`llama3.2` reste un excellent repli plus rapide (`OLLAMA_MODEL=llama3.2`).

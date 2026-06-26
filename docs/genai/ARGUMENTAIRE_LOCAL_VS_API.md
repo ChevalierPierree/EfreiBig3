@@ -8,7 +8,7 @@
 | Brique | Choix | Alternative API écartée |
 |---|---|---|
 | STT (transcription) | **faster-whisper (local)** | Cloud STT (Google/Whisper API) |
-| LLM (intention + narration) | **Ollama / llama3.2 (local)** | Claude API (Haiku 4.5 / Opus 4.8) |
+| LLM (intention + narration) | **Ollama / Mistral 7B (local)** | Claude API (Haiku 4.5 / Opus 4.8) |
 | TTS (restitution vocale) | **Piper, voix NEURONALE locale** (repli SpeechSynthesis navigateur) | Cloud TTS (ElevenLabs, OpenAI, Azure) |
 
 ## Pourquoi le local l'emporte ici
@@ -27,7 +27,7 @@
 |---|---|---|
 | Confidentialité | ✅ Données locales | ⚠️ Envoi cloud (KPIs agrégés, pas de PII brute) |
 | Coût | ✅ Gratuit | ✅ Très bas : Haiku 4.5 ≈ 1 $ / 5 $ par M tokens ; Opus 4.8 ≈ 5 $ / 25 $ |
-| Qualité narration FR | ⚠️ Correcte (llama3.2 3B) | ✅ Supérieure |
+| Qualité narration FR | ✅ Bonne (Mistral 7B local) | ✅ Supérieure |
 | Ressources machine | ⚠️ RAM/CPU locaux | ✅ Déporté |
 | Hors-ligne | ✅ Oui | ❌ Non |
 
