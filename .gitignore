@@ -1,0 +1,10 @@
+# Environnements Python (recréés via requirements.txt)
+.dashboard_env/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# Logs / temporaires
+*.log
+.DS_Store

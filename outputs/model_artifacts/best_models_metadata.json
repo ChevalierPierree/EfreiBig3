@@ -1,0 +1,96 @@
+{
+  "preflight": {
+    "model_name": "HistGradientBoosting",
+    "threshold": 0.19999999999999996,
+    "features": [
+      "AIRLINE",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "DEP_PERIOD",
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "IS_WEEKEND",
+      "SCHEDULED_DEP_HOUR",
+      "SCHEDULED_TIME",
+      "DISTANCE",
+      "MONTH_SIN",
+      "MONTH_COS",
+      "HOUR_SIN",
+      "HOUR_COS",
+      "IS_LONG_HAUL"
+    ],
+    "categorical": [
+      "AIRLINE",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "DEP_PERIOD"
+    ],
+    "numeric": [
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "IS_WEEKEND",
+      "SCHEDULED_DEP_HOUR",
+      "SCHEDULED_TIME",
+      "DISTANCE",
+      "MONTH_SIN",
+      "MONTH_COS",
+      "HOUR_SIN",
+      "HOUR_COS",
+      "IS_LONG_HAUL"
+    ],
+    "description": "Prediction avant depart programme, sans variable post-evenement.",
+    "artifact": "/Users/jeanmacario/Downloads/DATA S/Rendu_RNCP40875_flights_delay/outputs/model_artifacts/best_preflight_model.joblib"
+  },
+  "operational_live": {
+    "model_name": "HistGradientBoosting",
+    "threshold": 0.38499999999999995,
+    "features": [
+      "AIRLINE",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "DEP_PERIOD",
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "IS_WEEKEND",
+      "SCHEDULED_DEP_HOUR",
+      "SCHEDULED_TIME",
+      "DISTANCE",
+      "MONTH_SIN",
+      "MONTH_COS",
+      "HOUR_SIN",
+      "HOUR_COS",
+      "IS_LONG_HAUL",
+      "DEPARTURE_DELAY",
+      "DEP_DELAY_POSITIVE",
+      "DEP_DELAY_OVER_15"
+    ],
+    "categorical": [
+      "AIRLINE",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "DEP_PERIOD"
+    ],
+    "numeric": [
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "IS_WEEKEND",
+      "SCHEDULED_DEP_HOUR",
+      "SCHEDULED_TIME",
+      "DISTANCE",
+      "MONTH_SIN",
+      "MONTH_COS",
+      "HOUR_SIN",
+      "HOUR_COS",
+      "IS_LONG_HAUL",
+      "DEPARTURE_DELAY",
+      "DEP_DELAY_POSITIVE",
+      "DEP_DELAY_OVER_15"
+    ],
+    "description": "Prediction apres observation du retard au depart. Plus precise, mais non disponible avant depart.",
+    "artifact": "/Users/jeanmacario/Downloads/DATA S/Rendu_RNCP40875_flights_delay/outputs/model_artifacts/best_operational_live_model.joblib"
+  }
+}

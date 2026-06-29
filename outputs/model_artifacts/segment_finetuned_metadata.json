@@ -1,0 +1,74 @@
+{
+  "model_name": "HistGB_tuned_5",
+  "artifact": "/Users/jeanmacario/Downloads/DATA S/Rendu_RNCP40875_flights_delay/outputs/model_artifacts/segment_finetuned_preflight_model.joblib",
+  "features": [
+    "AIRLINE",
+    "ORIGIN_AIRPORT",
+    "DESTINATION_AIRPORT",
+    "DEP_PERIOD",
+    "SCENARIO",
+    "MONTH",
+    "DAY",
+    "DAY_OF_WEEK",
+    "IS_WEEKEND",
+    "SCHEDULED_DEP_HOUR",
+    "SCHEDULED_TIME",
+    "DISTANCE",
+    "MONTH_SIN",
+    "MONTH_COS",
+    "HOUR_SIN",
+    "HOUR_COS",
+    "IS_LONG_HAUL",
+    "IS_HOLIDAY_MONTH"
+  ],
+  "categorical": [
+    "AIRLINE",
+    "ORIGIN_AIRPORT",
+    "DESTINATION_AIRPORT",
+    "DEP_PERIOD",
+    "SCENARIO"
+  ],
+  "numeric": [
+    "MONTH",
+    "DAY",
+    "DAY_OF_WEEK",
+    "IS_WEEKEND",
+    "SCHEDULED_DEP_HOUR",
+    "SCHEDULED_TIME",
+    "DISTANCE",
+    "MONTH_SIN",
+    "MONTH_COS",
+    "HOUR_SIN",
+    "HOUR_COS",
+    "IS_LONG_HAUL",
+    "IS_HOLIDAY_MONTH"
+  ],
+  "threshold": 0.5249999999999999,
+  "params": {
+    "max_iter": 360,
+    "learning_rate": 0.035,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 50,
+    "l2_regularization": 0.06
+  },
+  "holiday_months": [
+    6,
+    7,
+    8,
+    11,
+    12
+  ],
+  "normal_months": [
+    3,
+    4,
+    5,
+    9,
+    10
+  ],
+  "scenario_definition": {
+    "normal_sans_vacances": "Mois sans forte pression vacances retenus pour comparaison : mars, avril, mai, septembre, octobre.",
+    "incident_vacances": "Mois à forte pression vacances retenus pour stress-test : juin, juillet, août, novembre, décembre.",
+    "intermediaire": "Autres mois conservés dans l'apprentissage mais non utilisés comme scénario principal."
+  },
+  "evaluation_note": "Métriques calculées sur test holdout 20 %, avant refit final sur train+validation."
+}

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard RNCP40875 - Aperçu</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;color:#111827;background:#fff}
+    main{max-width:1160px;margin:0 auto;padding:36px 24px 64px}
+    header{border-bottom:1px solid #e5e7eb;padding-bottom:22px;margin-bottom:28px}
+    h1{font-size:42px;line-height:1.05;margin:0 0 8px}
+    h2{margin-top:34px;border-top:1px solid #e5e7eb;padding-top:24px}
+    p{color:#4b5563;line-height:1.55}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:24px 0}
+    .panel,.kpi{border-top:1px solid #e5e7eb;padding-top:14px}
+    .label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280}
+    .value{font-size:28px;font-weight:520;margin-top:6px}
+    table{width:100%;border-collapse:collapse;margin-top:14px}
+    th,td{border-bottom:1px solid #e5e7eb;text-align:left;padding:10px;vertical-align:top}
+    th{font-size:13px;color:#374151;background:#f8fafc}
+    .tag{display:inline-block;border:1px solid #e5e7eb;border-radius:999px;padding:5px 10px;margin:4px 4px 0 0;color:#374151}
+    @media(max-width:900px){.grid,.kpis{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Retards de vols US 2015</h1>
+    <p>Aperçu statique du dashboard Streamlit RNCP40875. La version interactive se lance avec <code>./launch_dashboard.sh</code>.</p>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi"><div class="label">Vols analysés</div><div class="value">800k</div><p>Volume dashboard échantillonné.</p></div>
+    <div class="kpi"><div class="label">Taux de retard</div><div class="value">~18%</div><p>Arrivée supérieure à 15 minutes.</p></div>
+    <div class="kpi"><div class="label">Retard arrivée</div><div class="value">KPI client</div><p>Mesure l'impact passager.</p></div>
+    <div class="kpi"><div class="label">Retard départ</div><div class="value">KPI ops</div><p>Mesure un levier actionnable.</p></div>
+    <div class="kpi"><div class="label">Modèle live</div><div class="value">F1 0,805</div><p>ROC-AUC 0,941 après observation du retard départ.</p></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Page 1 - Vue exécutive</h2>
+      <p>Jauge de ponctualité, donut retards/vols à l'heure, tendance mensuelle, mois critiques, compagnies, aéroports, routes à risque et synthèse modèle.</p>
+    </div>
+    <div class="panel">
+      <h2>Page 2 - Analyse opérationnelle</h2>
+      <p>Diagnostic par temporalité, mois les plus en retard, compagnie, ville, aéroport, route, table filtrable et exportable.</p>
+    </div>
+    <div class="panel">
+      <h2>Page 3 - Recommandations</h2>
+      <p>Simulateur prédictif mois, compagnie, départ, arrivée, playbooks métier, scénarios vacances/hors vacances, métriques par filtres et dashboards consolidés.</p>
+    </div>
+  </section>
+
+  <h2>Simulateur de départ</h2>
+  <table>
+    <thead><tr><th>Paramètre</th><th>Rôle</th><th>Sortie métier</th></tr></thead>
+    <tbody>
+      <tr><td>Mois</td><td>Prend en compte la saisonnalité des retards.</td><td rowspan="6">Risque estimé, score modèle, fiabilité de l'échantillon, retard moyen attendu et actions recommandées : traitement nominal, surveillance active, pré-alerte passagers ou renfort escale.</td></tr>
+      <tr><td>Compagnie</td><td>Compare les performances opérationnelles par transporteur.</td></tr>
+      <tr><td>Aéroport départ</td><td>Intègre l'effet hub, escale et contraintes de départ.</td></tr>
+      <tr><td>Aéroport arrivée</td><td>Intègre l'effet destination, ville et contraintes d'arrivée.</td></tr>
+      <tr><td>Heure optionnelle</td><td>Mesure l'effet cascade au fil de la journée.</td></tr>
+      <tr><td>Type de jour optionnel</td><td>Distingue semaine et week-end.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Modèle fine-tuné segmenté</h2>
+  <table>
+    <thead><tr><th>Usage</th><th>Test</th><th>ROC-AUC</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+    <tbody>
+      <tr><td>Prédiction pré-départ filtrable mois / compagnie / départ / arrivée</td><td>160 000 vols holdout</td><td>0,711</td><td>0,310</td><td>0,587</td><td>0,405</td></tr>
+    </tbody>
+  </table>
+  <p>Dans Streamlit, les métriques peuvent être recalculées sur le filtre exact choisi : mois, compagnie, aéroport de départ et aéroport d'arrivée.</p>
+
+  <h2>Visuels clés ajoutés</h2>
+  <table>
+    <thead><tr><th>Page</th><th>Visuel</th><th>Utilité métier</th></tr></thead>
+    <tbody>
+      <tr><td>Page 1</td><td>Jauge du taux de retard</td><td>Vérifier immédiatement si la ponctualité est sous vigilance.</td></tr>
+      <tr><td>Page 1</td><td>Donut retards / à l'heure</td><td>Comprendre la part réelle des incidents dans la sélection.</td></tr>
+      <tr><td>Page 1</td><td>Mois, compagnies et routes critiques</td><td>Identifier les segments à traiter en priorité.</td></tr>
+      <tr><td>Page 3</td><td>Matrice impact / effort</td><td>Prioriser les actions selon valeur métier et complexité.</td></tr>
+      <tr><td>Page 3</td><td>Playbooks métier</td><td>Transformer un niveau de risque en actions opérationnelles.</td></tr>
+      <tr><td>Page 3</td><td>Timeline 30/60/90 jours</td><td>Structurer le déploiement IA et la gouvernance.</td></tr>
+      <tr><td>Page 3</td><td>Matrices de confusion</td><td>Arbitrer le modèle selon faux négatifs, faux positifs et recall.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Filtres ajoutés</h2>
+  <p>
+    <span class="tag">Mois</span><span class="tag">Jour de semaine</span><span class="tag">Compagnie</span>
+    <span class="tag">Heure de départ</span><span class="tag">Ville départ</span><span class="tag">Aéroport départ</span>
+    <span class="tag">Ville arrivée</span><span class="tag">Aéroport arrivée</span>
+    <span class="tag">Vols retardés</span><span class="tag">Volume minimum</span><span class="tag">Recherche texte</span>
+    <span class="tag">Tri table</span>
+  </p>
+
+  <h2>Décisions permises</h2>
+  <table>
+    <thead><tr><th>Décision</th><th>Signal utilisé</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Renforcer les équipes sol</td><td>Pic mois/jour/heure</td><td>Planifier les ressources avant les périodes à risque.</td></tr>
+      <tr><td>Auditer hubs, villes et routes</td><td>Taux élevé + volume suffisant</td><td>Prioriser les segments à impact réel.</td></tr>
+      <tr><td>Ajuster les marges</td><td>Effet cascade en fin de journée</td><td>Réduire les retards de rotation.</td></tr>
+      <tr><td>Déclencher des alertes</td><td>Recall, F1, faux négatifs</td><td>Informer passagers et équipes en amont.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Modèles réentraînés</h2>
+  <table>
+    <thead><tr><th>Contexte</th><th>Usage</th><th>ROC-AUC</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+    <tbody>
+      <tr><td>preflight</td><td>Avant départ, sans DEPARTURE_DELAY</td><td>0,707</td><td>0,311</td><td>0,578</td><td>0,404</td></tr>
+      <tr><td>operational_live</td><td>Après observation du retard départ</td><td>0,941</td><td>0,865</td><td>0,752</td><td>0,805</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

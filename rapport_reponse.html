@@ -1,0 +1,365 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rapport RNCP40875</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;max-width:1040px;margin:40px auto;line-height:1.58;color:#111827;padding:0 24px}h1{font-size:36px;line-height:1.1}h2{margin-top:34px;border-top:1px solid #e5e7eb;padding-top:18px}h3{margin-top:24px;color:#111827}p,li{color:#374151}code{background:#f3f4f6;padding:1px 4px;border-radius:4px}pre{background:#f8fafc;border:1px solid #e5e7eb;padding:12px;overflow:auto;border-radius:6px}table{border-collapse:collapse;width:100%;margin:14px 0 22px}th,td{border-bottom:1px solid #e5e7eb;padding:9px;text-align:left;vertical-align:top}th{background:#f8fafc;color:#111827}blockquote{border-left:3px solid #111827;margin:14px 0;padding:8px 14px;background:#f8fafc;color:#374151}.meta{color:#6b7280}</style></head><body><h1>Rapport détaillé - Projet Data Science : retards de vols US</h1>
+<p><strong>Référentiel</strong> : RNCP40875 - Projet Data Science</p>
+<p><strong>Compétences couvertes</strong> : C3.1, C3.2, C3.3, C4.1, C4.2, C4.3</p>
+<p><strong>Livrable final</strong> : dossier <code>Pilé</code> + notebook exécuté + dashboard Streamlit + rapport</p>
+<p><strong>Données</strong> : <code>flights.csv</code>, <code>airlines.csv</code>, <code>airports.csv</code></p>
+<hr>
+<h2>1. Synthèse exécutive</h2>
+<p>Le projet vise à aider les équipes opérationnelles aériennes à comprendre, visualiser et anticiper les retards de vols domestiques américains de 2015. Le livrable final consolide les meilleurs éléments des trois dossiers de travail :</p>
+<ul>
+<li><code>DATA S</code> : notebook complet, robuste et exécuté pour le nettoyage, l&#x27;EDA, les exports dashboard et les modèles baseline.</li>
+<li><code>DATA S 2</code> : version validée et exécutée du notebook principal, utilisée comme socle de contrôle.</li>
+<li><code>DATA S 3</code> : version enrichie avec dashboard Streamlit, rapport, sorties agrégées et dossier final <code>Pilé</code>.</li>
+</ul>
+<p>Le résultat est un pipeline complet :</p>
+<ol>
+<li>préparation et qualité des données ;</li>
+<li>analyse exploratoire orientée métier ;</li>
+<li>dashboard interactif ;</li>
+<li>modèles prédictifs comparés ;</li>
+<li>stratégie d&#x27;intégration IA alignée métier, gouvernance et écoresponsabilité.</li>
+</ol>
+<hr>
+<h2>2. Données et cadrage métier</h2>
+<h3>2.1 Contexte</h3>
+<p>Les retards de vols ont un impact direct sur :</p>
+<ul>
+<li>la satisfaction passager ;</li>
+<li>les correspondances manquées ;</li>
+<li>les coûts de compensation ;</li>
+<li>la désorganisation des équipes sol ;</li>
+<li>les rotations d&#x27;appareils et d&#x27;équipages ;</li>
+<li>la performance d&#x27;image de la compagnie aérienne.</li>
+</ul>
+<p>La question centrale du dashboard et de l&#x27;analyse est :</p>
+<blockquote>Où, quand et pourquoi les vols sont-ils en retard, et comment anticiper ces retards ?</blockquote>
+<h3>2.2 Sources utilisées</h3>
+<table><thead><tr><th>Fichier</th><th>Rôle</th><th>Utilisation</th></tr></thead><tbody>
+<tr><td><code>flights.csv</code></td><td>vols, horaires, retards, annulations, déroutements</td><td>dataset principal</td></tr>
+<tr><td><code>airlines.csv</code></td><td>codes IATA compagnies</td><td>enrichissement lisible des compagnies</td></tr>
+<tr><td><code>airports.csv</code></td><td>codes IATA aéroports, villes, états</td><td>enrichissement des analyses aéroportuaires</td></tr>
+</tbody></table>
+<p>Le jeu de données brut contient environ 5,8 millions de vols.</p>
+<hr>
+<h2>3. Préparation et nettoyage des données (C3.1)</h2>
+<h3>3.1 Choix de nettoyage</h3>
+<p>Le notebook applique les décisions suivantes :</p>
+<ul>
+<li>suppression des vols annulés (<code>CANCELLED=1</code>), car aucun retard à l&#x27;arrivée n&#x27;est observable ;</li>
+<li>suppression des vols déroutés (<code>DIVERTED=1</code>), car l&#x27;arrivée ne correspond plus au plan initial ;</li>
+<li>suppression des lignes sans <code>ARRIVAL_DELAY</code>, afin de ne pas fabriquer artificiellement la cible ;</li>
+<li>typage optimisé des colonnes pour limiter la mémoire ;</li>
+<li>conversion des variables catégorielles en chaînes/catégories ;</li>
+<li>correction BTS vers IATA lorsque le mapping <code>outputs/bts_to_iata.json</code> est disponible.</li>
+</ul>
+<p>Après nettoyage, le dataset exploitable contient <strong>5 714 008 vols</strong>.</p>
+<h3>3.2 Variable cible</h3>
+<p>La cible <code>IS_DELAYED</code> est définie ainsi :</p>
+<pre><code>IS_DELAYED = 1 si ARRIVAL_DELAY &gt; 15 minutes, sinon 0</code></pre>
+<p>Le seuil de 15 minutes est cohérent avec les usages de ponctualité aérienne. Il pourrait être adapté :</p>
+<ul>
+<li>à 5 minutes pour du pilotage qualité interne ;</li>
+<li>à 30 minutes pour une logique de compensation passager ;</li>
+<li>à un seuil variable selon les correspondances ou les contraintes réglementaires.</li>
+</ul>
+<p>Le taux global observé est d&#x27;environ <strong>17,9 % de vols retardés</strong>.</p>
+<h3>3.3 Feature engineering</h3>
+<p>Les variables créées incluent :</p>
+<ul>
+<li><code>SCHEDULED_DEP_HOUR</code> : heure de départ programmée extraite du format HHMM ;</li>
+<li><code>DEP_PERIOD</code> : période de la journée ;</li>
+<li><code>IS_WEEKEND</code> : indicateur samedi/dimanche ;</li>
+<li>variables enrichies par référentiels compagnies et aéroports.</li>
+</ul>
+<hr>
+<h2>4. Analyse exploratoire orientée métier (C3.3)</h2>
+<h3>4.1 KPI globaux</h3>
+<p>Les KPI suivis dans le notebook et le dashboard sont :</p>
+<ul>
+<li>nombre total de vols ;</li>
+<li>taux de retard supérieur à 15 minutes ;</li>
+<li>retard moyen à l&#x27;arrivée ;</li>
+<li>retard médian à l&#x27;arrivée ;</li>
+<li>retard moyen au départ ;</li>
+<li>volumes par compagnie, aéroport, mois, jour et heure.</li>
+</ul>
+<h3>4.2 Enseignements principaux</h3>
+<ol>
+<li><strong>Saisonnalité</strong></li>
+</ol>
+<p>Les retards varient nettement selon les mois. Les périodes hivernales, estivales et de fêtes sont plus exposées. Cela permet d&#x27;anticiper les ressources avant les pics.</p>
+<ol>
+<li><strong>Effet horaire</strong></li>
+</ol>
+<p>Les retards augmentent souvent au fil de la journée. Cela suggère un effet cascade lié aux rotations d&#x27;appareils et aux retards accumulés.</p>
+<ol>
+<li><strong>Disparités compagnie/aéroport</strong></li>
+</ol>
+<p>Certaines compagnies et certains hubs concentrent davantage de retards. Le dashboard filtre les segments à volume suffisant pour éviter des conclusions statistiquement fragiles.</p>
+<ol>
+<li><strong>Volume et taux doivent être lus ensemble</strong></li>
+</ol>
+<p>Un fort taux de retard sur quelques vols n&#x27;a pas la même priorité opérationnelle qu&#x27;un taux modéré sur un hub majeur.</p>
+<hr>
+<h2>5. Dashboard interactif (C3.2)</h2>
+<h3>5.1 Choix technique</h3>
+<p>Le dashboard est développé avec <strong>Streamlit + Plotly</strong> :</p>
+<ul>
+<li>stack 100 % Python ;</li>
+<li>interactivité native ;</li>
+<li>filtres rapides ;</li>
+<li>visualisations exportables ;</li>
+<li>lancement local simple ;</li>
+<li>pas de coût de licence.</li>
+</ul>
+<h3>5.2 Dashboard enrichi</h3>
+<p>Le fichier <code>dashboard.py</code> a été réécrit comme un front Streamlit en <strong>3 pages métier</strong> :</p>
+<table><thead><tr><th>Page</th><th>Objectif</th><th>Contenu principal</th></tr></thead><tbody>
+<tr><td>Page 1 - Vue exécutive</td><td>Donner une lecture direction en moins d&#x27;une minute</td><td>KPI globaux, jauge de ponctualité, donut retards/à l&#x27;heure, évolution mensuelle, mois critiques, compagnies/aéroports/routes à risque, synthèse modèle</td></tr>
+<tr><td>Page 2 - Analyse opérationnelle</td><td>Diagnostiquer les causes et segments d&#x27;intervention</td><td>temporalité, mois les plus en retard, compagnies, villes, aéroports, routes, table filtrable/exportable</td></tr>
+<tr><td>Page 3 - Recommandations</td><td>Transformer l&#x27;analyse en décisions</td><td>simulateur prédictif de départ, playbooks métier, recommandations priorisées, matrice impact/effort, feuille de route 30/60/90 jours, décisions permises, matrices modèle et dashboards consolidés</td></tr>
+</tbody></table>
+<p>Cette structure rend le livrable plus lisible pour l&#x27;évaluation : la première page répond au pilotage, la deuxième à l&#x27;analyse opérationnelle, la troisième à la stratégie d&#x27;action.</p>
+<p>La page exécutive a été consolidée avec des visuels de lecture rapide : une jauge compare le taux de retard au seuil de vigilance, un donut sépare vols à l&#x27;heure et vols retardés, un graphique compare les métriques des modèles, et des bar charts isolent les mois, compagnies et routes qui contribuent le plus aux retards. La page recommandations a été renforcée avec un simulateur de départ, des playbooks métier déclenchables, une matrice impact/effort, une timeline de déploiement IA, des matrices de confusion visuelles et une comparaison des dashboards issus des notebooks disponibles.</p>
+<p>Le simulateur de départ permet de choisir un mois, une compagnie, un aéroport de départ et un aéroport d&#x27;arrivée, avec heure et type de jour optionnels. Le dashboard compare le scénario à plusieurs références historiques et utilise aussi un modèle pré-départ fine-tuné pour produire un score, un seuil d&#x27;alerte et une décision. La sortie est directement opérationnelle : niveau de risque, fiabilité statistique, retard moyen attendu et actions recommandées pour l&#x27;escale, le centre opérations ou l&#x27;expérience client.</p>
+<p>La Page 3 mesure aussi le modèle sur le filtre exact <code>mois + compagnie + aéroport de départ + aéroport d&#x27;arrivée</code> à partir du jeu de test holdout. Lorsque le volume est suffisant, elle affiche accuracy, balanced accuracy, precision, recall, F1 et ROC-AUC sur ce segment précis.</p>
+<h3>5.3 KPIs choisis et justification</h3>
+<table><thead><tr><th>KPI</th><th>Pourquoi ce choix</th><th>Décision associée</th></tr></thead><tbody>
+<tr><td>Vols analysés</td><td>Vérifie le volume de la sélection et la fiabilité statistique des comparaisons</td><td>Éviter d&#x27;agir sur des segments trop faibles</td></tr>
+<tr><td>Taux de retard</td><td>Mesure centrale de ponctualité, seuil métier <code>ARRIVAL_DELAY &gt; 15</code></td><td>Identifier périodes, compagnies, routes et aéroports prioritaires</td></tr>
+<tr><td>Vols retardés</td><td>Quantifie le volume d&#x27;incidents, pas seulement leur proportion</td><td>Dimensionner l&#x27;impact opérationnel</td></tr>
+<tr><td>Retard moyen arrivée</td><td>Traduit l&#x27;impact client et correspondances</td><td>Prioriser communication passagers et plans de correspondance</td></tr>
+<tr><td>Retard médian arrivée</td><td>Limite l&#x27;effet des retards extrêmes</td><td>Distinguer problème structurel et incidents isolés</td></tr>
+<tr><td>Retard moyen départ</td><td>Mesure plus actionnable côté opérations sol et rotation</td><td>Ajuster portes, équipes, embarquement et marges</td></tr>
+<tr><td>Recall du modèle retard</td><td>Réduit le risque de faux négatifs dans une logique d&#x27;alerte</td><td>Choisir le seuil de déclenchement opérationnel</td></tr>
+</tbody></table>
+<h3>5.4 Injection des dashboards multi-notebooks</h3>
+<p>Les dashboards et exports présents dans les différents dossiers ont été consolidés dans <code>outputs/consolidated_dashboards/</code>.</p>
+<p>Cette consolidation évite de dupliquer plusieurs fichiers complets d&#x27;environ 1 Go chacun dans le rendu, tout en gardant :</p>
+<ul>
+<li>un manifeste des sources : <code>dashboard_sources_manifest.csv</code> ;</li>
+<li>les KPI comparables par notebook : <code>dashboard_kpi_summary.csv</code> ;</li>
+<li>les agrégats mensuels, compagnies, aéroports et destinations ;</li>
+<li>un échantillon contrôlé des dashboards complets : <code>all_flights_dashboard_samples.csv</code>.</li>
+</ul>
+<p>Ces fichiers alimentent l&#x27;onglet <strong>Dashboards consolidés</strong> de Streamlit, ce qui permet de comparer les résultats des notebooks sans ouvrir chaque fichier séparément.</p>
+<h3>5.5 Filtres disponibles</h3>
+<ul>
+<li>mois ;</li>
+<li>jour de semaine ;</li>
+<li>compagnie ;</li>
+<li>plage horaire ;</li>
+<li>ville de départ ;</li>
+<li>aéroport de départ ;</li>
+<li>ville d&#x27;arrivée ;</li>
+<li>aéroport d&#x27;arrivée ;</li>
+<li>option &quot;vols retardés uniquement&quot;.</li>
+<li>volume minimum des segments dans la page opérationnelle ;</li>
+<li>recherche texte, tri et choix de colonnes dans la table de contrôle.</li>
+</ul>
+<p>Les filtres d&#x27;aéroports sont dépendants des villes : lorsque l&#x27;utilisateur sélectionne une ville de départ ou d&#x27;arrivée, la liste des aéroports disponibles est réduite aux aéroports rattachés à cette ville. Cela évite les listes trop longues et rend l&#x27;analyse plus proche des usages opérationnels.</p>
+<p>L&#x27;onglet <strong>Données</strong> ajoute un niveau d&#x27;exploration plus fin :</p>
+<ul>
+<li>recherche texte sur les compagnies, villes et aéroports ;</li>
+<li>filtres locaux sur statut, période de départ, retards et distance ;</li>
+<li>choix des colonnes affichées ;</li>
+<li>tri ascendant ou descendant sur n&#x27;importe quelle colonne ;</li>
+<li>pagination contrôlée pour garder l&#x27;interface fluide ;</li>
+<li>profil qualité des colonnes avec types, valeurs manquantes et cardinalité ;</li>
+<li>constructeur d&#x27;agrégations métier par compagnie, aéroport, heure, mois ou route ;</li>
+<li>export CSV limité ou complet selon le besoin d&#x27;analyse.</li>
+</ul>
+<h3>5.6 Décisions permises par le dashboard</h3>
+<p>Le dashboard permet de prendre les décisions suivantes :</p>
+<ul>
+<li>renforcer les équipes sol sur les mois, jours et heures à risque ;</li>
+<li>identifier les mois les plus critiques et exposer les compagnies, villes, aéroports de départ et destinations associés ;</li>
+<li>prioriser les hubs, routes ou compagnies à auditer quand le volume est suffisant ;</li>
+<li>ajuster les marges de rotation sur les créneaux exposés à l&#x27;effet cascade ;</li>
+<li>déclencher des notifications passagers ou correspondances sur les segments à risque ;</li>
+<li>simuler un départ mois + compagnie + destination pour décider entre traitement nominal, surveillance active, pré-alerte passager ou renfort escale ;</li>
+<li>choisir un modèle et un seuil d&#x27;alerte en fonction du recall, du F1-score et des faux négatifs ;</li>
+<li>suivre la dérive opérationnelle via les KPI mensuels et les matrices modèle.</li>
+</ul>
+<h3>5.7 Version de secours</h3>
+<p>En plus de Streamlit, une version HTML autonome est générée :</p>
+<ul>
+<li><code>dashboard_preview.html</code></li>
+</ul>
+<p>Elle permet de consulter les KPI et graphiques principaux même si le serveur Streamlit n&#x27;est pas lancé.</p>
+<hr>
+<h2>6. Modélisation prédictive (C4.2)</h2>
+<h3>6.1 Scénario de prédiction</h3>
+<p>Le scénario retenu est une prédiction <strong>avant le départ programmé</strong>. Les variables connues après le vol sont exclues afin d&#x27;éviter le data leakage :</p>
+<ul>
+<li><code>ARRIVAL_DELAY</code> n&#x27;est pas utilisée comme feature ;</li>
+<li><code>DEPARTURE_DELAY</code> est utilisée en EDA/dashboard, mais exclue du modèle prédictif avant départ ;</li>
+<li>les causes détaillées de retard sont post-vol et donc exclues.</li>
+</ul>
+<h3>6.2 Features retenues</h3>
+<p>Variables catégorielles :</p>
+<ul>
+<li><code>AIRLINE</code> ;</li>
+<li><code>ORIGIN_AIRPORT</code> ;</li>
+<li><code>DESTINATION_AIRPORT</code> ;</li>
+<li><code>DEP_PERIOD</code>.</li>
+</ul>
+<p>Variables numériques :</p>
+<ul>
+<li><code>MONTH</code> ;</li>
+<li><code>DAY</code> ;</li>
+<li><code>DAY_OF_WEEK</code> ;</li>
+<li><code>IS_WEEKEND</code> ;</li>
+<li><code>SCHEDULED_DEP_HOUR</code> ;</li>
+<li><code>SCHEDULED_TIME</code> ;</li>
+<li><code>DISTANCE</code>.</li>
+</ul>
+<h3>6.3 Prétraitement</h3>
+<p>Le pipeline respecte les consignes du syllabus :</p>
+<ul>
+<li><code>SimpleImputer(strategy=&quot;median&quot;)</code> pour les variables numériques ;</li>
+<li><code>StandardScaler()</code> pour les variables numériques ;</li>
+<li><code>SimpleImputer(strategy=&quot;most_frequent&quot;)</code> pour les catégorielles ;</li>
+<li><code>OneHotEncoder(handle_unknown=&quot;ignore&quot;)</code> pour les catégorielles.</li>
+</ul>
+<h3>6.4 Modèles comparés</h3>
+<p>Le modèle a été réentraîné sur <strong>800 000 vols</strong> issus de <code>outputs/flights_dashboard.csv</code>.</p>
+<p>Le split est stratifié :</p>
+<ul>
+<li>train : 480 000 vols ;</li>
+<li>validation : 160 000 vols ;</li>
+<li>test : 160 000 vols ;</li>
+<li>taux de retard dans l&#x27;échantillon : 17,9 %.</li>
+</ul>
+<p>Deux contextes métier sont distingués :</p>
+<table><thead><tr><th>Contexte</th><th>Usage</th><th>Variables sensibles</th></tr></thead><tbody>
+<tr><td><code>preflight</code></td><td>prédiction avant le départ programmé</td><td>exclut <code>DEPARTURE_DELAY</code> pour éviter une fuite de données</td></tr>
+<tr><td><code>operational_live</code></td><td>prédiction après observation du retard au départ</td><td>inclut <code>DEPARTURE_DELAY</code>, plus précis mais utilisable plus tard</td></tr>
+</tbody></table>
+<p>La version finale compare plusieurs familles de modèles pour couvrir une baseline naïve, un modèle linéaire interprétable et des modèles non linéaires :</p>
+<table><thead><tr><th>Modèle</th><th>Rôle</th></tr></thead><tbody>
+<tr><td>Baseline majoritaire</td><td>point de comparaison minimal, prédit la classe majoritaire</td></tr>
+<tr><td>Logistic Regression</td><td>baseline simple, rapide, interprétable</td></tr>
+<tr><td>Random Forest</td><td>modèle non linéaire testé sur le contexte pré-vol</td></tr>
+<tr><td>HistGradientBoosting</td><td>boosting efficace sur données tabulaires, meilleur potentiel de discrimination</td></tr>
+</tbody></table>
+<p>Les classes sont pondérées avec <code>class_weight=&quot;balanced&quot;</code> pour tenir compte du déséquilibre entre vols retardés et non retardés.</p>
+<p>Le seuil de décision est optimisé sur validation afin d&#x27;améliorer le F1-score, indicateur plus adapté que l&#x27;accuracy brute dans ce problème déséquilibré.</p>
+<hr>
+<h2>7. Évaluation et comparaison des modèles (C4.3)</h2>
+<p>Les modèles sont comparés avec :</p>
+<ul>
+<li><code>classification_report</code> ;</li>
+<li>accuracy ;</li>
+<li>balanced accuracy ;</li>
+<li>F1-score ;</li>
+<li>ROC-AUC ;</li>
+<li>courbe ROC ;</li>
+<li>matrice de confusion ;</li>
+<li>seuil de décision optimisé ;</li>
+<li>estimation simple du coût d&#x27;entraînement.</li>
+</ul>
+<p>Résultats sauvegardés dans <code>outputs/model_comparison.csv</code> :</p>
+<table><thead><tr><th>Contexte</th><th>Modèle</th><th>Seuil</th><th>Accuracy</th><th>Balanced accuracy</th><th>Precision</th><th>Recall retard</th><th>F1</th><th>ROC-AUC</th></tr></thead><tbody>
+<tr><td><code>preflight</code></td><td>HistGradientBoosting</td><td>0,200</td><td>0,695</td><td>0,650</td><td>0,311</td><td>0,578</td><td>0,404</td><td>0,707</td></tr>
+<tr><td><code>operational_live</code></td><td>HistGradientBoosting</td><td>0,385</td><td>0,935</td><td>0,863</td><td>0,865</td><td>0,752</td><td>0,805</td><td>0,941</td></tr>
+</tbody></table>
+<p>Un modèle complémentaire a été fine-tuné pour la simulation métier par filtres <code>MONTH</code>, <code>AIRLINE</code>, <code>ORIGIN_AIRPORT</code> et <code>DESTINATION_AIRPORT</code>. Le split reste strictement séparé : 480 000 lignes train, 160 000 validation et 160 000 test. Le seuil final est choisi sur validation avec contrainte de précision et de rappel, puis mesuré sur test holdout.</p>
+<table><thead><tr><th>Modèle</th><th>Usage</th><th>Seuil</th><th>Accuracy</th><th>Balanced accuracy</th><th>Precision</th><th>Recall retard</th><th>F1</th><th>ROC-AUC</th></tr></thead><tbody>
+<tr><td><code>segment_finetuned_preflight</code></td><td>simulation mois/compagnie/départ/arrivée</td><td>0,525</td><td>0,692</td><td>0,651</td><td>0,310</td><td>0,587</td><td>0,405</td><td>0,711</td></tr>
+</tbody></table>
+<p>Les sorties associées sont :</p>
+<ul>
+<li><code>outputs/model_artifacts/segment_finetuned_preflight_model.joblib</code> ;</li>
+<li><code>outputs/model_artifacts/segment_finetuned_overall_metrics.csv</code> ;</li>
+<li><code>outputs/model_artifacts/segment_finetuned_filter_metrics.csv</code> ;</li>
+<li><code>outputs/model_artifacts/segment_finetuned_scenario_metrics.csv</code> ;</li>
+<li><code>outputs/model_artifacts/segment_finetuned_scenario_month_metrics.csv</code> ;</li>
+<li><code>outputs/model_artifacts/segment_finetuned_test_predictions.csv</code> ;</li>
+<li><code>outputs/model_artifacts/segment_finetuned_sample_distribution.csv</code>.</li>
+</ul>
+<p>Les scénarios utilisés sont :</p>
+<ul>
+<li><code>normal_sans_vacances</code> : mars, avril, mai, septembre, octobre ;</li>
+<li><code>incident_vacances</code> : juin, juillet, août, novembre, décembre ;</li>
+<li><code>intermediaire</code> : autres mois conservés dans l&#x27;apprentissage.</li>
+</ul>
+<p>Le meilleur modèle dans les deux contextes est <strong>HistGradientBoosting</strong>.</p>
+<p>Le contexte <code>operational_live</code> est beaucoup plus précis car il utilise le retard au départ. Cette variable est légitime pour une alerte après départ ou pendant le suivi opérationnel, mais elle ne doit pas être utilisée pour une prédiction strictement avant départ.</p>
+<p>Les artefacts sauvegardés sont :</p>
+<ul>
+<li><code>outputs/model_artifacts/best_preflight_model.joblib</code> ;</li>
+<li><code>outputs/model_artifacts/best_operational_live_model.joblib</code> ;</li>
+<li><code>outputs/model_artifacts/best_models_metadata.json</code>.</li>
+</ul>
+<p>Les matrices de confusion sont exportées dans :</p>
+<ul>
+<li><code>outputs/model_artifacts/model_confusion_matrix_wide.csv</code> : matrice synthétique TN/FP/FN/TP par modèle ;</li>
+<li><code>outputs/model_artifacts/model_confusion_matrices.csv</code> : matrice longue exploitable dans Streamlit ;</li>
+<li><code>outputs/model_artifacts/model_metrics_all_thresholds.csv</code> : comparaison seuil 0,50 vs seuil optimisé ;</li>
+<li><code>outputs/model_artifacts/model_classification_report.csv</code> : precision/recall/F1 par classe.</li>
+</ul>
+<p>La métrique métier prioritaire reste le <strong>rappel de la classe retard</strong> : rater un vrai retard peut empêcher les équipes d&#x27;agir à temps, alors qu&#x27;une fausse alerte reste généralement moins coûteuse. Le dashboard affiche donc les faux négatifs explicitement pour aider au choix du modèle.</p>
+<hr>
+<h2>8. Stratégie d&#x27;intégration IA (C4.1)</h2>
+<h3>8.1 Cas d&#x27;usage</h3>
+<ul>
+<li>notification proactive des passagers ;</li>
+<li>allocation dynamique des portes ;</li>
+<li>ajustement des équipes sol ;</li>
+<li>identification des correspondances à risque ;</li>
+<li>aide à la décision pour superviseurs opérations ;</li>
+<li>score de risque intégré au dashboard quotidien.</li>
+</ul>
+<h3>8.2 Gouvernance</h3>
+<ul>
+<li>versionner les jeux de données, features et modèles ;</li>
+<li>documenter les variables exclues pour éviter le data leakage ;</li>
+<li>suivre les performances par hub, compagnie, saison et jour ;</li>
+<li>définir un seuil d&#x27;alerte validé avec les métiers ;</li>
+<li>conserver une validation humaine pour les décisions sensibles.</li>
+</ul>
+<h3>8.3 Écoresponsabilité</h3>
+<ul>
+<li>entraîner sur un échantillon représentatif ;</li>
+<li>éviter les modèles trop lourds si le gain marginal est faible ;</li>
+<li>limiter la fréquence de réentraînement ;</li>
+<li>suivre temps d&#x27;entraînement, énergie estimée et CO2 équivalent ;</li>
+<li>privilégier la sobriété de calcul en phase pilote.</li>
+</ul>
+<h3>8.4 Feuille de route</h3>
+<table><thead><tr><th>Phase</th><th>Objectif</th><th>Livrable</th></tr></thead><tbody>
+<tr><td>M0-M1</td><td>cadrage et POC</td><td>notebook + dashboard</td></tr>
+<tr><td>M1-M2</td><td>pilote métier</td><td>score de risque sur un hub ou un périmètre réduit</td></tr>
+<tr><td>M2-M3</td><td>intégration SI</td><td>API ou batch alimentant le dashboard</td></tr>
+<tr><td>M3+</td><td>monitoring</td><td>suivi drift, performance, feedback terrain</td></tr>
+</tbody></table>
+<hr>
+<h2>9. Contenu du livrable final</h2>
+<p>Le dossier <code>Pilé</code> contient :</p>
+<ul>
+<li><code>flights_delay.ipynb</code> : notebook complété, exécuté, corrigé ;</li>
+<li><code>dashboard.py</code> : dashboard Streamlit enrichi ;</li>
+<li><code>dashboard_preview.html</code> : aperçu autonome sans serveur ;</li>
+<li><code>rapport.md</code> : présent rapport détaillé ;</li>
+<li><code>README_RENDU.md</code> : instructions ;</li>
+<li><code>requirements.txt</code> : dépendances ;</li>
+<li><code>outputs/</code> : données dashboard, agrégats, dashboards consolidés et comparaison modèles ;</li>
+<li><code>outputs/model_artifacts/</code> : matrices de confusion, classification reports et métriques multi-seuils ;</li>
+<li><code>outputs/consolidated_dashboards/</code> : exports fusionnés des notebooks <code>DATA S</code>, <code>DATA S 2</code> et <code>DATA S 3</code> ;</li>
+<li><code>scripts/</code> : scripts reproductibles pour régénérer les matrices modèles et la consolidation dashboard ;</li>
+<li><code>flights_delay/</code> : fichiers sources ;</li>
+<li><code>RNCP40875 - Syllabus - Projet Data Science.pdf</code>.</li>
+</ul>
+<hr>
+<h2>10. Conclusion</h2>
+<p>Le projet final est cohérent avec les attendus RNCP40875 :</p>
+<ul>
+<li><strong>C3.1</strong> : données nettoyées, typées, documentées ;</li>
+<li><strong>C3.2</strong> : dashboard interactif enrichi, filtrable et orienté décision ;</li>
+<li><strong>C3.3</strong> : EDA métier avec KPI, saisonnalité, heures, compagnies, aéroports et routes ;</li>
+<li><strong>C4.1</strong> : stratégie IA, gouvernance, éthique et déploiement ;</li>
+<li><strong>C4.2</strong> : pipelines ML reproductibles avec preprocessing ;</li>
+<li><strong>C4.3</strong> : comparaison de modèles avec métriques adaptées et dimension écoresponsable.</li>
+</ul>
+<p>Le dashboard Streamlit est maintenant fonctionnel et plus complet. La version HTML autonome garantit aussi une consultation immédiate même sans serveur.</p></body></html>
