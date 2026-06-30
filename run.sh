@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================================
-# 🚀 PATATOR - Script de Démarrage Complet
+# 🚀 KiVendTout - Script de Démarrage Complet
 # ============================================================================
 # Projet : KiVendTout E-commerce Fraud Detection
 # Auteur : Pierre Chevalier
@@ -397,7 +397,7 @@ show_summary() {
     echo -e "${GREEN}"
     cat << EOF
 ┌─────────────────────────────────────────────────────────────────┐
-│                    🎉 PATATOR EST OPÉRATIONNEL !                │
+│                    🎉 KiVendTout EST OPÉRATIONNEL !                │
 └─────────────────────────────────────────────────────────────────┘
 
 📊 STATISTIQUES:

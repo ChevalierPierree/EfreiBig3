@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test d'installation des dépendances Python pour PATATOR
+Test d'installation des dépendances Python pour KiVendTout
 Usage: python3 test_dependencies.py
 """
 
@@ -18,7 +18,7 @@ def test_import(module_name, package_name=None):
 
 def main():
     print("=" * 60)
-    print("🧪 TEST DES DÉPENDANCES PYTHON - PATATOR")
+    print("🧪 TEST DES DÉPENDANCES PYTHON - KiVendTout")
     print("=" * 60)
     print()
     
@@ -54,7 +54,7 @@ def main():
         print("🎉 Toutes les dépendances sont installées !")
         print()
         print("Vous pouvez maintenant lancer:")
-        print("  ./patator")
+        print("  ./run.sh")
         return 0
     else:
         print(f"⚠️  {failed} dépendance(s) manquante(s)")

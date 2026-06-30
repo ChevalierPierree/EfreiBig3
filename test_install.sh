@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script de test pour vérifier que l'installation PATATOR fonctionne
-# Usage: ./test_patator.sh
+# Script de test pour vérifier que l'installation KiVendTout fonctionne
+# Usage: ./test_install.sh
 
 # Couleurs
 RED='\033[0;31m'
@@ -11,7 +11,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}==================================${NC}"
-echo -e "${BLUE}   PATATOR - Test d'Installation${NC}"
+echo -e "${BLUE}   KiVendTout - Test d'Installation${NC}"
 echo -e "${BLUE}==================================${NC}"
 echo ""
 
@@ -48,8 +48,8 @@ echo ""
 echo "📁 Vérification des fichiers..."
 echo ""
 
-test_check "Script patator existe" "test -f patator"
-test_check "Script patator est exécutable" "test -x patator"
+test_check "Script run.sh existe" "test -f run.sh"
+test_check "Script run.sh est exécutable" "test -x run.sh"
 test_check "requirements.txt existe" "test -f requirements.txt"
 test_check "docker-compose.yml existe" "test -f docker-compose.yml"
 
@@ -75,7 +75,6 @@ echo "📖 Vérification de la documentation..."
 echo ""
 
 test_check "README.md" "test -f README.md"
-test_check "PATATOR_GUIDE.md" "test -f PATATOR_GUIDE.md"
 test_check "QUICKSTART.md" "test -f QUICKSTART.md"
 test_check "INSTALLATION.md" "test -f INSTALLATION.md"
 test_check "RECAP_COMPLET_PROJET.md" "test -f RECAP_COMPLET_PROJET.md"
@@ -143,7 +142,7 @@ if [ $FAILED -eq 0 ]; then
     echo -e "${GREEN}🎉 Parfait ! Votre installation est prête !${NC}"
     echo ""
     echo -e "Vous pouvez maintenant lancer :"
-    echo -e "${BLUE}./patator${NC}"
+    echo -e "${BLUE}./run.sh${NC}"
     echo ""
     exit 0
 else
@@ -152,9 +151,9 @@ else
     echo "Actions recommandées :"
     echo "1. Installez les dépendances Python : pip3 install -r requirements.txt"
     echo "2. Vérifiez que Docker Desktop est lancé"
-    echo "3. Rendez le script exécutable : chmod +x patator"
+    echo "3. Rendez le script exécutable : chmod +x run.sh"
     echo ""
-    echo "Puis relancez ce test : ./test_patator.sh"
+    echo "Puis relancez ce test : ./test_install.sh"
     echo ""
     exit 1
 fi

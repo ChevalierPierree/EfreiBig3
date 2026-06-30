@@ -22,7 +22,6 @@ DOCS=(
   GOUVERNANCE_ET_PARTIES_PRENANTES.md
   VEILLE_TECHNOLOGIQUE_BLOC1.md
   PACK_RENDU.md
-  PATATOR_GUIDE.md
 )
 
 PROOFS=(
@@ -43,8 +42,7 @@ APP_ITEMS=(
   .env.example
   requirements.txt
   requirements-minimal.txt
-  requirements.patator.txt
-  patator
+  run.sh
   api
   config
   dashboard
