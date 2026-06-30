@@ -35,9 +35,10 @@ pip install -r requirements.txt
 | `scripts/` | Scripts de traitement |
 | `outputs/` | Sorties (agrégats, prédictions, modèles `.joblib`) — via LFS |
 | `flights_delay/` | Données brutes (`flights.csv`, `airlines.csv`, `airports.csv`) — via LFS |
+| `dashboard_preview.html` | Version HTML autonome du dashboard (si Streamlit n'est pas lancé) |
 | `requirements.txt` | Dépendances Python |
-| `README_RENDU.md` · `rapport.md` | Rapport détaillé |
+| `rapport.md` | Rapport détaillé (compétences C3.1 à C4.3) |
 
-> Détails méthodologiques et résultats : voir `README_RENDU.md` et `rapport.md`.
+> Méthodologie, choix et résultats complets : voir `rapport.md`.
 
-Binôme · Pierre Chevalier · Jean Macario
+Projet réalisé en binôme : **Pierre Chevalier** et **Jean Macario**.
