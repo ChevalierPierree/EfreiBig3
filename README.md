@@ -1,143 +1,92 @@
-# KiVendTout
+# KiVendTout V2 — plateforme data + assistant vocal IA
 
-Plateforme data pour e-commerce centree sur le Bloc 1 RNCP40875: stockage, traitement, accessibilite, streaming et supervision des donnees.
+Cette branche reprend la plateforme data **KiVendTout** (détection de fraude e-commerce, Bloc 1) et lui ajoute une **couche d'IA générative** : un assistant vocal **100 % local** pour piloter le dashboard de fraude à la voix.
 
-## Vue d'ensemble
+C'est le support du **projet IA générative (Bloc 2, compétences C5.1 à C5.3)** du RNCP40875.
 
-Le projet couvre les attendus techniques du Bloc 1:
-- base relationnelle pour le transactionnel,
-- base non relationnelle pour les evenements,
-- Data Lake `bronze -> silver -> gold`,
-- systeme distribue et micro-batch,
-- API d'acces aux donnees,
-- mesures de qualite, charge et resilience.
+Projet réalisé en binôme : **Pierre Chevalier** et **Jean Macario**.
 
-Le socle technique repose sur PostgreSQL, MongoDB, Kafka, MinIO, FastAPI et un front de supervision sur `7600`.
+## Pourquoi un assistant vocal
 
-## Demarrage rapide
+Le besoin de départ est concret : un responsable privé de l'usage de ses bras ne peut plus se servir d'une souris ni d'un clavier. La voix rouvre l'outil à toute personne empêchée d'utiliser souris et clavier. Et comme on manipule des données de fraude sensibles, **tout tourne en local** — rien ne sort de la machine.
 
-### Methode automatisee
+## Comment ça marche
 
-```bash
-cd /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.patator.txt
-./patator
+```
+🎙️  Micro (navigateur)
+      │  POST /api/voice/command
+      ▼
+   STT local        faster-whisper            (api/voice/stt_service.py)
+      ▼
+   Intention        Llama 3.2 via Ollama (JSON, température 0)   (intent_service.py)
+      ├─ naviguer / filtrer → le dashboard change de vue
+      └─ raconter           → narration des KPIs réels lus sur l'API :8000
+      ▼                                        (narrate_service.py)
+   TTS local        Piper (voix neuronale)     (tts_service.py)
 ```
 
-### Methode de verification recommandee
+- Le service vocal est **autonome sur le port 8100**, découplé du cœur data (`:8000`) et du dashboard (`:7600`) — on ne touche pas à l'existant.
+- Les actions sensibles (approuver / bloquer une alerte) demandent une **confirmation humaine** avant exécution.
+- La narration est **ancrée sur les vrais KPIs** de l'API : le modèle n'invente aucun chiffre.
+
+Le choix de **Llama 3.2** (et non Mistral 7B) a été décidé **par la mesure**, pas par intuition — voir l'évaluation ci-dessous.
+
+## Lancer
+
+### 1. La plateforme data (comme en Bloc 1)
 
 ```bash
-cd /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre
-source .venv/bin/activate
-bash scripts/checklist_and_launch.sh
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+./run.sh          # Docker + API :8000 + dashboards :7600
 ```
 
-## Commandes utiles
-
-### Validation globale
+### 2. La couche vocale
 
 ```bash
-bash scripts/finalize_school_delivery.sh
-./.venv/bin/python scripts/validate_sujet1.py
-./.venv/bin/python scripts/validate_perfect_compliance.py
-./.venv/bin/python scripts/data_quality_checks.py
+pip install -r requirements.voice.txt
+
+# Ollama (LLM local)
+ollama serve
+ollama pull llama3.2
+
+# Modèle de voix Piper (~60 Mo, non versionné) — voir api/voice/tts_service.py
+# puis on lance le service vocal :
+uvicorn api.voice.voice_app:app --host 0.0.0.0 --port 8100
 ```
 
-### Demonstrations Bloc 1
+Ouvrir ensuite le dashboard de fraude (`:7600`) et maintenir la touche **P** pour parler.
+Exemple : *« approuve l'alerte numéro 1 »*, *« montre-moi les alertes critiques »*, *« fais-moi un résumé »*.
 
-```bash
-bash scripts/run_micro_batch.sh once
-curl -X POST http://localhost:8000/api/data-factory/payments-live-3m/run -H 'Content-Type: application/json'
-./.venv/bin/python scripts/promote_data_lake_layers.py
-./.venv/bin/python scripts/build_analytics_warehouse.py
-./.venv/bin/python scripts/run_data_platform_pipeline.py
-```
+## Évaluation (C5.3)
 
-### Retour a l'etat initial
+Le projet est évalué sur un **jeu de test de 32 commandes** étiquetées (navigation, filtres, actions, questions, hors-domaine) :
 
-```bash
-curl -X POST http://localhost:8000/api/system/reset-data \
-  -H 'Content-Type: application/json' \
-  --data-binary '{"confirm":true,"clear_runtime_artifacts":true,"stop_live_jobs":true}'
-```
+| Indicateur | Résultat |
+|---|---|
+| Compréhension d'intention (dataset 32 cas) | **100 %** |
+| WER (transcription vocale) | **0,157** |
+| Chiffres inventés par la narration | **0** |
+| Latence bout-en-bout | **≈ 2,5 s** |
 
-### Generer le pack de livraison
+Llama 3.2 : 32/32 · Mistral 7B : 24/32 → Llama 3.2 retenu (meilleur **et** plus rapide).
+Le protocole est reproductible : `docs/genai/tests/run_eval.py`.
 
-```bash
-bash scripts/build_delivery_pack.sh
-```
+## Les livrables IA générative
 
-## Dashboards
+Tout est dans [docs/genai/](./docs/genai/) :
 
-- Overview: `http://localhost:7600/index.html`
-- Fraude: `http://localhost:7600/fraud_dashboard.html`
-- Typologies: `http://localhost:7600/fraud_types_dashboard.html`
-- Identite: `http://localhost:7600/id_cards_dashboard.html`
-- Transferts: `http://localhost:7600/transfer_kpi_dashboard.html`
+- [RAPPORT_FINAL.pdf](./docs/genai/RAPPORT_FINAL.pdf) — rapport complet (cas d'usage, méthode, résultats, perspectives)
+- [RENDU_C5.pdf](./docs/genai/RENDU_C5.pdf) — preuves mappées sur les compétences C5.1 / C5.2 / C5.3
+- [PRESENTATION.pdf](./docs/genai/PRESENTATION.pdf) — support de présentation
+- [tests/](./docs/genai/tests/) — jeu de test, harnais d'évaluation, résultats
 
-La page `Identite` inclut une section `Analyse CNI cote navigateur` qui recalcule age, empreinte image et decision checkout depuis le front.
+## Le reste de la plateforme
 
-## Indicateurs importants
+La partie data (PostgreSQL, MongoDB, MinIO, Kafka, Flink, FastAPI) est documentée dans :
 
-- `fraud_rate` = `fraudulent_payments / successful_payments`
-- `total_alerts` = volume d'alertes regles, distinct du volume de paiements
-- `customer_alert_coverage` = part des clients couverts par au moins une alerte
-- KPI transfert = latence, debit, volume traite, sante pipeline
+- [INSTALLATION.md](./INSTALLATION.md) — installation détaillée
+- [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) — choix techniques de la plateforme
 
-## Endpoints utiles
-
-- `GET /api/stats`: KPI fraude globaux
-- `GET /api/checkout/stats?window_hours=24`: pression checkout sur la fenetre recente
-- `GET /api/payments/stats?window_hours=24`: KPI paiements recentes et `fraud_rate` live
-- `GET /api/micro-batch/stats?window_hours=24`: fenetres micro-batch traitees
-- `GET /api/data-lake/status`: etat bronze -> silver -> gold publie dans MinIO
-- `GET /api/data-platform/status`: etat consolide de la chaine data
-- `GET /api/analytics/status`: etat du schema analytics et des datamarts PostgreSQL
-- `POST /api/data-factory/payments-live-3m/run`: flux paiements temps reel
-- `POST /api/data-factory/data-lake-pipeline/run`: promotion MinIO bronze -> silver -> gold
-- `POST /api/data-factory/analytics-warehouse/run`: reconstruction du warehouse analytics et des datamarts
-- `POST /api/data-factory/data-platform-pipeline/run`: orchestration complete snapshot -> lake -> analytics -> qualite
-
-## Documentation racine
-
-- [PATATOR_GUIDE.md](./PATATOR_GUIDE.md): demarrage automatise
-- [INSTALLATION.md](./INSTALLATION.md): installation detaillee
-- [QUICKSTART.md](./QUICKSTART.md): sequence courte de lancement
-- [DEMO_PROJET.md](./DEMO_PROJET.md): runbook Bloc 1
-- [SUJET1_CHECKLIST.md](./SUJET1_CHECKLIST.md): checklist de validation
-- [AUDIT_CONSIGNE_INITIALE.md](./AUDIT_CONSIGNE_INITIALE.md): cadrage initial et regles metier
-- [AUDIT_RENDU_PROJET.md](./AUDIT_RENDU_PROJET.md): audit de conformite et hygiene de depot
-- [AUDIT_FONCTIONNEL_FINAL.md](./AUDIT_FONCTIONNEL_FINAL.md): verification finale des features annoncees et de leur etat reel
-- [AUDIT_ARCHITECTURE_DATA.md](./AUDIT_ARCHITECTURE_DATA.md): audit factuel de la partie lake, warehouse, datamarts et demo CNI
-- [AUDIT_RNCP40875_BLOC1.md](./AUDIT_RNCP40875_BLOC1.md): lecture factuelle du projet face a la grille RNCP Bloc 1
-- [RNCP_BLOC1_TRACEABILITE.md](./RNCP_BLOC1_TRACEABILITE.md): matrice de preuves point par point pour la grille RNCP
-- [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md): justification des choix techniques et du modele de donnees
-- [GOUVERNANCE_ET_PARTIES_PRENANTES.md](./GOUVERNANCE_ET_PARTIES_PRENANTES.md): roles, besoins, arbitrages et contraintes du projet
-- [VEILLE_TECHNOLOGIQUE_BLOC1.md](./VEILLE_TECHNOLOGIQUE_BLOC1.md): veille ciblee sur API, lake, streaming et analytics
-- [PACK_RENDU.md](./PACK_RENDU.md): contenu et generation du pack de livraison
-
-## Annexes de presentation
-
-- [SOMMAIRE_MEMOIRE_TECHNIQUE.md](./SOMMAIRE_MEMOIRE_TECHNIQUE.md)
-- [docs/presentation/PROMPT_PRESENTATION_IA.md](./docs/presentation/PROMPT_PRESENTATION_IA.md)
-- [docs/presentation/DISCOURS_ORAL_PROJET.md](./docs/presentation/DISCOURS_ORAL_PROJET.md)
-- [docs/presentation/BATTERIE_TESTS_JURY.md](./docs/presentation/BATTERIE_TESTS_JURY.md)
-
-## Services exposes
-
-- API FastAPI: `http://localhost:8000`
-- Dashboard web: `http://localhost:7600`
-- Kafka UI: `http://localhost:8082`
-- Prometheus: `http://localhost:9090`
-- Grafana: `http://localhost:3000`
-- MinIO console: `http://localhost:9001`
-
-## Resultat attendu avant presentation
-
-- `bash scripts/checklist_and_launch.sh` retourne `34/34 OK`
-- `scripts/validate_sujet1.py` retourne `PASS 11/11`
-- `scripts/validate_perfect_compliance.py` retourne `PASS 7/7`
-- `scripts/data_quality_checks.py` retourne `18/18 PASS`
+---
+Code et données à usage pédagogique (RNCP40875 — Efrei).

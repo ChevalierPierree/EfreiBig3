@@ -238,11 +238,11 @@ du projet (données réglementaires) et il est atteint.</p>
    ├─ Intention (JSON) : Ollama / llama3.2, temp 0 (intent_service.py)  → navigate | filter | ask | unknown
    └─ Narration / Q&A  : Ollama lit les KPIs réels de l'API :8000 (narrate_service.py)
                          🔊 TTS : Piper (voix neuronale locale, repli SpeechSynthesis)</pre>
-<pre># Pré-requis : stack data (./patator), Ollama ≥ 0.30 (ollama serve), service vocal.
+<pre># Pré-requis : stack data (./run.sh), Ollama ≥ 0.30 (ollama serve), service vocal.
 python -m api.voice.voice_app                 # service vocal :8100
 python3 docs/genai/tests/run_eval.py          # rejoue toutes les mesures C5.3 (déterministe)
 # Dans le dashboard : maintenir la touche P pour parler, relâcher pour envoyer.</pre>
-<p class="muted" style="margin-top:18px;font-size:9pt">Sources détaillées dans le dépôt EfreiBig3 — branche <code>genai-voice</code> :
+<p class="muted" style="margin-top:18px;font-size:9pt">Sources détaillées dans le dépôt EfreiBig3 — branche <code>V2</code> :
 <code>README.md</code>, <code>ARGUMENTAIRE_LOCAL_VS_API.md</code>, <code>RAPPORT_C5.md</code>,
 <code>DATA_COHERENCE.md</code>, <code>tests/scenarios.md</code>, <code>tests/run_eval.py</code>,
 <code>tests/check_coherence.py</code>, <code>tests/results_2026-06-26.json</code>.</p>

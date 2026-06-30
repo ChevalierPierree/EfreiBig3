@@ -6,7 +6,7 @@
 set -e  # Arrêter en cas d'erreur
 
 echo "======================================================================"
-echo "🔧 INSTALLATION AUTOMATIQUE - PATATOR (avec venv)"
+echo "🔧 INSTALLATION AUTOMATIQUE - KiVendTout (avec venv)"
 echo "======================================================================"
 echo ""
 
@@ -18,8 +18,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Vérifier qu'on est dans le bon répertoire
-if [ ! -f "patator" ]; then
-    echo -e "${RED}❌ Erreur: fichier 'patator' introuvable${NC}"
+if [ ! -f "run.sh" ]; then
+    echo -e "${RED}❌ Erreur: fichier 'run.sh' introuvable${NC}"
     echo "Assurez-vous d'être dans le dossier ProjetDataM1JeanPierre"
     exit 1
 fi
@@ -95,10 +95,10 @@ else
 fi
 echo ""
 
-# Étape 7: Rendre patator exécutable
-echo -e "${YELLOW}7️⃣  Configuration de patator...${NC}"
-chmod +x patator
-echo -e "${GREEN}✅ patator est exécutable${NC}"
+# Étape 7: Rendre run.sh exécutable
+echo -e "${YELLOW}7️⃣  Configuration de run.sh...${NC}"
+chmod +x run.sh
+echo -e "${GREEN}✅ run.sh est exécutable${NC}"
 echo ""
 
 # Résumé
@@ -107,11 +107,11 @@ echo -e "${GREEN}🎉 INSTALLATION TERMINÉE !${NC}"
 echo "======================================================================"
 echo ""
 echo "Pour lancer le projet :"
-echo -e "${BLUE}  ./patator${NC}"
+echo -e "${BLUE}  ./run.sh${NC}"
 echo ""
 echo "Le venv est déjà activé. Si vous fermez ce terminal :"
 echo -e "${BLUE}  source .venv/bin/activate${NC}"
-echo -e "${BLUE}  ./patator${NC}"
+echo -e "${BLUE}  ./run.sh${NC}"
 echo ""
 echo "Services qui seront lancés :"
 echo "  • 13 services Docker (Kafka, PostgreSQL, MongoDB, Flink, etc.)"

@@ -166,7 +166,7 @@ résolu. C'est une **cascade STT** (entrée corrompue), pas une limite du modèl
 ## Protocole de reproduction
 
 ```bash
-# 1. Stack data (./patator) + Ollama (ollama serve) + service vocal (:8100) up.
+# 1. Stack data (./run.sh) + Ollama (ollama serve) + service vocal (:8100) up.
 # 2. Lancer le harnais (génère l'audio, mesure tout, écrit le JSON) :
 cd EfreiBig3 && python3 docs/genai/tests/run_eval.py > docs/genai/tests/results_<date>.json
 # 3. Reporter les agrégats ci-dessus. temperature:0 ⇒ sorties LLM identiques d'un run à l'autre.

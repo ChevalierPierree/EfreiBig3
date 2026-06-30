@@ -1,7 +1,7 @@
 # Couche IA generative vocale — KiVendTout
 
 Greffe une couche d'IA generative **100% locale** sur la plateforme data KiVendTout,
-sans modifier le coeur data. Branche : `genai-voice`.
+sans modifier le coeur data. Branche : `V2`.
 
 ## Objectif (atelier IA generative)
 
@@ -30,7 +30,7 @@ dashboard :7600).
 
 ## Pre-requis
 
-- La stack data KiVendTout lancee (`./patator`) — fournit l'API :8000 et le dashboard :7600.
+- La stack data KiVendTout lancee (`./run.sh`) — fournit l'API :8000 et le dashboard :7600.
 - **Ollama** avec le modele `llama3.2` (defaut ; 3B local, choisi par la mesure) :
   ```bash
   ollama serve            # demarre le serveur (port 11434)
@@ -48,7 +48,7 @@ pip install -r requirements.voice.txt
 ## Lancement
 
 ```bash
-# 1. La stack data doit tourner (./patator)
+# 1. La stack data doit tourner (./run.sh)
 # 2. Ollama doit tourner (ollama serve)
 # 3. Service vocal :
 python -m api.voice.voice_app

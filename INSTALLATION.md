@@ -20,12 +20,12 @@ git --version
 ## Installation locale
 
 ```bash
-cd /Users/jeanmacario/Documents/GitHub/ProjetDataM1JeanPierre
+git clone -b V2 https://github.com/ChevalierPierree/EfreiBig3.git && cd EfreiBig3
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements.patator.txt
-chmod +x patator
+python -m pip install -r requirements.txt
+chmod +x run.sh
 ```
 
 ## Demarrage recommande
@@ -33,7 +33,7 @@ chmod +x patator
 ### Option 1: bootstrap complet
 
 ```bash
-./patator
+./run.sh
 ```
 
 Le script:
